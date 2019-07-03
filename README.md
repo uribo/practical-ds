@@ -1,4 +1,4 @@
-Data Science in Practice
+実践的データサイエンス (Practical Data Science with R and Python)
 ======================
 
 ## 環境

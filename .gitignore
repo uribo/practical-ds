@@ -7,3 +7,13 @@
 */.ipynb_checkpoints/*
 ### macOS ###
 *.DS_Store
+.env
+.bash_history
+.jupyter
+.sass-cache
+content/*.html
+### Jupyter book ###
+.local
+
+*.pxm/
+R/data-converter.R

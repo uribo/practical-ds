@@ -6,3 +6,6 @@ datascience
 folium
 matplotlib
 geopandas
+datatable
+featuretools
+rootpath

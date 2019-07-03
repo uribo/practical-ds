@@ -288,6 +288,7 @@ GEM
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
     unicode-display_width (1.4.1)
+    unicode_utils (1.4.0)
 
 PLATFORMS
   ruby
@@ -301,6 +302,7 @@ DEPENDENCIES
   jekyll-redirect-from
   jekyll-scholar
   tzinfo-data
+  unicode_utils
 
 BUNDLED WITH
-   1.17.2
+   2.0.1

@@ -16,11 +16,11 @@
 
 #######################################################################################
 # Jekyll site settings
-title: YOUR BOOK NAME
-author: YOUR AUTHOR NAME
-email: YOUR EMAIL
+title: Data Science and Modeling in Practice
+author: Shinya Uryu
+email: suika1127@gmail.com
 description: >-
-  This is an example book built with Jupyter Books.
+  Practice for data science and machine learning model
 
 baseurl: /               # the subpath of your site, e.g. /blog. If there is no subpath for your site, use an empty string ""
 url: YOUR URL              # the base hostname & protocol for your site, e.g. http://example.com
@@ -67,11 +67,11 @@ binder_repo_branch: master                   # The branch on which your textbook
 binderhub_interact_text: Interact              # The text that interact buttons will contain.
 
 # Thebelab settings
-use_thebelab_button: true                # If 'true', display a button to allow in-page running code cells with Thebelab
+use_thebelab_button: false                # If 'true', display a button to allow in-page running code cells with Thebelab
 thebelab_button_text: Thebelab                 # The text to display inside the Thebelab initialization button
 
 # Download settings
-use_download_button: true                # If 'true', display a button to download a zip file for the notebook
+use_download_button: false                # If 'true', display a button to download a zip file for the notebook
 download_button_text: Download                # The text that download buttons will contain
 
 #######################################################################################
@@ -139,6 +139,21 @@ exclude:
 - vendor/cache/
 - vendor/gems/
 - vendor/ruby/
+- .Rproj.user/
+- practical-ds.Rproj
+- .Rhistory
+- .RData
+- .Ruserdata
+- .env
+- Dockerfile
+- docker-compose.yaml
+- .jupyter/
+- .sass-chace/
+- data-raw/
+- \*.R
+- \*.Rmd
+- \*.pxm
+- \*.rds
 
 plugins:
 - jekyll-redirect-from
