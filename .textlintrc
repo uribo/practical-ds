@@ -1,0 +1,15 @@
+{
+    "rules": {
+        "common-misspellings": true,
+        "preset-jtf-style": true,
+        "preset-ja-technical-writing": true
+    },
+    "plugins": {
+        "@textlint/markdown": {
+            "extensions": [
+                ".Rmd"
+            ]
+        }
+    }
+}
+
