@@ -43,6 +43,37 @@
 - header: Demo textbook
 
 # A chapter w/ a collection of sections beneath it
+- title: データ分析の流れ
+  url: /01/readme
+  not_numbered: true
+  expand_sections: true
+  sections:
+  - title: データ分析のプロセス
+    url: /01/introduction
+  - title: 探索的データ分析
+    url: /01/eda
+  - title: tidyデータ
+    url: /01/tidy_data
+  - title: モデルの構築から評価まで
+    url: /01/tidymodels_workflow
+
+- title: 特徴量エンジニアリング
+  url: /02/readme
+  not_numbered: true
+  expand_sections: true
+  sections:
+  - title: 数値データの取り扱い
+    url: /02/numeric
+  - title: カテゴリデータの取り扱い
+    url: /02/categorical
+  - title: テキストデータの取り扱い
+    url: /02/text
+  - title: 日付・時間データの取り扱い
+    url: /02/date-and-time
+  - title: 地理空間データの取り扱いの取り扱い
+    url: /02/spatial-data
+
+
 - title: Features and customization
   url: /features/features
   not_numbered: true

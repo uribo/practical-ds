@@ -1,0 +1,20 @@
+library(tidyverse)
+library(tidymodels)
+library(sf)
+library(assertr)
+library(ensurer)
+library(janitor)
+library(visdat)
+library(naniar) # Missing data vis.
+library(cowplot)
+# library(patchwork)
+library(conflicted)
+conflict_prefer(name = "filter", winner = "dplyr")
+conflict_prefer(name = "select", winner = "dplyr")
+
+# coreじゃないやつ --------------------------------------------------------------
+# library(tidytext)
+# library(cattonum)
+# library(RMeCab)
+# library(lwgeom)
+# library(DMwR)
