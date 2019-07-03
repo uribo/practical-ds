@@ -1,0 +1,387 @@
+---
+jupyter:
+  jupytext:
+    formats: ipynb,Rmd
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.1'
+      jupytext_version: 1.1.3
+  kernelspec:
+    display_name: R
+    language: R
+    name: ir
+---
+
+<!-- trainとtestでの分布で違いがないか、可視化しながら確認 --> 
+
+# データ分割
+
+構築したモデルが課された問題に対して有効な
+
+汎化性能を評価することが大事
+
+モデルの
+
+データが追加されないことには確認しようがないので、
+
+手元のデータを利用して性能評価を行うことになります。
+
+ホールドアウト検証と交差検証法
+
+## 訓練データとテストデータ
+
+訓練データからのさらなるデータ分割の操作はリサンプリングと呼ばれます。
+
+- モデルを適用するためのデータセット (analysis set)
+- 評価用のデータセット (assessment set)
+
+## ホールドアウト検証 (Hold-out)
+
+## 交差検証
+
+- k分割交差検証
+    - k は5~10が一般的
+- foldに割り当てられる検証データ
+- 学習データをk個に分割。そのうちk-1個でモデルを学習させ、残りの1個でモデル精度を評価するのをk回分繰り返す
+    - すべてのデータを検証に利用する
+
+
+### leave-one-out
+
+### k分割交差検証 (k-fold cross-validation)
+
+- 回帰問題で有効
+
+### 層化k分割交差検証 (stratifiedk k-fold cross-validation)
+
+- 分類問題で有効
+- 各分割データセットに含まれるクラスの比率が同じになるように分割がされる
+
+# 注意
+
+- データ、問題設定に応じて交差検証の方法を変更する
+    - 交差検証法と巨大なデータサイズの処理時間のトレードオフ
+    - 順番に意味のある時系列、ネスト構造のある空間データ
+    - 分類か回帰か
+        - 分類問題の場合、各クラスに偏りはないか
+            - 層化が必要
+
+
+
+<!--以下はほくそ笑むブログに投稿したやつ  -->
+
+# rsampleパッケージによるデータ分割
+
+
+前処理大全の「分割」の章では、予測モデルの評価のためのデータセット分割方法が解説されています。分割の基礎についての説明から時系列データへ適用する際の注意まで書かれいて勉強になります。本の中ではRおよびPythonでのawesome例が紹介されており、最近のRでは違う方法でもうちょっと楽にできるよー、というのが今回の話です。
+
+前処理大全でも取り上げられているcaretパッケージですが、その開発者のMaxx Kuhnが中心となってtidymodelsが整備されています（ざっくりいうとtidyverseのデータモデリング版。tidyverse、パイプ処理フレンドリーな統一的関数を提供するパッケージ群）
+
+その中のrsampleを使った、ちょっと新しいやり方を書いてみたいと思います。
+
+前処理大全に倣い、一般的なデータと時系列データの交差検証による分割をrsampleの使い方を紹介しながらやっていきます。また、rsampleの層化サンプリングについても最後に触れます。
+
+ここで扱うデータセットは前処理大全で使われているものを利用させていただきます。
+
+サポートページ
+
+この記事の中では、以下のパッケージに含まれる関数を利用します。メインはrsampleです。
+
+```{r}
+library(readr) # データ読み込み
+library(dplyr) # データ操作一般
+library(assertr) # データのチェック
+library(rsample)
+```
+
+## 1. レコードデータにおけるモデル検証用のデータ分割
+
+一般的な交差検証の例として紹介されている、交差数4の交差検証を行う処理をやってみます。
+まず20%をテストデータとして確保、残りのデータを交差検証に回します。
+
+rsampleパッケージの`initial_split()`でデータセットを訓練とテスト用に分けられます。ここでは`prop = `によりその比重を調整可能です。今回は例題と同じく、訓練に8割のデータが含まれるように指定しました。
+
+```{r results="hide"}
+# サポートページで公開されているデータを読み込む（製造レコード）
+production_tb <- 
+  read_csv("https://raw.githubusercontent.com/ghmagazine/awesomebook/master/data/production.csv") %>% 
+  verify(expr = dim(.) == c(1000, 4))
+
+# prop では学習データへの分割の比率を指定します
+df_split <- initial_split(production_tb, prop = 0.8)
+```
+
+`initial_split()`の返り値はrsplitオブジェクトです。出力してみると、分割したデータの情報を得ることができます。区切り文字で区切られた数値はそれぞれ、学習データ、テストデータ、元のデータの件数です。
+
+```{r}
+df_split
+```
+
+この時点では実際にデータが分割されている訳ではありません。データの分割は次の`training()`、`testing()`によって実行します。rsplitオブジェクトを引数に渡して実行すると先ほどの件数分のデータがランダムに割り当てられます。
+
+
+```{r}
+df_train <- 
+  training(df_split) %>% # 学習データ
+  verify(expr = nrow(.) == 801L)
+
+df_test <- 
+  testing(df_split) %>%  # テストデータ
+  verify(expr = nrow(.) == 199L)
+```
+
+続いて学習データを交差検証のためにさらに分割していきましょう。rsampleでは関数名`vfold_cv()`でk分割交差検証 (k-fold cross validation) を実行します（名前こそ違いますが、やっていることは同じです... `学習データをk個に分割、そのうちk-1個を学習用に、残りの1個をモデル精度を評価するために用いる`）。
+
+```{r}
+train_folds <- vfold_cv(df_train, v = 4)
+
+train_folds
+```
+
+ここで分割したデータセットの中身をk分割交差検証のイメージと合わせて確認しましょう。例題では交差数が4なので、下記の図のようにデータが分割されています。学習データ全体をk(=4)に分割しk-1を学習用、残りを検証用として利用するようにします。1回分のデータでは検証用のデータがkだけなので分割後のデータがもれなく検証データに割り当てられるよう、kの回数分繰り返されます。
+
+`vfold_cv()`の結果を見てみると、データが4行のデータフレームになっているのがわかります。列名はsplits,idからなります。各行にFoldのデータセットが含まれています。Foldのデータを参照するには`analysis()`、`assessment()`を使います。これらの関数はそれぞれ学習、検証データを参照します。
+
+
+```{r}
+analysis(train_folds$splits[[1]])
+assessment(train_folds$splits[[1]])
+```
+
+### zeallotによる代入
+
+Pythonでの`a, b = 0, 1`といった[parallel assignment](https://en.wikipedia.org/wiki/Assignment_(computer_science)#Parallel_assignment) を可能にするzeallotパッケージの演算子を使うと先ほどの学習・テストデータへの割り当ては次のように実行できます。
+
+```{r}
+library(zeallot)
+
+df_split = initial_split(production_tb,  p = 0.8)
+c(df_train, df_test) %<-% list(
+  training(df_split),
+  testing(df_split))
+```
+
+## 2. 時系列データにおけるモデル検証用のデータ分割
+
+先ほどの無作為に行われる学習データ、検証データの分割を時系列データに適用すると、学習データに未来と過去のデータが混同してしまうことになるため単純なk分割交差検証ではダメだと前処理大全では記されています。またそれに対する方法として、データ全体を時系列に並べ、学習と検証に利用するデータをスライドさせていくという処理が紹介されています。これもrsampleでやってみましょう。今度のデータは月ごとの経営指標のデータセットとなっており、行ごとに各月の値が記録されています。先ほどと同じく、サポートページからデータを読み込みんだらデータ型といくつかの行の値を表示してみましょう。
+
+```{r}
+monthly_index_tb <- 
+  read_csv("https://raw.githubusercontent.com/ghmagazine/awesomebook/master/data/monthly_index.csv")
+
+glimpse(monthly_index_tb)
+```
+
+ここで`year_month`の値が、`YYYY-MM`の形式で与えられていて、2010年1月を起点として並べられていること、データ型が文字列であることに注意してください。次の時系列データのためのデータ分割を適用する`rolling_origin()`は日付データに限らず、ある並びを考慮してランダムではない方法での抽出を行います。
+
+例題の通り、学習用24ヶ月(周期性をみるために2年)、検証用12ヶ月のデータとなるようにデータを分割します。スキップの単位も12ヶ月です。これらのオプションは引数で指定可能です。
+
+```{r}
+df_split <- 
+  rolling_origin(monthly_index_tb, 
+                 initial = 24, 
+                 assess = 12, 
+                 skip = 12, 
+                 cumulative = FALSE)
+
+df_split
+```
+
+24、12行にデータが分かれたことがわかります。またデータセット全体では120行あるため、7通りの学習、検証データセットがあります。分割後の値を参照するには再び`analysis()`、`assessment()`を使います。最初のsplitデータでは2010年1月から24ヶ月分のデータ、つまり2011年12月までが含まれています。同様に検証データでは2012年月からの12ヶ月の値が格納されています。
+
+```{r}
+analysis(df_split$splits[[1]]) %>% 
+  verify(expr = nrow(.) == 24L)
+assessment(df_split$splits[[1]]) %>% 
+  verify(expr = nrow(.) == 12L)
+```
+
+少数データへの対策として出されている、学習データを増やしてく処理には`cumulative = TRUE`を指定するだけです（デフォルトで`TRUE`）。
+
+```{r}
+df_split <- 
+  rolling_origin(monthly_index_tb, 
+                 initial = 24, 
+                 assess = 12, 
+                 skip = 12, 
+                 cumulative = TRUE)
+
+df_split
+```
+
+今度の分割では、学習データの件数が分割のたびに増えていることに注意してください。
+
+```{r}
+# 最初の分割データセットでは学習24、検証に12のデータ
+analysis(df_split$splits[[1]]) %>% 
+  verify(expr = nrow(.) == 24L)
+assessment(df_split$splits[[1]]) %>% 
+  verify(expr = nrow(.) == 12L)
+
+# 2番目の分割データセットには最初の分割データと同じ期間 + 13件のデータ
+# 最初と最後の行を確認
+analysis(df_split$splits[[3]]) %>% 
+  slice(c(1, nrow(.)))
+```
+
+
+## おまけ: 層化抽出法
+
+データに含まれる出身地や性別などの属性を「層」として扱い、層ごとに抽出を行う方法として（層化サンプリング stratified sampling）があります。層化抽出法は母集団の各層の比率を反映して抽出を行う方法で、無作為抽出よりもサンプル数が少ない層を抽出可能にするものです。rsampleでは`strata`引数がオプションに用意されており、これを分割用の関数実行時に層の名前を指定して実行することで層化サンプリングを実現します。
+
+例としてアヤメのデータセットを使います。元のデータは3種 (Species)が50件ずつ均等に含まれているため130件に限定して偏りを生じさています。
+
+```{r}
+iris %>% 
+  count(Species) %>%
+  mutate(prop = n / sum(n))
+
+# データセットの一部を抽出し、データセットに含まれる件数を種ごとに変える
+df_iris_subset <- iris[1:130, ]
+df_iris_subset %>% 
+  count(Species) %>%
+  mutate(prop = n / sum(n))
+```
+
+加工したデータでは
+3種のアヤメのうち、virginicaが30件(23%)と減っています。
+
+それでは層化しない方法と比較してみましょう。次の例は、k=5に分割したデータに含まれるvirginicaの割合を示します。2番目の`strata = "Species"`を与えて実行したものが層化サンプリングの結果です。
+
+```{r}
+# ホールドごとに含まれる割合が異なる
+set.seed(13)
+folds1 <- vfold_cv(df_iris_subset, v = 5)
+purrr::map_dbl(folds1$splits,
+        function(x) {
+          dat <- as.data.frame(x)$Species
+          mean(dat == "virginica")})
+
+# strata = による層化を行うことで元データの偏りを反映してサンプリング
+set.seed(13)
+folds2 <- vfold_cv(df_iris_subset, strata = "Species", v = 5)
+purrr::map_dbl(folds2$splits,
+        function(x) {
+          dat <- as.data.frame(x)$Species
+          mean(dat == "virginica")})
+```
+
+層化サンプリングした場合では、ホールド間で元データの偏りを反映することができました。便利ですね。
+
+## 不均衡データの問題と対策
+
+<!-- 訓練データとテストデータとの分割とは違う。混乱を避けるため分けた方が良いかも... -->
+
+<!-- データの分割を行ったあと、 -->
+
+クラスに属する件数に偏りがあるデータを不均衡データ (imbalanced data) と呼びます。例えば迷惑メールを区別するための「負例 (迷惑メール)」と「正例 (正常なメール)」を区別する2クラス分類を扱うとき、それぞれの件数の割合には差が出ることが予測されます。また、多クラス分類においてはあるクラスに集中したり、人気のないクラスが発生することもあります。このように現実のデータでは不均衡がしばしば発生します。特に正例となる事例が発生する確率が低い事象では不均衡がおきやすいことが知られています。
+
+
+不均衡のある状態でクラス分類を行うといくつかの問題が生じます。
+
+具体的に数値を使って見てみきましょう。正例と負例の比率が0.1:0.9のデータを考えます。正例データに対する識別を目的に分類を行うとします。このデータを元に導かれる予測精度は高精度 (accuracy 90%) になります。しかし、これは単純に「すべてのデータが負例である」と予測された精度です (recall 100%)。目的の正例データの識別はできていません。
+
+|              | 正例(予測) | 負例(予測) |
+|--------------|------------|------------|
+| 正例(実績)   | 0          | 1000       |
+| 負例(実績)	 | 0          | 9000       |
+
+```{r}
+d <- 
+  tibble(
+  class = c(rep(TRUE, 100),
+            rep(FALSE, 900)) %>% 
+    as.numeric() %>% 
+    as.factor(),
+  value = rnorm(1000))
+
+mod_eng_glm <- logistic_reg(mode = "classification") %>%
+  set_engine(engine = "glm",
+             family = "binomial")
+classification_metric <- metric_set(precision, accuracy, recall)
+
+fit(
+  mod_eng_glm,
+  class ~ value,
+  data = d) %>% 
+  predict(new_data = d) %>%
+  bind_cols(d) %>% 
+  classification_metric(truth = class, estimate = .pred_class)
+```
+
+
+偏りが大きな状態では、分類の結果も多いクラスに偏ります。
+
+
+学習データに含まれる件数に偏りが生じるために問題が発生しやすい
+
+
+クラス不均衡への対応には大きく分けて2通りの方法があります。
+
+- コスト考慮型学習... ペナルティを大きくする
+- クラス間での偏りを考慮したリサンプリング... 正例と負例のサンプル数を調整する
+    - under-sampling
+    - over-sampling
+    - ハイブリッド法
+
+またこれ以外に、少数クラスに含まれるデータが特徴量空間上でクラスタを作っていない場合を仮定した異常検知の手法もあります。ここではデータに対する扱いを考慮することで不均衡を減少させるunder-samplingとover-samplingによるリサンプリング方法を紹介します。
+
+
+
+## データの分割
+
+モデリングのプロジェクトに取りかかるとき、既存のデータの扱いを考える必要があります。
+
+訓練データの役割は、モデルの構築からモデル間の比較、パラメータの推定など、最終的なモデルに到るまでに必要な活動の基盤を担います。
+
+対してテストデータは
+
+- 訓練データ (train)
+- テストデータ (test)
+
+
+データ分割に対して、どのようなデータにも当てはめられる一律の規則を設けるのは困難です。扱われるデータ量や変数の数を考慮しなければならないためです。特にデータ量 (`n`) と 含まれる変数 (`p`)の関係には注意が必要です。
+
+`np問題`... p > n
+
+**ランダムサンプリング**
+
+
+```{r}
+library(caret)
+```
+
+```{r}
+df_landprice_mod <-
+  read_csv(here::here("data-raw/landprice.csv")) %>% 
+  verify(expr = dim(.) == c(640, 42))
+```
+
+四分位数に基づく階級区分
+
+```{r}
+price_quartile <- 
+  df_landprice_mod %>% 
+  pull(posted_land_price) %>% 
+  quantile()
+
+df_landprice_mod %>% 
+  mutate(g = case_when(
+    between(posted_land_price, price_quartile[1], price_quartile[2]) ~ 1,
+    between(posted_land_price, price_quartile[2], price_quartile[3]) ~ 2,
+    between(posted_land_price, price_quartile[3], price_quartile[4]) ~ 3,
+    between(posted_land_price, price_quartile[4], price_quartile[5]) ~ 4)) %>% count(g)
+```
+
+- 訓練データの正当な評価と性能測定
+- データ漏洩に対する予防
+
+### 地理的関係を考慮したリサンプリング 
+
+## まとめ
+
+## 関連項目
+
+## 参考文献
+

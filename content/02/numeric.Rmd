@@ -41,22 +41,11 @@ k近傍法やサポートベクターマシンは、特徴空間上の外れ値�
 
 説明変数(予測子) の特徴
 
-
-
-> The techniques in this chapter have been organizedinto three general categories . The first category of engineering techniques are those that address problematic characteristics of individual predictors (Section 6.1). Section 6.2 illustrates methods for expanding individual predictors into many predictors in order to better represent more complex predictor-response relationships and to enable the extraction of predictive information. Last, Section 6.3 provides methodology for consolidating redundant information across many predictors. In the end, the goal of all of these approaches is to convert the existing continuous predictors into a form that can be utilized by any model and presents the most useful information to the model.
-
 対象方法には3数類
 
 - 個々の数値変数の問題について直接対処する
 - 変数変換?
 - 変数間の関係を見つめ直す
-
-これらすべてのアプローチの目的は、既存の連続予測子を任意のモデルで使用できる形式に変換し、そのモデルに最も有用な情報を提示することです。
-
-
-> As with many techniques discussed in this text, the need for these can be very data- and model-dependent. For example, transformations to resolve skewness or outliers would not be needed for some models but would be critical for others to perform well. In this chapter, a guide to which models would benefit from specific preprocessing methods will be provided.
-
-
 
 
 ## 対数変換

@@ -11,175 +11,35 @@ next_page:
 comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
 ---
 
-要約メモ
+# 探索的データ分析
 
-- モデリング、統計分析を行う前にデータを精査することが大事
-    1. データの特徴を理解することで次のステップにかける時間を減らす、異常を見逃さない、（意図しない）間違いを見逃さない
-- 特に可視化の手法を用いることでデータの集約や関係、パターンを見やすくする
+データを料理する前に、どのようなデータが与えられているのか確認することが大切です。この段階を踏むことで、データに対する理解が深まり、より良いモデルの構築に繋がる可能性もあります。こうした一連の作業は探索的データ分析 (Exploratory Data Analysis: EDA)と呼ばれます。この作業には、データの集計、要約、可視化が含まれます。
 
+EDAがデータ分析の作業において早期段階で行われるのは、データの異常（思い込みとの比較を含めて）や特徴を把握するためです。これらは分析全体のアプローチや良い出発点を見つけるために有効です。出発点と表現したのは、モデルの構築や特徴量の生成によって改めてデータを見つめ直す作業が発生するためです。そのため必ずしも徹底的である必要はありません。
 
-データを料理する前に、どのようなデータが与えられているのか確認することが大切です。
-この段階を踏むことで、データに対する理解が深まり、より良いモデルの構築に繋がる可能性もあります。
+前章でもデータについて簡単な調査を行いましたが、データをグラフによって表現してみましょう。グラフにすることで、集計値では見えなかった情報やデータ間の関係を表現できます。
 
-探索的なデータ分析 (Exploratory Data Analysis: EDA) と呼ばれます。
-
-- データの集計、要約、可視化
-
-前章でもデータについて簡単な調査を行いましたが、データをグラフによって表現してみましょう。
-
-グラフにすることで、集計値では見えなかった情報やデータ間の関係を表現することができます。
-
-欠損値や異常値（外れ値）、データの分布
-
-欠損値の視覚化については別の章で解説します。欠損の理解のためにも可視化は大事
-
-目的変数として設定する地価価格に影響を及ぼす変数を明らかにしたい、またその関係を知りたいという状況を設定します。
-
+特に欠損値や異常値（外れ値）、データの分布などデータ全体あるいはデータ間の関係性やそのばらつきを見るのに可視化は重要です。なお欠損値の視覚化については別の章で解説します。
 
 ## データを眺める
 
-<!-- ここで扱うデータは地価データのみ。他のデータ、地価データの紹介は別のノート (`dataset/`)で。基本的に説明は地価データベース。データの性質に合わせて利用する。 -->
+目的変数として設定する地価価格に影響を及ぼす変数を明らかにしたい、またその関係を知りたいという状況を設定します。
 
-データを手に入れたら、分析作業に取り掛かる前にまずはデータを眺めてみることにしましょう。眺める、と言ってもデータの値一つ一つを見ていくわけではありません。これから扱うデータは、どのような値が含まれているのか、データ型が処理されているか、また全体の大きさはどれくらいなのか、欠損はどれだけあるかと言った俯瞰的に整理していきます。
+<!-- ここで扱うデータは地価公示データのみ。他のデータ、地価公示データの紹介は別のノート (`dataset/`)で。基本的に説明は地価公示データベース。データの性質に合わせて利用する。 -->
 
-早い段階でデータの異常に気がつくことができたなら、データの特徴について理解が深められるのであればそれは今後の作業過程においても役立つでしょう。
+- サイズ（列数、行数）
+- 各列のデータ型
+- 完全データ、欠損データ
 
-csvファイルとしてデータが用意されている場面を想定します。csvファイルの読み込みにはいくつかの関数が利用できますが、ここでは `readr::read_csv()`を使った例を示します。
-
-<!-- train/testで色をわけるとか -->
-
-
-
-{:.input_area}
-```R
-library(readr)
-library(dplyr) # データ操作パッケージ
-```
-
+データを手に入れたら、分析作業へ取り掛かる前にまずはデータを眺めてみることにしましょう。眺める、と言ってもデータの値を1つずつ見ていくわけではありません。これから扱うデータにはどのような値が含まれているのか、データ型が処理されているか、また全体の大きさはどれくらいなのか欠損はどれだけあるかと言った情報を俯瞰的に整理していきます。
 
 
 
 {:.input_area}
 ```R
 source(here::here("R/setup.R"))
-search()
 ```
 
-
-
-<div markdown="0" class="output output_html">
-<ol class=list-inline>
-	<li>'.GlobalEnv'</li>
-	<li>'package:tidyselect'</li>
-	<li>'.conflicts'</li>
-	<li>'package:drake'</li>
-	<li>'package:conflicted'</li>
-	<li>'package:cowplot'</li>
-	<li>'package:naniar'</li>
-	<li>'package:visdat'</li>
-	<li>'package:janitor'</li>
-	<li>'package:ensurer'</li>
-	<li>'package:assertr'</li>
-	<li>'package:sf'</li>
-	<li>'package:yardstick'</li>
-	<li>'package:rsample'</li>
-	<li>'package:recipes'</li>
-	<li>'package:parsnip'</li>
-	<li>'package:infer'</li>
-	<li>'package:dials'</li>
-	<li>'package:scales'</li>
-	<li>'package:broom'</li>
-	<li>'package:tidymodels'</li>
-	<li>'package:forcats'</li>
-	<li>'package:stringr'</li>
-	<li>'package:purrr'</li>
-	<li>'package:tidyr'</li>
-	<li>'package:tibble'</li>
-	<li>'package:ggplot2'</li>
-	<li>'package:tidyverse'</li>
-	<li>'package:dplyr'</li>
-	<li>'package:readr'</li>
-	<li>'package:jsonlite'</li>
-	<li>'jupyter:irkernel'</li>
-	<li>'package:stats'</li>
-	<li>'package:graphics'</li>
-	<li>'package:grDevices'</li>
-	<li>'package:utils'</li>
-	<li>'package:datasets'</li>
-	<li>'JapanEnv'</li>
-	<li>'package:methods'</li>
-	<li>'Autoloads'</li>
-	<li>'package:base'</li>
-</ol>
-
-</div>
-
-
-
-
-{:.input_area}
-```R
-ggplot(iris, aes(Sepal.Length, Petal.Width)) + geom_point() + labs(title = "あやめ", subtitle = 'ああ')
-```
-
-
-
-{:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_5_0.png)
-
-
-
-
-
-{:.input_area}
-```R
-df_lp_kanto <- 
-    read_csv(here::here("data-raw/landprice_kanto.csv"),
-                    col_types = 
-                      cols(.row_id = "i",
-                           prefecture = "c",
-                           administrative_area_code = "c",
-                           posted_land_price = "i",
-                           name_of_nearest_station = "c",
-                           distance_from_station = "i",
-                           acreage = "i",
-                           current_use = "c",
-                           building_structure = "c",
-                           attribute_change_supplied_facility = "l",
-                           water_facility = "l",
-                           gas_facility = "l",
-                           sewage_facility = "l",
-                           depth_ratio = "d",
-                           number_of_floors = "i",
-                           number_of_basement_floors = "i",
-                           use_district = "c",
-                           building_coverage = "d",
-                           configuration = "c",
-                           surrounding_present_usage = "c",
-                           fire_area = "c",
-                           urban_planning_area = "c",
-                           attribute_change_floor_area_ratio = "l",
-                           frontage_ratio = "d",
-                           floor_area_ratio = "d",
-                           attribute_change_selected_land_status = "c",
-                           attribute_change_address = "l",
-                           attribute_change_acreage = "l",
-                           attribute_change_current_use = "l",
-                           attribute_change_building_structure = "l",
-                           attribute_change_distance_from_station = "l",
-                           attribute_change_use_district = "l",
-                           attribute_change_fire_area = "l",
-                           attribute_change_urban_planning_area = "l",
-                           attribute_change_forest_law = "l",
-                           attribute_change_parks_law = "l",
-                           attribute_change_building_coverage = "l",
-                           common_surveyed_position = "l",
-                           .longitude = "d", 
-                           .latitude = "d"))
-```
-
-
-`readr::read_csv()` をはじめとしたcsv読み込み関数では、データフレームとしてcsvファイルを処理します。データフレームはデータを行と列をもつ表形式のオブジェクトとして扱えるものです。
 
 ### データの大きさ
 
@@ -229,7 +89,7 @@ ncol(df_lp_kanto)
 
 ### データの一部を表示
 
-データフレームの一部を表示して、列名と値の確認をしてみましょう。`head()`をデータフレームに対して実行すると先頭の数行を表示します。また`tail()` でデータフレームの最後の行を表示することができます。いずれの関数も引数`n = ` に実数を与えることで表示される行数を制御可能です。
+データフレームの一部を表示して、列名と値の確認をしてみましょう。`head()`をデータフレームに対して実行すると先頭の数行を表示します。また`tail()` でデータフレームの最後の行を表示できます。いずれの関数も引数`n = ` に実数を与えることで表示される行数を制御可能です。
 
 
 
@@ -339,7 +199,7 @@ $ .latitude                              [3m[38;5;246m<dbl>[39m[23m 36.61913
 
 ```
 
-この地価データには40の列（変数）があります。
+この地価公示データには45の列（変数）があります。
 
 - データの型 (`character`, `numeric`, `logical`, `factor`)
 - 欠損数、ユニーク数
@@ -347,7 +207,7 @@ $ .latitude                              [3m[38;5;246m<dbl>[39m[23m 36.61913
 - カテゴリデータの偏り、水準、順序
 - 数値データの要約統計量、分布（ヒストグラム）
 
-- `configuration`や`fire_area`は欠損が多いことがわかります。`building_structure`にもわずかですが欠損データがあります。
+- `configuration`や`fire_area`は欠損を多く含んでいることがわかります。`building_structure`にもわずかですが欠損データがあります
 
 
 
@@ -361,26 +221,11 @@ df_lp_kanto %>%
   filter(n > 1) %>% 
   distinct(.row_id) %>% 
   nrow() %>% 
-  ensure(. == 1945L)
+  ensure(. == 1986L)
 ```
 
 
-
-<div markdown="0" class="output output_html">
-1945
-</div>
-
-
-どのような情報が必要でしょうか。
-
-明確な答えがあるわけではありませんが、以下の情報はデータ全体、各変数について把握しておくと良いでしょう。またデータの偏りや出現傾向、分布のパターンは可視化を行い確認するのが効率的です。これらは次の探索的データ分析で扱います。
-
-データフレーム前提で...
-
-- サイズ（列数、行数）
-- 各列のデータ型... 離散（カテゴリ）、連続値
-- 完全データ、欠損データ
-
+明確な答えがあるわけではありませんが、以下の情報はデータ全体、各変数について把握しておくと良いでしょう。またデータの偏りや出現傾向、分布のパターンは可視化を行い確認するのが効率的です。
 
 ## 要約統計量の算出
 
@@ -544,7 +389,7 @@ df_lp_kanto %>%
 </div>
 
 
-ここでは `skimr::` で
+ここでは `skimr::` で行う例を示します。
 
 
 
@@ -646,52 +491,18 @@ df_lp_kanto %>%
 </div>
 
 
-論理型データのうち、`attribute_change_forest_law` と `attribute_change_parks_law` は FALSEのみが出現していることがわかります。
+論理型データのうち、`attribute_change_forest_law` と `attribute_change_parks_law` は FALSE のみが出現していることがわかります。
 
 ## 探索的データ分析
 
-モデリングでは、目的変数の挙動（予測、分類）を明らかにすることが
+モデリングでは、目的変数の挙動（予測、分類）を明らかにすることがゴールとして設定されます。変数が多いデータであるほど確認する図の数が多くなり、効率的ではなくなります。そのため、まずはモデリングの目的変数となるデータを詳しく見ることを勧めます。また、この段階で作る図は初期モデルを構築する前段階で示唆を提供するものであると望ましいです。そこで目的変数に影響する説明変数、説明変数間の関係を明らかにすることで、次のモデリングプロセスに活かせる知識を得られることが期待できます。
 
-ゴールとして設定
+探索的データ分析の結果が最終的な成果物になることは稀です。ここで作られる図は論文や書籍、プレゼンテーションのための図ではありません。つまり複雑な図を作ることは求められていません。ここでは主にggplot2による作図を行いますが、扱いに慣れた最低限の機能を提供しれくれるライブラリを利用すると良いでしょう。
 
-そのため、まずはモデリングの目的変数となるデータを詳しく見ることを勧めます。
+以下では引き続き、地価公示データを使います。このデータには位置情報も含まれているため、地図上へのデータのマッピングも試みます。
 
-目的変数について理解を深めることは重要です。データの分布から見えてくることがあります。
+また時系列データの例としてビールへの支出データも利用します。
 
-また、目的変数に影響する説明変数、説明変数間の関係を明らかにすることで、次のモデリングプロセスに活かせる知識が得られることが期待できます。（対数変換の必要性とか）
-
-
-ヒストグラム、箱ひげ図を利用します。一変量を対象とした単純な可視化は、目的の値の変動、特性を理解するのに役立ちます。
-（さらに調査する必要があるか）
-
-作図の種類にはたくさんのものがあります。これらは次のような用途に応じて使い分けられます。
-
-- 散布図
-- pairwise correlation plot
-- line plots
-
-ここで作る図は、初期モデルを構築する前段階で示唆を提供するものであると望ましいです。
-
-論文や書籍、プレゼンテーションのための図ではありません。
-
-また、変数が多くなるほど確認する図の数が多くなり、効率的ではなくなります。
-
-一方で複雑な図を作ることは求められていません。
-
-ライブラリやツールを利用することが良いでしょう。
-
-振り返ってやり直すこともある。
-
-- モデリング前
-- モデリング後の可視化
-
-引き続き、XXデータを使います。
-
-**地価データ**
-
-**ビールデータ**
-
-**ハザードデータ**
 
 ## 数値データ
 
@@ -716,7 +527,7 @@ df_is_cat <-
   df_lp_kanto %>% 
   select(-starts_with(".")) %>% 
   select_if(is.character) %>% 
-  verify(ncol(.) == 11)
+  verify(ncol(.) == 13)
 ```
 
 
@@ -868,8 +679,6 @@ purrr::map(
 ```
 
 
-<!-- The driving goal in everything that we do in the modeling process is to find reproducible ways to explain the variation in the response. As discussed in the previous chapter, discovering patterns among the predictors that are related to the response involves selecting a resampling scheme to protect against overfitting, choosing a performance metric, tuning and training multiple models, and comparing model performance to identify which models have the best performance. When presented with a new data set, it is tempting to jump directly into the predictive modeling process to see if we can quickly develop a model that meets the performance expectations. Or, in the case where there are many predictors, the initial goal may be to use the modeling results to identify the most important predictors related to the response. But as illustrated in Figure 1.4, a sufficient amount of time should be spent exploring the data. The focus of this chapter will be to present approaches for visually exploring data and to demonstrate how this approach can be used to help guide feature engineering. -->
-
 ### 全体
 
 
@@ -882,19 +691,17 @@ vis_dat(df_lp_kanto)
 
 
 {:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_38_0.png)
+![png](../images/01/eda_31_0.png)
 
 
 
 ### 1変数の可視化
 
-データのばらつきや分布をみるのに効率的な方法です。
+データのばらつきを見るのにはヒストグラム、箱ひげ図を利用します。一変量を対象とした単純な可視化は、変数の変動、特性を理解するのに役立ちます。
 
 #### ヒストグラム
 
-スパイク（峰）
-
-単峰、二峰 etc.
+スパイク（峰）を検出するのに効果的です。ヒストグラムは単峰、二峰など多様な形状を取り得ます。
 
 
 
@@ -908,7 +715,7 @@ df_lp_kanto %>%
 
 
 {:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_40_0.png)
+![png](../images/01/eda_33_0.png)
 
 
 
@@ -921,14 +728,8 @@ df_lp_kanto %>%
 df_lp_kanto %>% 
   ggplot(aes(posted_land_price)) +
   geom_density() +
-  facet_wrap(~ prefecture, ncol = 1)
+  facet_wrap(~ .prefecture, ncol = 1)
 ```
-
-
-
-{:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_42_0.png)
-
 
 
 
@@ -938,16 +739,10 @@ df_lp_kanto %>%
 library(ggridges)
 
 ggplot(df_lp_kanto, 
-       aes(x = posted_land_price, y  = prefecture)) +
+       aes(x = posted_land_price, y  = .prefecture)) +
   scale_x_log10() +
   ggridges::geom_density_ridges(scale = 4)
 ```
-
-
-
-{:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_43_0.png)
-
 
 
 #### 箱ひげ図・バイオリンプロット
@@ -967,7 +762,7 @@ df_lp_kanto %>%
 
 
 {:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_46_0.png)
+![png](../images/01/eda_39_0.png)
 
 
 
@@ -985,7 +780,7 @@ df_lp_kanto %>%
 
 
 {:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_48_0.png)
+![png](../images/01/eda_41_0.png)
 
 
 
@@ -1001,7 +796,7 @@ df_lp_kanto %>%
 
 
 {:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_49_0.png)
+![png](../images/01/eda_42_0.png)
 
 
 
@@ -1009,9 +804,7 @@ df_lp_kanto %>%
 
 ### 時系列データ
 
-時系列データを扱うときは、時間のならびの通りに表示させることが肝心です。
-
-周期があるものは分割したり重ねてみると良いかも
+時系列データを扱うときは、時間のならびの通りに表示させることが肝心です。周期があるものは分割したり重ねてみると良いでしょう。
 
 
 
@@ -1027,7 +820,7 @@ df_beer2018q2 %>%
 
 
 {:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_51_0.png)
+![png](../images/01/eda_44_0.png)
 
 
 
@@ -1043,7 +836,7 @@ df_beer2018q2 %>%
 
 
 {:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_52_0.png)
+![png](../images/01/eda_45_0.png)
 
 
 
@@ -1055,7 +848,7 @@ df_beer2018q2 %>%
 ```R
 sf_lp_kanto <- 
   df_lp_kanto %>% 
-  select(prefecture, posted_land_price, .longitude, .latitude) %>% 
+  select(posted_land_price, .longitude, .latitude) %>% 
   st_as_sf(coords = c(".longitude", ".latitude"), crs = 4326)
 
 ggplot(sf_lp_kanto) +
@@ -1065,19 +858,15 @@ ggplot(sf_lp_kanto) +
 ```
 
 
-
-{:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_54_0.png)
-
-
-
 <!-- ksjのクレジット -->
 
-アンスコムの例
+<!-- アンスコムの例 -->
 
 ### 高次元の可視化
 
-2次元以上の
+3次元の世界に生きる我々は、高次元のデータを直接扱うことに慣れていません。
+
+次元圧縮を行ってからの可視化が効果的です。
 
 #### ヒートマップ
 
@@ -1124,7 +913,7 @@ df_is_num %>%
 
 
 {:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_57_1.png)
+![png](../images/01/eda_50_1.png)
 
 
 
@@ -1145,12 +934,20 @@ all.equal(
 ```
 
 
-#### PCA
-
 #### モデルの利用
 
-EDAのとっかかりを得るために
+効果的な変数の仮説がない場合や、変数の量が多い場合には、EDAの前に木ベースのモデルを適用してみるのも戦略の1つです。これらのモデルでは目的変数に対する説明変数の貢献度として、変数重要度を示すことが可能です。これによりEDAのとっかかりを得ることが可能になるはずです。変数重要度については後の章で解説します。
 
-木ベースのモデルのfeature importanceを活用する
+## まとめ
 
-<!-- 解釈の項目で触れる? -->
+- モデリング、統計分析を行う前にデータを精査することが大事
+    - データの特徴を理解することで次のステップにかける時間を減らす、異常を見逃さない、（意図しない）間違いを見逃さない
+- 特に可視化の手法を用いることでデータの集約や関係、パターンを見やすくする
+
+## 関連項目
+
+- 次元削減
+- 欠損処理
+- 変数重要度
+
+## 参考文献

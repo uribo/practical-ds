@@ -17,6 +17,8 @@ comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /con
 
 前処理
 
+データの質が統計モデリングや機械学習の学習効果に影響を及ぼします。
+
 データをモデルに流し込む前段階
 
 同時にいくつかの作業は（？）

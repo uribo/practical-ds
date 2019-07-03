@@ -7,7 +7,7 @@ prev_page:
   title: 'テキストデータの取り扱い'
 next_page:
   url: /02/spatial-data
-  title: '地理空間データの取り扱いの取り扱い'
+  title: '地理空間データの取り扱い'
 comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
 ---
 

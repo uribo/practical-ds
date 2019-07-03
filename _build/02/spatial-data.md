@@ -1,13 +1,13 @@
 ---
 interact_link: content/02/spatial-data.ipynb
 kernel_name: ir
-title: '地理空間データの取り扱いの取り扱い'
+title: '地理空間データの取り扱い'
 prev_page:
   url: /02/date-and-time
   title: '日付・時間データの取り扱い'
 next_page:
-  url: 
-  title: ''
+  url: /03/readme
+  title: 'より良いモデルを目指して'
 comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
 ---
 

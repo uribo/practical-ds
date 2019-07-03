@@ -73,15 +73,20 @@
   - title: 地理空間データの取り扱い
     url: /02/spatial-data
 
-
-- title: Features and customization
-  url: /features/features
+- title: より良いモデルを目指して
+  url: /03/readme
   not_numbered: true
   expand_sections: true
   sections:
-  - title: Markdown files
-    url: /features/markdown
-    not_numbered: true
-  - title: Jupyter notebooks
-    url: /features/notebooks
-    not_numbered: true
+  - title: 欠損値の処理
+    url: /03/handling-missing-data
+  - title: 次元削減
+    url: /03/dimension-reduction
+  - title: モデルの性能評価
+    url: /03/model-performance
+  - title: データ分割
+    url: /03/data-splitting
+  - title: 変数重要度
+    url: /03/feature-selection
+  - title: モデルの解釈
+    url: /03/interpretability
