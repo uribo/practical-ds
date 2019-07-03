@@ -152,9 +152,12 @@ exclude:
 - .sass-chace/
 - data-raw/
 - "*.R"
+- "*.py"
 - "*.Rmd"
 - "*.pxm"
 - "*.rds"
+- "*.ipynb"
+- "*.psd"
 
 plugins:
 - jekyll-redirect-from

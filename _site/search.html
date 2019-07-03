@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,minimum-scale=1">
+
+  <title>Search the site</title>
+  <meta name="description" content="Practice for data science and machine learning model">
+
+  <link rel="canonical" href="https://uribo.github.io/practical-ds/search">
+  <link rel="alternate" type="application/rss+xml" title="Data Science and Modeling in Practice" href="https://uribo.github.io/practical-ds/feed.xml">
+
+  <meta property="og:url"         content="https://uribo.github.io/practical-ds/search" />
+<meta property="og:type"        content="article" />
+<meta property="og:title"       content="Search the site" />
+<meta property="og:description" content="Practice for data science and machine learning model" />
+<meta property="og:image"       content="" />
+
+
+  <script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "NewsArticle",
+  "mainEntityOfPage":
+    "https://uribo.github.io/practical-ds/search",
+  "headline":
+    "Search the site",
+  "datePublished":
+    "2019-07-04T08:01:20+09:00",
+  "dateModified":
+    "2019-07-04T08:01:20+09:00",
+  "description":
+    "Practice for data science and machine learning model",
+  "author": {
+    "@type": "Person",
+    "name": "Shinya Uryu"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Data 100 at UC Berkeley",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://uribo.github.io/practical-ds",
+      "width": 60,
+      "height": 60
+    }
+  },
+  "image": {
+    "@type": "ImageObject",
+    "url": "https://uribo.github.io/practical-ds",
+    "height": 60,
+    "width": 60
+  }
+}
+
+  </script>
+  <link rel="stylesheet" href="/practical-ds/assets/css/styles.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css ">
+  <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+
+  <!-- <link rel="manifest" href="/manifest.json"> -->
+  <!-- <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#efae0a"> -->
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+  <meta name="theme-color" content="#233947">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="/practical-ds/images/logo/favicon.ico">
+
+  <!-- MathJax Config -->
+  <!-- Allow inline math using $ and automatically break long math lines -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true,
+        processEnvironments: true
+    },
+    CommonHTML: {
+        linebreaks: {
+            automatic: true,
+        },
+    },
+});
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML' async></script>
+
+  <!-- DOM updating function -->
+  <script>
+const runWhenDOMLoaded = cb => {
+  if (document.readyState != 'loading') {
+    cb()
+  } else if (document.addEventListener) {
+    document.addEventListener('DOMContentLoaded', cb)
+  } else {
+    document.attachEvent('onreadystatechange', function() {
+      if (document.readyState == 'complete') cb()
+    })
+  }
+}
+
+// Helper function to init things quickly
+initFunction = function(myfunc) {
+  runWhenDOMLoaded(myfunc);
+  document.addEventListener('turbolinks:load', myfunc);
+};
+</script>
+
+  <!-- Define some javascript variables that will be useful in other javascript -->
+  <script>
+    const site_basename = '/practical-ds';
+  </script>
+
+  <!-- Add AnchorJS to let headers be linked -->
+  <script src="/practical-ds/assets/js/anchor.min.js"  type="text/javascript"></script>
+  <script>
+
+initFunction(function () {
+    anchors.add("main h1, main h2, main h3, main h4")
+});
+
+</script>
+
+  <!-- Include Turbolinks to make page loads fast -->
+  <!-- https://github.com/turbolinks/turbolinks -->
+  <script src="/practical-ds/assets/js/turbolinks.js" async></script>
+  <meta name="turbolinks-cache-control" content="no-cache">
+
+  <!-- Load nbinteract for widgets -->
+  <script src="https://unpkg.com/nbinteract-core" async></script>
+
+  <!-- Load Thebelab for interactive widgets -->
+  <!-- Include Thebelab for interactive code if it's enabled -->
+
+
+  <!-- Google analytics -->
+  <script src="/practical-ds/assets/js/ga.js" async></script>
+
+  <!-- Clipboard copy button -->
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" async></script>
+
+  <!-- Load JS that depends on site variables -->
+  <script>
+/**
+ * Set up copy/paste for code blocks
+ */
+const codeCellId = index => `codecell${index}`
+
+const clipboardButton = id =>
+  `<a class="btn copybtn o-tooltip--left" data-tooltip="Copy" data-clipboard-target="#${id}">
+    <img src="/practical-ds/assets/images/copy-button.svg" alt="Copy to clipboard">
+  </a>`
+
+// Clears selected text since ClipboardJS will select the text when copying
+const clearSelection = () => {
+  if (window.getSelection) {
+    window.getSelection().removeAllRanges()
+  } else if (document.selection) {
+    document.selection.empty()
+  }
+}
+
+// Changes tooltip text for two seconds, then changes it back
+const temporarilyChangeTooltip = (el, newText) => {
+  const oldText = el.getAttribute('data-tooltip')
+  el.setAttribute('data-tooltip', newText)
+  setTimeout(() => el.setAttribute('data-tooltip', oldText), 2000)
+}
+
+const addCopyButtonToCodeCells = () => {
+  // If ClipboardJS hasn't loaded, wait a bit and try again. This
+  // happens because we load ClipboardJS asynchronously.
+  if (window.ClipboardJS === undefined) {
+    setTimeout(addCopyButtonToCodeCells, 250)
+    return
+  }
+
+  const codeCells = document.querySelectorAll('div.highlighter-rouge:not(.output) pre')
+  codeCells.forEach((codeCell, index) => {
+    const id = codeCellId(index)
+    codeCell.setAttribute('id', id)
+    if (document.querySelector(`pre#${id} + a`) == null) {
+      codeCell.insertAdjacentHTML('afterend', clipboardButton(id));
+    }
+  })
+
+  const clipboard = new ClipboardJS('.copybtn')
+  clipboard.on('success', event => {
+    clearSelection()
+    temporarilyChangeTooltip(event.trigger, 'Copied!')
+  })
+
+  clipboard.on('error', event => {
+    temporarilyChangeTooltip(event.trigger, 'Failed to copy')
+  })
+
+  // Get rid of clipboard before the next page visit to avoid memory leak
+  document.addEventListener('turbolinks:before-visit', () =>
+    clipboard.destroy()
+  )
+}
+
+initFunction(addCopyButtonToCodeCells);
+</script>
+
+  <!-- Hide cell code -->
+  
+<script>
+/**
+Add buttons to hide code cells
+*/
+
+
+var setCodeCellVisibility = function(inputField, kind) {
+    // Update the image and class for hidden
+    var id = inputField.getAttribute('data-id');
+    var codeCell = document.querySelector(`#${id}`);
+
+    if (kind === "visible") {
+        codeCell.classList.remove('hidden');
+        inputField.checked = true;
+    } else {
+        codeCell.classList.add('hidden');
+        inputField.checked = false;
+    }
+}
+
+var toggleCodeCellVisibility = function (event) {
+    // The label is clicked, and now we decide what to do based on the input field's clicked status
+    if (event.target.tagName === "LABEL") {
+        var inputField = event.target.previousElementSibling;
+    } else {
+        // It is the span inside the target
+        var inputField = event.target.parentElement.previousElementSibling;
+    }
+
+    if (inputField.checked === true) {
+        setCodeCellVisibility(inputField, "visible");
+    } else {
+        setCodeCellVisibility(inputField, "hidden");
+    }
+}
+
+
+// Button constructor
+const hideCodeButton = id => `<input class="hidebtn" type="checkbox" id="hidebtn${id}" data-id="${id}"><label title="Toggle cell" for="hidebtn${id}" class="plusminus"><span class="pm_h"></span><span class="pm_v"></span></label>`
+
+var addHideButton = function () {
+  // If a hide button is already added, don't add another
+  if (document.querySelector('div.hidecode input') !== null) {
+      return;
+  }
+
+  // Find the input cells and add a hide button
+  document.querySelectorAll('div.input_area div.highlight').forEach(function (item, index) {
+    if (!item.parentElement.classList.contains("hidecode")) {
+        // Skip the cell if it doesn't have a hidecode class
+        return;
+    }
+
+    const id = codeCellId(index)
+    item.setAttribute('id', id);
+    item.insertAdjacentHTML('afterend', hideCodeButton(id))
+
+    // Set up the visibility toggle
+    hideLink = document.querySelector(`#${id} + input + label`);
+    hideLink.addEventListener('click', toggleCodeCellVisibility)
+  });
+}
+
+
+// Initialize the hide buttos
+var initHiddenCells = function () {
+    // Add hide buttons to the cells
+    addHideButton();
+
+    // Toggle the code cells that should be hidden
+    document.querySelectorAll('div.hidecode input').forEach(function (item) {
+        setCodeCellVisibility(item, 'hidden');
+        item.checked = true;
+    })
+}
+
+initFunction(initHiddenCells);
+
+</script>
+
+
+  <!-- Load custom website scripts -->
+  <script src="/practical-ds/assets/js/scripts.js" async></script>
+
+  <!-- Load custom user CSS and JS  -->
+  <script src="/practical-ds/assets/custom/custom.js" async></script>
+  <link rel="stylesheet" href="/practical-ds/assets/custom/custom.css">
+
+  <!-- Update interact links w/ REST param, is defined in includes so we can use templates -->
+  
+
+  <!-- Lunr search code - will only be executed on the /search page -->
+  <script src="/practical-ds/assets/js/lunr/lunr.min.js" type="text/javascript"></script>
+  <script>var initQuery = function() {
+  // See if we have a search box
+  var searchInput = document.querySelector('input#lunr_search');
+  if (searchInput === null) {
+    return;
+  }
+
+  // Function to parse our lunr cache
+  var idx = lunr(function () {
+    this.field('title')
+    this.field('excerpt')
+    this.field('categories')
+    this.field('tags')
+    this.ref('id')
+
+    this.pipeline.remove(lunr.trimmer)
+
+    for (var item in store) {
+      this.add({
+        title: store[item].title,
+        excerpt: store[item].excerpt,
+        categories: store[item].categories,
+        tags: store[item].tags,
+        id: item
+      })
+    }
+  });
+
+  // Run search upon keyup
+  searchInput.addEventListener('keyup', function () {
+    var resultdiv = document.querySelector('#results');
+    var query = document.querySelector("input#lunr_search").value.toLowerCase();
+    var result =
+      idx.query(function (q) {
+        query.split(lunr.tokenizer.separator).forEach(function (term) {
+          q.term(term, { boost: 100 })
+          if(query.lastIndexOf(" ") != query.length-1){
+            q.term(term, {  usePipeline: false, wildcard: lunr.Query.wildcard.TRAILING, boost: 10 })
+          }
+          if (term != ""){
+            q.term(term, {  usePipeline: false, editDistance: 1, boost: 1 })
+          }
+        })
+      });
+
+      // Empty the results div
+      while (resultdiv.firstChild) {
+        resultdiv.removeChild(resultdiv.firstChild);
+      }
+
+    resultdiv.insertAdjacentHTML('afterbegin', '<p class="results__found">'+result.length+' Result(s) found</p>');
+    for (var item in result) {
+      var ref = result[item].ref;
+      if(store[ref].teaser){
+        var searchitem =
+          '<div class="list__item">'+
+            '<article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">'+
+              '<h2 class="archive__item-title" itemprop="headline">'+
+                '<a href="'+store[ref].url+'" rel="permalink">'+store[ref].title+'</a>'+
+              '</h2>'+
+              '<div class="archive__item-teaser">'+
+                '<img src="'+store[ref].teaser+'" alt="">'+
+              '</div>'+
+              '<p class="archive__item-excerpt" itemprop="description">'+store[ref].excerpt.split(" ").splice(0,20).join(" ")+'...</p>'+
+            '</article>'+
+          '</div>';
+      }
+      else{
+    	  var searchitem =
+          '<div class="list__item">'+
+            '<article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">'+
+              '<h2 class="archive__item-title" itemprop="headline">'+
+                '<a href="'+store[ref].url+'" rel="permalink">'+store[ref].title+'</a>'+
+              '</h2>'+
+              '<p class="archive__item-excerpt" itemprop="description">'+store[ref].excerpt.split(" ").splice(0,20).join(" ")+'...</p>'+
+            '</article>'+
+          '</div>';
+      }
+      resultdiv.insertAdjacentHTML('beforeend', searchitem);
+    }
+  });
+};
+
+initFunction(initQuery);
+</script>
+</head>
+
+  <body>
+    <!-- .js-show-sidebar shows sidebar by default -->
+    <div id="js-textbook" class="c-textbook js-show-sidebar">
+      
+
+
+
+<nav id="js-sidebar" class="c-textbook__sidebar">
+  <a href="https://jupyter.org/jupyter-book/"><img src="/practical-ds/images/logo/logo.png" class="textbook_logo" id="sidebar-logo" data-turbolinks-permanent/></a>
+  <h2 class="c-sidebar__title">Data Science and Modeling in Practice</h2>
+  <ul class="c-sidebar__chapters">
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="/practical-ds/intro.html"
+        >
+          
+          Home
+        </a>
+
+        
+      </li>
+
+      
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="https://github.com/uribo/practical-ds"
+        >
+          
+          GitHub repository
+        </a>
+
+        
+      </li>
+
+      
+    
+      
+      
+        <li class="c-sidebar__chapter"><a class="c-sidebar__entry" href="/practical-ds/search.html">Search</a></li>
+        
+      
+      
+        <li class="c-sidebar__divider"></li>
+        
+      
+      
+        <li><h2 class="c-sidebar__title">Demo textbook</li>
+        
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="/practical-ds/01/readme.html"
+        >
+          
+          データ分析の流れ
+        </a>
+
+        
+
+          
+          
+          
+          
+
+          
+
+          <ul class="c-sidebar__sections ">
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/01/introduction.html"
+                >
+                  
+                  データ分析のプロセス
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/01/eda.html"
+                >
+                  
+                  探索的データ分析
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/01/tidy_data.html"
+                >
+                  
+                  tidyデータと前処理
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/01/tidymodels_workflow.html"
+                >
+                  
+                  モデルの構築から評価まで
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+          </ul>
+        
+      </li>
+
+      
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="/practical-ds/02/readme.html"
+        >
+          
+          特徴量エンジニアリング
+        </a>
+
+        
+
+          
+          
+          
+          
+
+          
+
+          <ul class="c-sidebar__sections ">
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/numeric.html"
+                >
+                  
+                  数値データの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/categorical.html"
+                >
+                  
+                  カテゴリデータの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/text.html"
+                >
+                  
+                  テキストデータの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/date-and-time.html"
+                >
+                  
+                  日付・時間データの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/spatial-data.html"
+                >
+                  
+                  地理空間データの取り扱いの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+          </ul>
+        
+      </li>
+
+      
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="/practical-ds/03/readme.html"
+        >
+          
+          より良いモデルを目指して
+        </a>
+
+        
+
+          
+          
+          
+          
+
+          
+
+          <ul class="c-sidebar__sections ">
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/handling-missing-data.html"
+                >
+                  
+                  欠損値の処理
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/dimension-reduction.html"
+                >
+                  
+                  次元削減
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/model-performance.html"
+                >
+                  
+                  モデルの性能評価
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/data-splitting.html"
+                >
+                  
+                  データ分割
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/feature-selection.html"
+                >
+                  
+                  変数重要度
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/interpretability.html"
+                >
+                  
+                  モデルの解釈
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+          </ul>
+        
+      </li>
+
+      
+    
+  </ul>
+  <p class="sidebar_footer">Powered by <a href="https://github.com/jupyter/jupyter-book">Jupyter Book</a></p>
+</nav>
+
+      
+      <main class="c-textbook__page" tabindex="-1">
+          <div class="o-wrapper">
+            <div class="c-sidebar-toggle">
+  <!-- We show the sidebar by default so we use .is-active -->
+  <button
+    id="js-sidebar-toggle"
+    class="hamburger hamburger--arrowalt is-active"
+  >
+    <span class="hamburger-box">
+      <span class="hamburger-inner"></span>
+    </span>
+    <span class="c-sidebar-toggle__label">Toggle Sidebar</span>
+  </button>
+</div>
+
+            
+
+            <div class="c-textbook__content">
+              <div class="search-content__inner-wrap">
+    <input type="text" id="lunr_search" class="search-input" tabindex="-1" placeholder="'Enter your search term...''" />
+    <div id="results" class="results"></div>
+</div>
+
+<script>
+    // Add the lunr store since we will now search it
+    var store = [{
+        "title": "探索的データ分析",
+        
+        "excerpt":
+            "要約メモ モデリング、統計分析を行う前にデータを精査することが大事 データの特徴を理解することで次のステップにかける時間を減らす、異常を見逃さない、（意図しない）間違いを見逃さない 特に可視化の手法を用いることでデータの集約や関係、パターンを見やすくする データを料理する前に、どのようなデータが与えられているのか確認することが大切です。 この段階を踏むことで、データに対する理解が深まり、より良いモデルの構築に繋がる可能性もあります。 探索的なデータ分析 (Exploratory Data Analysis: EDA) と呼ばれます。 データの集計、要約、可視化 前章でもデータについて簡単な調査を行いましたが、データをグラフによって表現してみましょう。 グラフにすることで、集計値では見えなかった情報やデータ間の関係を表現することができます。 欠損値や異常値（外れ値）、データの分布 欠損値の視覚化については別の章で解説します。欠損の理解のためにも可視化は大事 目的変数として設定する地価価格に影響を及ぼす変数を明らかにしたい、またその関係を知りたいという状況を設定します。 データを眺める データを手に入れたら、分析作業に取り掛かる前にまずはデータを眺めてみることにしましょう。眺める、と言ってもデータの値一つ一つを見ていくわけではありません。これから扱うデータは、どのような値が含まれているのか、データ型が処理されているか、また全体の大きさはどれくらいなのか、欠損はどれだけあるかと言った俯瞰的に整理していきます。 早い段階でデータの異常に気がつくことができたなら、データの特徴について理解が深められるのであればそれは今後の作業過程においても役立つでしょう。 csvファイルとしてデータが用意されている場面を想定します。csvファイルの読み込みにはいくつかの関数が利用できますが、ここでは readr::read_csv()を使った例を示します。 library(readr) library(dplyr) # データ操作パッケージ source(here::here(\"R/setup.R\")) search() &lt;ol class=list-inline&gt; '.GlobalEnv' 'package:tidyselect' '.conflicts' 'package:drake' 'package:conflicted' 'package:cowplot' 'package:naniar' 'package:visdat' 'package:janitor' 'package:ensurer' 'package:assertr' 'package:sf' 'package:yardstick' 'package:rsample' 'package:recipes' 'package:parsnip' 'package:infer' 'package:dials' 'package:scales' 'package:broom' 'package:tidymodels' 'package:forcats' 'package:stringr' 'package:purrr' 'package:tidyr' 'package:tibble' 'package:ggplot2' 'package:tidyverse' 'package:dplyr' 'package:readr' 'package:jsonlite' 'jupyter:irkernel' 'package:stats' 'package:graphics' 'package:grDevices' 'package:utils' 'package:datasets' 'JapanEnv' 'package:methods' 'Autoloads' 'package:base' &lt;/ol&gt; ggplot(iris, aes(Sepal.Length, Petal.Width)) + geom_point() + labs(title = \"あやめ\", subtitle = 'ああ') df_lp_kanto &lt;- read_csv(here::here(\"data-raw/landprice_kanto.csv\"), col_types = cols(.row_id = \"i\", prefecture = \"c\", administrative_area_code = \"c\", posted_land_price...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/01/eda.html",
+        "teaser":null},{
+        "title": "データ分析のプロセス",
+        
+        "excerpt":
+            "データ分析のプロセス 課題や目標が設定され、動き出したデータ分析のプロジェクトは、いつも直線に進んでいく訳ではありません。 的な道のりでないことがしばしばあります。 最初の段階として、利用するデータの読み込みが思うようにいかなかったりしてつまづいてしまうこともあります。それが済んだらデータを整理・整形する作業が発生します。多くのデータは入力された状態でコンピュータが利用しやすい形式とは異なっているためです。 そしてここからがさらに骨の折れる作業です。 今日のテーマもここの作業段階での話となります。具体的にはデータの加工・変形と可視化、そしてモデルの構築です。これらの作業は互いに繋がっている点に注意してください。 反復して行うことがしばしばあります。また一般的にデータをモデルに投入する前の加工作業を前処理と呼びますが、 効率的なモデルを開発する過程は 反復的 複数のモデルを構築し、調整や検証をすることになるでしょう。 典型的な（もちろん常にこの通りに事が運ぶわけではありませんし、繰り返しの数にも差がありますし、後戻りも必要になるでしょう。） モデルの実行以外にも これらはモデル構築の作業と紐づいています。モデルの結果からさらなる処理を加えていくことでモデルを磨き上げていくのです。 探索的なデータ分析、定量分析、特徴量エンジニアリング 可視化やモデルを実行した結果は垂れ流しにしておくわけには行きません。どのような手段にせその結果を伝達することが必要になります。 といった作業があります。 「何を解くか」 ドメイン知識が求められることも 直感に基づく初期モデル 問題設定とモデル モデルに応じて、データの分布などに仮定をおいているものがある 仮定に合わないデータを与えた場合、適切な結果が得られない恐れがある … 特徴量エンジニアリング e.g. 線形モデル… 誤差が等分散正規分布であることを仮定 正規分布に従わない場合は一般化線形モデルを利用するなどの対処 e.g. K-meansクラスタリング… 各クラスタが同じ大きさ クラスタの大きさに偏りがある場合には混合正規分布の利用を検討 ノーフリーランチ定理 あらゆる問題で性能の良い万能なモデル・アルゴリズムは存在しない 問題・目的に適したモデルを選択する 回帰 入力xから実数の出力yを予測 線形または非線形な関係を記述 パラメータ推定 分類 (判別) 入力xからカテゴリの出力yを予測 線形または非線形な関係を記述 パラメータ推定 クラスタリング 混合正規分布 トピックモデル、LDA ここでは各手法についての説明は行いません。データ分析、機械学習についての専門書は多く出版されているため、末尾の参考文献をご覧ください。 教師あり学習 教師なし学習 データの持つ意味 データ型に基づく分類 数値 カテゴリ 順序つき 論理値 文字列 尺度を元にした分類 名義尺度 順序尺度 間隔尺度 比例尺度 特殊系 日付・時間 地理空間・座標 機械学習モデルでは数値データを入力の前提にしているものが多い データを特徴量に落とし込む データをモデルに当てはめる、アルゴリズムによる計算を実行するには数値化が必要になります。 多くのデータは数値化されていますが、 また、すでに数値となっているデータに対しても、より良い特徴量として扱うために変換処理を加えることがあります。 表形式のデータでは、行に観測が記録され、複数の列からなる特徴量が含まれる 一つの文書や一回のつぶやきが観測され、フレーズや単語が特徴になる 画像データでは、色や線の情報を特徴量として利用する 特徴量エンジニアリング 特徴量エンジニアリングは 特徴量エンジニアリング… モデルに適した形（数値）への変換 前処理（クレンジング）との比較… 前処理は減算のプロセス 特徴量エンジニアリングは（主に）加算のプロセス 変数を減らすこともある データの持つ特徴を強調することもできる 知識をデータに反映させる ドメイン知識 共通の「知識」も活用できる… この方法を紹介する “Garbage in, garbage out” 問題の本質は何か? どのように相互作用をもたらすか 5つのベストプラクティス モデルが識別可能な形式に処理する必要がある 予測モデルの種類（線形モデル、KNN、ニューラルネットワークなどのモデルか決定木やランダムフォレストを利用する木ベースのモデルか）と データの種類に応じて適用する前処理が異なる どうして特徴量エンジニアリングが必要なのか 価値のある特徴量を作成、ノイズをもたらす特徴量を除去する… 精度の高いモデルを構築する モデルの性能に大きな影響を及ぼす...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/01/introduction.html",
+        "teaser":null},{
+        "title": "データ分析の流れ",
+        
+        "excerpt":
+            "データ分析の流れ   一連の流れを軽く眺めてから、次章以降のアプローチを定める   データ分析のプロセス   ",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/01/readme.html",
+        "teaser":null},{
+        "title": "tidyデータ",
+        
+        "excerpt":
+            "tidyデータ: 人間にも機械にも優しいデータの記述形式 前処理 データをモデルに流し込む前段階 同時にいくつかの作業は（？） モデルの性能を大きく左右する 横長 source(here::here(\"R/setup.R\")) データ型 表示した状態では同じように見えてもプログラムの中では異なる値として扱われることも x &lt;- \"2019-07-10\" class(x) class(lubridate::as_date(x)) 前処理の必要性 前処理の必要性とその範囲は 適用するモデルのタイプによって異なります。 木ベースのモデル（決定木、ランダムフォレスト）では、特徴量を入力とする複数のステップ関数（閾値を超えた場合に1, そうでなければ0に変換する）の組み合わせによって構成されるため変数のスケールの影響を受けません。しかしロジスティック回帰や部分最小二乗法、リッジ回帰や距離を利用するk-means、主成分分析など、多くのモデルは入力のスケールに敏感で、変数間のスケールを揃える必要があります。 前処理の必要性1: 重回帰モデル 前処理の必要性2: 変数間のスケールが揃わない主成分分析 主成分分析（詳細は別の章）では入力に用いる変数間のスケールが標準化されていることが前提です。 距離を利用するため 標準化を行わない場合の結果を見てみましょう。 pca_res &lt;- prcomp(~ distance_from_station + acreage + night_population, data = df_lp_kanto, center = FALSE, scale. = FALSE) # 主成分軸上のSDが大きく異なっていることに注意（単位の影響を強く受けている） pca_res # 第1主成分のみで累積寄与率が99%を超える summary(pca_res) 次にあらかじめ標準化したデータを元に主成分分析を行った結果を見ます。 pca_res &lt;- prcomp(~ distance_from_station + acreage + night_population, data = df_lp_kanto, center = TRUE, scale. = TRUE) # SDが小さくなる pca_res # 第2主成分軸まで含めて72%を説明 summary(pca_res) 前処理の必要性3: kNN 標準化と正規化 変数間のスケールを統一する処理には複数の方法があります。いずれもデータが取りうる値のスケールを変換し、一定の範囲に収める処理を行います。これらは個々の特徴量に対して適用され、後に述べるような対数変換のようにデータの分布を変化させない変換方法になります。 PLSなどで恩恵がありますが 一方でデータが持つ単位を失ってしまうことは、データの解釈を困難にさせます。 データの分布には影響しない Min-Maxスケーリング 特徴量の値を0~1の範囲に収める変換をMin-Maxスケーリングと呼びます。 # 地価データの「最寄り駅までの距離」の範囲 lp_dist &lt;- df_lp_kanto$distance_from_station range(lp_dist) lp_dist_minmax &lt;- scale(lp_dist, center = min(lp_dist), scale = (max(lp_dist) - min(lp_dist)))...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/01/tidy_data.html",
+        "teaser":null},{
+        "title": "モデルの構築から評価まで",
+        
+        "excerpt":
+            "source(here::here(\"R/setup.R\")) 分析プロジェクトの全体像を掴む データが与えられた このデータを使って何を明らかにすることが目的か、またその結果をどのように使い、何を得たいのか システム設計 問題を構成します。 データの特徴や目的により特定していく 地価データ 教師付き学習 回帰のタスク 多変量回帰 評価指標の選択 評価指標… 回帰問題での典型的な評価指標は二乗平均平方根誤差 (Root Mean Square Error: RMSE) 外れ値が多く含まれる場合にはMAEを検討（外れ値の影響を受けにくい） データの分割 単純な無作為抽出による分割 (hold-out) データが大規模なら良いが（特に属性の数との関係に注意。属性数がデータ件数よりも多い場合ではよくない。大きなサンプリングバイアスをもたらす恐れがある） 分割可能な層がないか… 層化抽出法を検討 モデルの構築から評価まで モデル構築 パラメータを推定する… 訓練用のモデル モデル選択とmodel comparison 新しいデータ（評価データ）による性能測定 仮説を立て、検証し、決定するプロセスを経て変換することが重要（前処理大全） 地価データを使います。 前節で見つけたデータの特徴から、いくつかの処理を加えます。 バイアスと分散のトレードオフ 線形回帰モデルの構築 地価データ もっとも関連がありそうなへんすは何だろう？ ggplot() + geom_sf(data = ne_knt, fill = \"transparent\") + geom_sf(data = df_lp_kanto %&gt;% sf::st_as_sf(coords = c(\".longitude\", \".latitude\"), crs = 4326), size = 0.2, alpha = 0.75) + coord_sf(datum = NA) 地価データ 係数の推定 データ分割後、性能評価 残差プロット 平均二乗誤差(MSE)、決定係数(R2) reg_perf_metrics &lt;- metric_set(rmse, rsq, mae) df_lp_kanto_simple &lt;- df_lp_kanto %&gt;% dplyr::select(posted_land_price, .longitude, .latitude) glimpse(df_lp_kanto_simple) データ分割 訓練データとテストデータ 訓練データ (training set)… モデルのパラメータ推定に利用される テストデータ (test set)… モデルの学習中には利用されない。 # 訓練データとテストデータ...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/01/tidymodels_workflow.html",
+        "teaser":null},{
+        "title": "カテゴリデータの取り扱い",
+        
+        "excerpt":
+            "source(here::here(\"R/setup.R\")) library(cattonum) df_hazard &lt;- df_hazard %&gt;% st_drop_geometry() カテゴリデータの取り扱い ダミー変数の作成 多くの統計・機械学習モデルでは、数値化を求めます。 だめ… SVM、ニューラルネットワーク xgboost, glmnet etc. カテゴリの変数には、次にあげる特徴が含まれる場合があります。 大小または順序関係 重み ここで紹介する多くの特徴量エンジニアリングは、カテゴリ変数がもつ特徴を考慮しつつ、数値化するものとなります。 定性的 一方で、数値のように扱える郵便番号などは数値として扱ってはいけません。これらは数値出会っても大小関係や連続的な意味をもたないためです。 「どれだけ違うか」ではなく「値が異なることが重要」 メッシュコード 尺度の問題？？ カテゴリに順序を与える 大きさを示す変数として「大」、「中」、「小」の3項目がある場合、「大」は「小」よりも大きいことはわかります。この関係は1から3の数値に示すことが可能で、大は一番大きな値である3と対応するという変換を行うことができます。 ここではビールへの支出データおよび土砂災害・雪崩メッシュデータを利用します。 df_beer2018q2 df_hazard カテゴリ変数の特徴量エンジニアリングには、次元を増やす、増やさないの両方のパターンがあります。 それぞれの方法をみていきましょう。 色々ある。これで全てではない。weight of evidenceなど。 カテゴリを数値に変換する処理のことを全般的にエンコーディング ビンカウンティング 統計量を当てはめるのをビンカウンティング カウントエンコーディング カウント変数の項目に対して、頻度を求めたものがカウントエンコーディングです。 set.seed(1236) df &lt;- df_hazard %&gt;% sample_n(10) %&gt;% select(hazardDate, hazardType, maxRainfall_h) df このようなデータに対して、hazardTypeのカウントエンコーディングを適用すると次のようになります。 df %&gt;% group_by(hazardType) %&gt;% mutate(hazardDate, hazardType_ = n(), maxRainfall_h) %&gt;% ungroup() %&gt;% select(hazardDate, hazardType = hazardType_, maxRainfall_h) カテゴリ内での出現頻度が多ければ多いほど、特徴量の値は大きくなり、影響も強くなります。一方で、元は異なる水準であったものが同じ出現頻度であった場合にはエンコード後の値が同じになってしまうことに注意です。例では、出現頻度が1の「地すべり」と「雪崩」 ラベルエンコーディング ラベルエンコーディング (label encoding) はカテゴリに対して一意の数値を割り振るというアイデアが単純なものですが、それではカテゴリがもつ特徴を拾い上げることはできません。 df_hazard %&gt;% st_drop_geometry() %&gt;% group_by(hazardType) %&gt;% slice(1:2L) %&gt;% ungroup() %&gt;% distinct(hazardType, hazardType_sub, .keep_all = TRUE) %&gt;% select(hazardType) %&gt;% mutate(hazardType_num = as.numeric(as.factor(hazardType))) %&gt;% head(10) ターゲットエンコーディング ターゲットエンコーディング (target-based...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/02/categorical.html",
+        "teaser":null},{
+        "title": "日付・時間データの取り扱い",
+        
+        "excerpt":
+            "source(here::here(\"R/setup.R\")) library(lubridate) 日付・時間データの取り扱い ビールへの支出データ、土砂災害・雪崩メッシュデータを利用します。 経過時間 タイムゾーン 期間内のある瞬間の情報 特定のイベントからの経過時間 ビールの売り上げに対して、何が効いているか、効いていないか予測を立ててみましょう 平日・休日 より厳密には週末かそうでないか… そんなに効かない。土日は効果あり 連休の数 平日金曜日は0.5? 夏休み？？ 関係しそうではないもの 月初、月末 要素の分解 日付や時間のデータは複数の要素で構成されます。例えば「2019年7月10日」であれば、年月日をそれぞれ分けて2019、7、10に分解可能です。これに時間が加わればさらに時分秒の要素に分解することもできます。 ビールの売り上げを考えたとき、大事な日付の要素は何でしょうか。 ということがない限り、年の影響は小さそうです。小さなデータセットでは一年分しかない場合もあります（分散0）。 日付もそれほど重要ではなさそうです。むしろ日付によって変わる平日・休日の違いが影響しそうですが、これについてはあとで処理を加えていくことにします。 rep_split_date &lt;- df_beer2018q2 %&gt;% recipe(expense ~ .) %&gt;% step_date(date) df_beer_prep &lt;- rep_split_date %&gt;% prep(training = df_beer2018q2) %&gt;% juice(expense, starts_with(\"date\"), temperature_average) df_beer_prep カレンダー（祝日） 人の行動による影響を受けるデータでは、日付の平日・休日を区別することが重要になることが多いです。それは平日と休日では人々の行動様式が異なると考えられるためです。 一方でハザードデータのように自然活動を扱うデータではこの要素が影響するとは考えられません。 データが記録された日付が平日か休日 7月から9月にかけては 海の日（7月第3月曜日） 山の日 (8月11日) … 2016年に設立。 敬老の日 (9月第3月曜日) 秋分の日 (秋分日… ) が祝日です。 また、この期間で考慮すべき日付として「お盆」の期間があります。多くの企業でこの期間は夏休みとなっていると考えられます。8月13日から15日のデータも他の日付と区別できるようにしておきます。 df_beer_prep &lt;- df_beer_prep %&gt;% recipe(expense ~ .) %&gt;% step_holiday(date, holidays = timeDate::listHolidays(\"JP\") %&gt;% str_subset(\"UmiNoHi|KeirouNOhi|ShuubunNoHi\")) %&gt;% prep() %&gt;% bake(new_data = df_beer_prep) %&gt;% # timeDate::listHolidays() が山の日に未対応なのでフラグを作る処理を用意する mutate(date_JPYamaNoHi = as.numeric(date == ymd(\"2018-08-11\")), is_obon = between(date, ymd(\"2018-08-13\"), ymd(\"2018-08-15\"))) df_beer_prep 平日であれば1を与える列を追加します。 df_beer_prep &lt;- df_beer_prep %&gt;%...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/02/date-and-time.html",
+        "teaser":null},{
+        "title": "数値データの取り扱い",
+        
+        "excerpt":
+            "source(here::here(\"R/setup.R\")) 数値データの取り扱い データ分析においてもっとも一般的な型が数値データです。商品の価格やウェブページのアクセス件数、体重など多くのデータが数値で表されます。多くのモデルが数値の入力を前提としているため、数値をそのまま利用することもできます。しかし特徴量エンジニアリングが不要というわけではありません。例えば線形回帰モデルでは、出力から得られる値の誤差が正規分布に従うことを仮定します。そのため正規分布とは異なる形状の分布をもつデータ、例えば離散値ではその仮定が成立しない可能性があります。この問題を解決するために、元のデータを正規分布に近似させるという特徴量エンジニアリングが有効になります。 良い特徴量というのはデータの特徴を強く反映します。連続的な数値を二値化あるいは離散化することでモデルの精度が改善されることがあります。また数値以外のテキストや画像のデータを数値化した際、さらなる特徴量エンジニアリングが必要になることもあります。つまり数値データの処理は特徴量エンジニアリングの中で最も基本的な技と言えます。 前章で示した標準化や正規化も数値データの処理ですが、この章では数値変数をモデルに適した形式へと変換する手法を紹介します。単一の変数を対象にした処理として対数変換、離散化、ハッシュ化を扱います。また複数の特徴量から新たな特徴量を生成する手法や変数間の相互作用について導入を行います。 数値データが抱える問題 数値データはありふれたデータ形式ですが、その反面数多くの問題を抱えていることがあります。その特徴をあげてみます。 スケールが大きく異なる 歪んだ分布をもつ 大小の外れ値を含む 変数間で、線形では表現できないような複雑な関係を持っている 冗長な情報 これらの問題は、回帰か分類かという課題設定に応じて、適用するモデルの種類によって顕在化します。一方で適切なモデルを選択することで問題のいくつかを軽減できる見込みもあります。例を見てみましょう。 k近傍法やサポートベクターマシンは、特徴空間上の外れ値の影響を受けやすい性質があります。一方で、実際の値ではなく順位化されたデータを利用する木ベースのモデルでは外れ値の影響を顕現することができます。また、互いに説明変数の間で強い相関がある変数を重回帰モデルに組み込むと、わずかに値が変動しただけで係数が大きく異なってしまいますが、部分最小二乗法を用いることで説明変数の相関を無相関化できます。つまり、適切なモデルとデータの変換を行うことである程度の対策が可能です。 説明変数(予測子) の特徴 The techniques in this chapter have been organizedinto three general categories . The first category of engineering techniques are those that address problematic characteristics of individual predictors (Section 6.1). Section 6.2 illustrates methods for expanding individual predictors into many predictors in order to better represent more complex predictor-response relationships and to enable the extraction of predictive information. Last, Section 6.3 provides methodology for consolidating redundant information across many predictors. In the end, the goal of all of these approaches is to convert the existing...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/02/numeric.html",
+        "teaser":null},{
+        "title": "特徴量エンジニアリング",
+        
+        "excerpt":
+            "特徴量エンジニアリング   各項目で1章   ",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/02/readme.html",
+        "teaser":null},{
+        "title": "地理空間データの取り扱いの取り扱い",
+        
+        "excerpt":
+            "source(here::here(\"R/setup.R\"))   地理空間データの取り扱い   空間データの特徴   ラスタとベクタ   地物   主にポイント、ライン、ポリゴン   座標参照系   地図上に地物を重ねる際、意図しない箇所に地物が表示されることがあります。これは地図データの座標系が異なることが原因で発生する問題の一つです。      平面直角座標系        地理座標系       空間的自己相関 (spatial autocorrelation)、空間的異質性   住所の分解   ジオコーディングと逆ジオコーディング   緯度経度を都道府県に メッシュコードに   隣接関係      密集、過疎   距離の計算      対象物からの距離     まとめ   関連項目   参考文献  ",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/02/spatial-data.html",
+        "teaser":null},{
+        "title": "テキストデータの取り扱い",
+        
+        "excerpt":
+            "source(here::here(\"R/setup.R\")) library(textrecipes) テキストデータの取り扱い カテゴリを参照 カテゴリより長く、基本的にユニークな値をもつものを扱う 周辺の土地利用の状況が記載されたssurrounding_present_usageを例に示します。 na.omit(df_lp_kanto$surrounding_present_usage)[seq_len(10)] df_lp_surrounding_present_usage_count &lt;- df_lp_kanto %&gt;% count(surrounding_present_usage, sort = TRUE) nrow(df_lp_surrounding_present_usage_count) df_lp_surrounding_present_usage_count df_lp_surrounding_present_usage_count %&gt;% ggplot(aes(n)) + geom_density() テキストの前処理 ユニコード正規化 df_lp_kanto %&gt;% filter(str_detect(surrounding_present_usage, \"ＩＣ\")) %&gt;% pull(surrounding_present_usage) df_lp_prep &lt;- df_lp_kanto %&gt;% recipe(~ .) %&gt;% step_stri_trans(surrounding_present_usage, trans_id = \"nfkc\") %&gt;% prep(strings_as_factors = FALSE) %&gt;% juice() df_lp_prep %&gt;% filter(str_detect(surrounding_present_usage, \"IC\")) %&gt;% pull(surrounding_present_usage) 語順を考慮する・しない 考慮しない… 文章の内容を分類 考慮する… n-gram (感情分析) Bag-of-Words テキスト文書を単語の出現回数のベクトルで表現。 単語がテキストに現れない場合、対応する要素の値は0になる 単語の並び、階層の概念を表現しない。Bag-of-wordsでこれらの意味はない →テキストの意味を正しく理解したい場合にはあまり役立たない →Bag-of-n-Grams 全ての単語を同じようにしてカウントすると、必要以上に強調される単語が出る 単純な出現頻度だけでは文書の特徴を表現できない 「意味のある」単語が強調されるような特徴を表現する方法を用いるべき →TF-IDF… TFとIDFの積 トークン化 library(tokenizers) tokenizers::tokenize_words(as.character(d$surrounding_present_usage[1])) library(textrecipes) library(recipes) data(okc_text) okc_rec &lt;- recipe(~ ., data = okc_text) %&gt;% step_tokenize(essay0) %&gt;% step_tokenfilter(essay0, min_times = 10) okc_obj &lt;- okc_rec %&gt;% prep(training = okc_text, retain = TRUE)...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/02/text.html",
+        "teaser":null},{
+        "title": "Datasets",
+        
+        "excerpt":
+            "地価データ library(dplyr) library(sf) df_landprice_mod &lt;- readr::read_rds(here::here(\"data-raw/landprice.rds\")) glimpse(df_landprice_mod) Observations: 563 Variables: 40 $ indexNumber \u001b[3m\u001b[38;5;246m&lt;chr&gt;\u001b[39m\u001b[23m \"000\", \"000\", \"000\", \"005\", \"00… $ sequenceNumber \u001b[3m\u001b[38;5;246m&lt;chr&gt;\u001b[39m\u001b[23m \"003\", \"004\", \"002\", \"008\", \"00… $ administrativeAreaCode \u001b[3m\u001b[38;5;246m&lt;chr&gt;\u001b[39m\u001b[23m \"08204\", \"08204\", \"08204\", \"082… $ postedLandPrice \u001b[3m\u001b[38;5;246m&lt;dbl&gt;\u001b[39m\u001b[23m 52800, 44400, 43700, 65400, 751… $ nameOfNearestStation \u001b[3m\u001b[38;5;246m&lt;chr&gt;\u001b[39m\u001b[23m \"古河\", \"古河\", \"古河\", \"古河\", \"古河\", \"… $ distanceFromStation \u001b[3m\u001b[38;5;246m&lt;dbl&gt;\u001b[39m\u001b[23m 750, 1300, 1400, 500, 300, 250,… $ acreage \u001b[3m\u001b[38;5;246m&lt;dbl&gt;\u001b[39m\u001b[23m 132, 198, 164, 495, 645, 526, 1… $ currentUse \u001b[3m\u001b[38;5;246m&lt;chr&gt;\u001b[39m\u001b[23m \"住宅\", \"住宅\", \"住宅\", \"店舗,事務所\", \"銀行… $ buildingStructure \u001b[3m\u001b[38;5;246m&lt;chr&gt;\u001b[39m\u001b[23m \"W2\", \"W1\", \"LS2\", \"RC3F1B\", \"S… $ attribute_change_suppliedFacility \u001b[3m\u001b[38;5;246m&lt;lgl&gt;\u001b[39m\u001b[23m FALSE, FALSE, FALSE, FALSE, FAL… $ waterFacility \u001b[3m\u001b[38;5;246m&lt;lgl&gt;\u001b[39m\u001b[23m TRUE, TRUE, TRUE,...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/datasets/landprice.html",
+        "teaser":null},{
+        "title": "Features and customization",
+        
+        "excerpt":
+            "Features This is a short demonstration textbook to show the general layout / style of textbooks built with Jupyter and Jekyll. The markdown files for this page (and others in the textbook) is generated from the notebooks with the scripts/generate_textbook.py script, which is called when you run make book. The content for the book is contained in a folder in the site’s repository called content/. It has a combination of markdown and Jupyter notebooks. This content is rendered into the textbook that you see here! To begin, click on one of the chapter sections in the sidebar to the left....",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/features/features.html",
+        "teaser":null},{
+        "title": "Markdown files",
+        
+        "excerpt":
+            "Creating book content The two kinds of files that contain course content are: Jupyter Notebooks Markdown files Each are contained in the content/ folder and referenced from _data/toc.yml. If the file is markdown, it will be copied over with front-matter YAML added so that Jekyll can parse it Sidebars with Jekyll You may notice that there’s a sidebar to the right (if your screen is wide enough). These are automatically generated from the headers that are present in your page. The sidebar will automatically capture all 2nd and 3rd level section headers. The best way to designate these headers is...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/features/markdown.html",
+        "teaser":null},{
+        "title": "Jupyter notebooks",
+        
+        "excerpt":
+            "Content with notebooks You can also create content with Jupyter Notebooks. The content for the current page is contained in a Jupyter Notebook in the notebooks/ folder of the repository. This means that we can include code blocks and their outputs, and export them to Jekyll markdown. You can find the original notebook for this page at this address Markdown + notebooks As it is markdown, you can embed images, HTML, etc into your posts! You an also $add_{math}$ and or But make sure you \\$Escape \\$your \\$dollar signs \\$you want to keep! Code blocks and image outputs Textbooks with...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/features/notebooks.html",
+        "teaser":null},{
+        "title": "Home",
+        
+        "excerpt":
+            "実践的データサイエンス はじめに データ分析のためにコンピュータを利用する際、RおよびPython言語のいずれかを使うことが多いと思います(Julia言語は高レベル・高パフォーマンスな技術計算のための言語で今後期待が膨らみます）。これらの2つの言語では、データ操作や可視化、データ分析、モデリングに使われるライブラリが豊富にあり、 どれを使うのが良いのか迷うような状況が続いていました。しかしその状態は落ち着きを見せ、成熟期を迎えつつあります。 R言語ではパイプ演算子の登場によりデータフレームに対する操作に大きな変化が生じ、tidyverseによるデータ読み込みからデータ整形、可視化までが可能になりました。またtidyverseのような、機械や人間の双方が扱いやすいパッケージが増えてきました。特にR言語の強力な一面でもあったデータ分析の操作はtidymodelsに代表されるパッケージがユーザの操作性を改善し、より統一されたコードで処理を記述できるようになりつつあります。 Python言語ではデータフレームの操作にはpandasが欠かせないものとなっています。またscikit-learnは、データ分析や機械学習モデルの実行に必要な多くの関数を提供しています。これらのライブラリを抜きにしてデータ操作を行うのは考えにくい状況です。 RとPython、これらの違いは何でしょうか。データサイエンティストが扱う2つの言語は競争関係にあると言えますが、それは互いの言語を発展させるのに大いに役立っています。今やtidyverseのコアパッケージであるdplyrやggplot2がPythonに移植され、R言語からはPythonの強力なツールを利用するためのインターフェースが開発されています。2つの言語は排他的なものではなく、相互に補える関係にあると言えます。データ分析に必要な処理の多くはどちらのコアツールでも利用可能になっているのが現状でしょう。また、どちらかの言語で登場した優れたライブラリは、何らかの方法ですぐに取り入れられるでしょう。2つの言語を習得することは困難ではありますが、他方の言語での処理を知ることで多くのことが学べます。 このプロジェクトの目的は、データ分析に必要な操作・処理をRおよびPython双方で示すことを目指します。特に統計、機械学習モデルを扱う上で欠かせない特徴量エンジニアリングの処理を重点的に扱い、いずれの言語でも満足のいく形で分析を行えるようになることを目的とします。 目次 データ分析の流れ データ分析のプロセス 探索的データ分析 tidyデータと前処理 モデルの構築から評価まで 特徴量エンジニアリング 数値データの取り扱い カテゴリデータの取り扱い テキストデータの取り扱い 日付・時間データの取り扱い 地理空間データの取り扱いの取り扱い より良いモデルを目指して 欠損値の処理 次元削減 モデルの性能評価 データ分割 変数重要度 モデルの解釈 参考文献 各章の末尾に掲載しています。 データセットについて 地価公示データ (land price) 国土交通省 国土数値情報 （地価公示データ 第2.4版 L01 平成30年度 http://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L01-v2_5.html ）を使用し瓜生真也が作成・加工したものです。 うち関東一都六県のデータに対しては、該当する市区町村の夜間人口データを 平成27年度 国勢調査 従業地・通学地による人口・就業状態等集計 より付与しました。 土砂災害・雪崩メッシュデータ (hazard) 国土交通省 国土数値情報（土砂災害・雪崩メッシュデータ 第1.1版 A30a5 平成23年度 http://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A30a5.html ）を使用し瓜生真也が作成・加工したものです。 このうち九州地方のデータにおいては 各メッシュと対応する標高・傾斜度の情報を 同国土数値情報　標高・傾斜度3次メッシュデータ 第2.2版 G04a 平成21(2009)年度 http://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-G04-a.html より、またメッシュ内に含まれる特殊土壌の情報を 特殊土壌地帯データ 第3.0版 平成28年 http://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A23-v3_0.html より付属させています。 加えて気象庁ホームページ 過去の気象データ・ダウンロード http://www.data.jma.go.jp/gmd/risk/obsdl/index.php より対象地域、対象とする期間 (2016年7月) のデータを関連する気象データとして瓜生真也が加工・作成しました。 ビールへの支出データ (beer) 総務省 家計調査 家計収支編 二人以上の世帯「1世帯当たり1か月間の日別支出 (表6-16)」の項目から「ビール」に対する支出金額のうち、2018年7月から同年9月 (3ヶ月)の日毎の値、および2015年1月から2018年12月の各月の平均値を利用しています。 また統計データに含まれる日付および月間の気象データを、気象庁ホームページ 過去の気象データ検索 http://www.data.jma.go.jp/obd/stats/etrn/index.php より、観測地点「東京」のデータとして瓜生真也が加工し結合しています。 各データはリポジトリには含まれません。data-raw/に含まれるRファイルを実行することでこれらのデータが生成されます。 プロジェクトの情報 執筆者: Uryu Shinya (\\@uribo, Twitter: \\@u_ribo ) ライセンス: BY-SA 4.0 動作環境 jupyter-book...",
+        "categories": [],
+        "tags": [],
+        "url": "https://uribo.github.io/practical-ds/intro.html",
+        "teaser":null},]
+</script>
+              <nav class="c-page__nav">
+  
+
+  
+</nav>
+
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+  </body>
+</html>

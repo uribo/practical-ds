@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,minimum-scale=1">
+
+  <title>カテゴリデータの取り扱い</title>
+  <meta name="description" content="```Rsource(here::here(“R/setup.R”))library(cattonum)">
+
+  <link rel="canonical" href="https://uribo.github.io/practical-ds/02/categorical.html">
+  <link rel="alternate" type="application/rss+xml" title="Data Science and Modeling in Practice" href="https://uribo.github.io/practical-ds/feed.xml">
+
+  <meta property="og:url"         content="https://uribo.github.io/practical-ds/02/categorical.html" />
+<meta property="og:type"        content="article" />
+<meta property="og:title"       content="カテゴリデータの取り扱い" />
+<meta property="og:description" content="```Rsource(here::here(“R/setup.R”))library(cattonum)" />
+<meta property="og:image"       content="" />
+
+
+  <script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "NewsArticle",
+  "mainEntityOfPage":
+    "https://uribo.github.io/practical-ds/02/categorical.html",
+  "headline":
+    "カテゴリデータの取り扱い",
+  "datePublished":
+    "2019-07-04T08:01:20+09:00",
+  "dateModified":
+    "2019-07-04T08:01:20+09:00",
+  "description":
+    "```Rsource(here::here(“R/setup.R”))library(cattonum)",
+  "author": {
+    "@type": "Person",
+    "name": "Shinya Uryu"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Data 100 at UC Berkeley",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://uribo.github.io/practical-ds",
+      "width": 60,
+      "height": 60
+    }
+  },
+  "image": {
+    "@type": "ImageObject",
+    "url": "https://uribo.github.io/practical-ds",
+    "height": 60,
+    "width": 60
+  }
+}
+
+  </script>
+  <link rel="stylesheet" href="/practical-ds/assets/css/styles.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css ">
+  <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+
+  <!-- <link rel="manifest" href="/manifest.json"> -->
+  <!-- <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#efae0a"> -->
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+  <meta name="theme-color" content="#233947">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="/practical-ds/images/logo/favicon.ico">
+
+  <!-- MathJax Config -->
+  <!-- Allow inline math using $ and automatically break long math lines -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true,
+        processEnvironments: true
+    },
+    CommonHTML: {
+        linebreaks: {
+            automatic: true,
+        },
+    },
+});
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML' async></script>
+
+  <!-- DOM updating function -->
+  <script>
+const runWhenDOMLoaded = cb => {
+  if (document.readyState != 'loading') {
+    cb()
+  } else if (document.addEventListener) {
+    document.addEventListener('DOMContentLoaded', cb)
+  } else {
+    document.attachEvent('onreadystatechange', function() {
+      if (document.readyState == 'complete') cb()
+    })
+  }
+}
+
+// Helper function to init things quickly
+initFunction = function(myfunc) {
+  runWhenDOMLoaded(myfunc);
+  document.addEventListener('turbolinks:load', myfunc);
+};
+</script>
+
+  <!-- Define some javascript variables that will be useful in other javascript -->
+  <script>
+    const site_basename = '/practical-ds';
+  </script>
+
+  <!-- Add AnchorJS to let headers be linked -->
+  <script src="/practical-ds/assets/js/anchor.min.js"  type="text/javascript"></script>
+  <script>
+
+initFunction(function () {
+    anchors.add("main h1, main h2, main h3, main h4")
+});
+
+</script>
+
+  <!-- Include Turbolinks to make page loads fast -->
+  <!-- https://github.com/turbolinks/turbolinks -->
+  <script src="/practical-ds/assets/js/turbolinks.js" async></script>
+  <meta name="turbolinks-cache-control" content="no-cache">
+
+  <!-- Load nbinteract for widgets -->
+  <script src="https://unpkg.com/nbinteract-core" async></script>
+
+  <!-- Load Thebelab for interactive widgets -->
+  <!-- Include Thebelab for interactive code if it's enabled -->
+
+
+  <!-- Google analytics -->
+  <script src="/practical-ds/assets/js/ga.js" async></script>
+
+  <!-- Clipboard copy button -->
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" async></script>
+
+  <!-- Load JS that depends on site variables -->
+  <script>
+/**
+ * Set up copy/paste for code blocks
+ */
+const codeCellId = index => `codecell${index}`
+
+const clipboardButton = id =>
+  `<a class="btn copybtn o-tooltip--left" data-tooltip="Copy" data-clipboard-target="#${id}">
+    <img src="/practical-ds/assets/images/copy-button.svg" alt="Copy to clipboard">
+  </a>`
+
+// Clears selected text since ClipboardJS will select the text when copying
+const clearSelection = () => {
+  if (window.getSelection) {
+    window.getSelection().removeAllRanges()
+  } else if (document.selection) {
+    document.selection.empty()
+  }
+}
+
+// Changes tooltip text for two seconds, then changes it back
+const temporarilyChangeTooltip = (el, newText) => {
+  const oldText = el.getAttribute('data-tooltip')
+  el.setAttribute('data-tooltip', newText)
+  setTimeout(() => el.setAttribute('data-tooltip', oldText), 2000)
+}
+
+const addCopyButtonToCodeCells = () => {
+  // If ClipboardJS hasn't loaded, wait a bit and try again. This
+  // happens because we load ClipboardJS asynchronously.
+  if (window.ClipboardJS === undefined) {
+    setTimeout(addCopyButtonToCodeCells, 250)
+    return
+  }
+
+  const codeCells = document.querySelectorAll('div.highlighter-rouge:not(.output) pre')
+  codeCells.forEach((codeCell, index) => {
+    const id = codeCellId(index)
+    codeCell.setAttribute('id', id)
+    if (document.querySelector(`pre#${id} + a`) == null) {
+      codeCell.insertAdjacentHTML('afterend', clipboardButton(id));
+    }
+  })
+
+  const clipboard = new ClipboardJS('.copybtn')
+  clipboard.on('success', event => {
+    clearSelection()
+    temporarilyChangeTooltip(event.trigger, 'Copied!')
+  })
+
+  clipboard.on('error', event => {
+    temporarilyChangeTooltip(event.trigger, 'Failed to copy')
+  })
+
+  // Get rid of clipboard before the next page visit to avoid memory leak
+  document.addEventListener('turbolinks:before-visit', () =>
+    clipboard.destroy()
+  )
+}
+
+initFunction(addCopyButtonToCodeCells);
+</script>
+
+  <!-- Hide cell code -->
+  
+<script>
+/**
+Add buttons to hide code cells
+*/
+
+
+var setCodeCellVisibility = function(inputField, kind) {
+    // Update the image and class for hidden
+    var id = inputField.getAttribute('data-id');
+    var codeCell = document.querySelector(`#${id}`);
+
+    if (kind === "visible") {
+        codeCell.classList.remove('hidden');
+        inputField.checked = true;
+    } else {
+        codeCell.classList.add('hidden');
+        inputField.checked = false;
+    }
+}
+
+var toggleCodeCellVisibility = function (event) {
+    // The label is clicked, and now we decide what to do based on the input field's clicked status
+    if (event.target.tagName === "LABEL") {
+        var inputField = event.target.previousElementSibling;
+    } else {
+        // It is the span inside the target
+        var inputField = event.target.parentElement.previousElementSibling;
+    }
+
+    if (inputField.checked === true) {
+        setCodeCellVisibility(inputField, "visible");
+    } else {
+        setCodeCellVisibility(inputField, "hidden");
+    }
+}
+
+
+// Button constructor
+const hideCodeButton = id => `<input class="hidebtn" type="checkbox" id="hidebtn${id}" data-id="${id}"><label title="Toggle cell" for="hidebtn${id}" class="plusminus"><span class="pm_h"></span><span class="pm_v"></span></label>`
+
+var addHideButton = function () {
+  // If a hide button is already added, don't add another
+  if (document.querySelector('div.hidecode input') !== null) {
+      return;
+  }
+
+  // Find the input cells and add a hide button
+  document.querySelectorAll('div.input_area div.highlight').forEach(function (item, index) {
+    if (!item.parentElement.classList.contains("hidecode")) {
+        // Skip the cell if it doesn't have a hidecode class
+        return;
+    }
+
+    const id = codeCellId(index)
+    item.setAttribute('id', id);
+    item.insertAdjacentHTML('afterend', hideCodeButton(id))
+
+    // Set up the visibility toggle
+    hideLink = document.querySelector(`#${id} + input + label`);
+    hideLink.addEventListener('click', toggleCodeCellVisibility)
+  });
+}
+
+
+// Initialize the hide buttos
+var initHiddenCells = function () {
+    // Add hide buttons to the cells
+    addHideButton();
+
+    // Toggle the code cells that should be hidden
+    document.querySelectorAll('div.hidecode input').forEach(function (item) {
+        setCodeCellVisibility(item, 'hidden');
+        item.checked = true;
+    })
+}
+
+initFunction(initHiddenCells);
+
+</script>
+
+
+  <!-- Load custom website scripts -->
+  <script src="/practical-ds/assets/js/scripts.js" async></script>
+
+  <!-- Load custom user CSS and JS  -->
+  <script src="/practical-ds/assets/custom/custom.js" async></script>
+  <link rel="stylesheet" href="/practical-ds/assets/custom/custom.css">
+
+  <!-- Update interact links w/ REST param, is defined in includes so we can use templates -->
+  
+
+  <!-- Lunr search code - will only be executed on the /search page -->
+  <script src="/practical-ds/assets/js/lunr/lunr.min.js" type="text/javascript"></script>
+  <script>var initQuery = function() {
+  // See if we have a search box
+  var searchInput = document.querySelector('input#lunr_search');
+  if (searchInput === null) {
+    return;
+  }
+
+  // Function to parse our lunr cache
+  var idx = lunr(function () {
+    this.field('title')
+    this.field('excerpt')
+    this.field('categories')
+    this.field('tags')
+    this.ref('id')
+
+    this.pipeline.remove(lunr.trimmer)
+
+    for (var item in store) {
+      this.add({
+        title: store[item].title,
+        excerpt: store[item].excerpt,
+        categories: store[item].categories,
+        tags: store[item].tags,
+        id: item
+      })
+    }
+  });
+
+  // Run search upon keyup
+  searchInput.addEventListener('keyup', function () {
+    var resultdiv = document.querySelector('#results');
+    var query = document.querySelector("input#lunr_search").value.toLowerCase();
+    var result =
+      idx.query(function (q) {
+        query.split(lunr.tokenizer.separator).forEach(function (term) {
+          q.term(term, { boost: 100 })
+          if(query.lastIndexOf(" ") != query.length-1){
+            q.term(term, {  usePipeline: false, wildcard: lunr.Query.wildcard.TRAILING, boost: 10 })
+          }
+          if (term != ""){
+            q.term(term, {  usePipeline: false, editDistance: 1, boost: 1 })
+          }
+        })
+      });
+
+      // Empty the results div
+      while (resultdiv.firstChild) {
+        resultdiv.removeChild(resultdiv.firstChild);
+      }
+
+    resultdiv.insertAdjacentHTML('afterbegin', '<p class="results__found">'+result.length+' Result(s) found</p>');
+    for (var item in result) {
+      var ref = result[item].ref;
+      if(store[ref].teaser){
+        var searchitem =
+          '<div class="list__item">'+
+            '<article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">'+
+              '<h2 class="archive__item-title" itemprop="headline">'+
+                '<a href="'+store[ref].url+'" rel="permalink">'+store[ref].title+'</a>'+
+              '</h2>'+
+              '<div class="archive__item-teaser">'+
+                '<img src="'+store[ref].teaser+'" alt="">'+
+              '</div>'+
+              '<p class="archive__item-excerpt" itemprop="description">'+store[ref].excerpt.split(" ").splice(0,20).join(" ")+'...</p>'+
+            '</article>'+
+          '</div>';
+      }
+      else{
+    	  var searchitem =
+          '<div class="list__item">'+
+            '<article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">'+
+              '<h2 class="archive__item-title" itemprop="headline">'+
+                '<a href="'+store[ref].url+'" rel="permalink">'+store[ref].title+'</a>'+
+              '</h2>'+
+              '<p class="archive__item-excerpt" itemprop="description">'+store[ref].excerpt.split(" ").splice(0,20).join(" ")+'...</p>'+
+            '</article>'+
+          '</div>';
+      }
+      resultdiv.insertAdjacentHTML('beforeend', searchitem);
+    }
+  });
+};
+
+initFunction(initQuery);
+</script>
+</head>
+
+  <body>
+    <!-- .js-show-sidebar shows sidebar by default -->
+    <div id="js-textbook" class="c-textbook js-show-sidebar">
+      
+
+
+
+<nav id="js-sidebar" class="c-textbook__sidebar">
+  <a href="https://jupyter.org/jupyter-book/"><img src="/practical-ds/images/logo/logo.png" class="textbook_logo" id="sidebar-logo" data-turbolinks-permanent/></a>
+  <h2 class="c-sidebar__title">Data Science and Modeling in Practice</h2>
+  <ul class="c-sidebar__chapters">
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="/practical-ds/intro.html"
+        >
+          
+          Home
+        </a>
+
+        
+      </li>
+
+      
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="https://github.com/uribo/practical-ds"
+        >
+          
+          GitHub repository
+        </a>
+
+        
+      </li>
+
+      
+    
+      
+      
+        <li class="c-sidebar__chapter"><a class="c-sidebar__entry" href="/practical-ds/search.html">Search</a></li>
+        
+      
+      
+        <li class="c-sidebar__divider"></li>
+        
+      
+      
+        <li><h2 class="c-sidebar__title">Demo textbook</li>
+        
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="/practical-ds/01/readme.html"
+        >
+          
+          データ分析の流れ
+        </a>
+
+        
+
+          
+          
+          
+          
+
+          
+
+          <ul class="c-sidebar__sections ">
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/01/introduction.html"
+                >
+                  
+                  データ分析のプロセス
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/01/eda.html"
+                >
+                  
+                  探索的データ分析
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/01/tidy_data.html"
+                >
+                  
+                  tidyデータと前処理
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/01/tidymodels_workflow.html"
+                >
+                  
+                  モデルの構築から評価まで
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+          </ul>
+        
+      </li>
+
+      
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="/practical-ds/02/readme.html"
+        >
+          
+          特徴量エンジニアリング
+        </a>
+
+        
+
+          
+          
+          
+          
+
+          
+
+          <ul class="c-sidebar__sections ">
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/numeric.html"
+                >
+                  
+                  数値データの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry c-sidebar__entry--active"
+                  href="/practical-ds/02/categorical.html"
+                >
+                  
+                  カテゴリデータの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/text.html"
+                >
+                  
+                  テキストデータの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/date-and-time.html"
+                >
+                  
+                  日付・時間データの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/spatial-data.html"
+                >
+                  
+                  地理空間データの取り扱いの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+          </ul>
+        
+      </li>
+
+      
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="/practical-ds/03/readme.html"
+        >
+          
+          より良いモデルを目指して
+        </a>
+
+        
+
+          
+          
+          
+          
+
+          
+
+          <ul class="c-sidebar__sections ">
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/handling-missing-data.html"
+                >
+                  
+                  欠損値の処理
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/dimension-reduction.html"
+                >
+                  
+                  次元削減
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/model-performance.html"
+                >
+                  
+                  モデルの性能評価
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/data-splitting.html"
+                >
+                  
+                  データ分割
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/feature-selection.html"
+                >
+                  
+                  変数重要度
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/interpretability.html"
+                >
+                  
+                  モデルの解釈
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+          </ul>
+        
+      </li>
+
+      
+    
+  </ul>
+  <p class="sidebar_footer">Powered by <a href="https://github.com/jupyter/jupyter-book">Jupyter Book</a></p>
+</nav>
+
+      
+      <!-- Shamelessly copied from minimal mistakes -->
+
+
+<!-- TOC will only show up if it has at least one item -->
+
+
+  <aside class="sidebar__right">
+    <nav class="onthispage">
+      <header><h4 class="nav__title"><i class="fa fa-list"></i>   On this page</h4></header>
+      <ul class="toc__menu">
+  <li><a href="#ビンカウンティング">ビンカウンティング</a>
+    <ul>
+      <li><a href="#カウントエンコーディング">カウントエンコーディング</a></li>
+      <li><a href="#ラベルエンコーディング">ラベルエンコーディング</a></li>
+      <li><a href="#ターゲットエンコーディング">ターゲットエンコーディング</a></li>
+      <li><a href="#catboost">CatBoost</a></li>
+    </ul>
+  </li>
+  <li><a href="#ダミー変数化">ダミー変数化</a>
+    <ul>
+      <li><a href="#ダミーコーディング">ダミーコーディング</a></li>
+      <li><a href="#one-hotエンコーディング">One-hotエンコーディング</a></li>
+      <li><a href="#effectコーディング">effectコーディング</a></li>
+    </ul>
+  </li>
+  <li><a href="#カテゴリ変数の縮約拡張">カテゴリ変数の縮約・拡張</a>
+    <ul>
+      <li><a href="#polynomial-encoding">Polynomial encoding</a></li>
+      <li><a href="#expansion-encoding">Expansion encoding</a></li>
+    </ul>
+  </li>
+  <li><a href="#多くのカテゴリを持つ場合の処理">多くのカテゴリを持つ場合の処理</a>
+    <ul>
+      <li><a href="#ターゲットエンコーディングの平滑化処理">ターゲットエンコーディングの平滑化処理</a></li>
+      <li><a href="#特徴量ハッシング">特徴量ハッシング</a></li>
+    </ul>
+  </li>
+  <li><a href="#まとめ">まとめ</a></li>
+  <li><a href="#関連項目">関連項目</a></li>
+  <li><a href="#参考文献">参考文献</a></li>
+</ul>
+    </nav>
+  </aside>
+
+
+      
+      <main class="c-textbook__page" tabindex="-1">
+          <div class="o-wrapper">
+            <div class="c-sidebar-toggle">
+  <!-- We show the sidebar by default so we use .is-active -->
+  <button
+    id="js-sidebar-toggle"
+    class="hamburger hamburger--arrowalt is-active"
+  >
+    <span class="hamburger-box">
+      <span class="hamburger-inner"></span>
+    </span>
+    <span class="c-sidebar-toggle__label">Toggle Sidebar</span>
+  </button>
+</div>
+
+            
+<div class="buttons">
+
+
+
+
+
+</div>
+
+
+            <div class="c-textbook__content">
+              <div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">source</span><span class="p">(</span><span class="n">here</span><span class="o">::</span><span class="n">here</span><span class="p">(</span><span class="s2">"R/setup.R"</span><span class="p">))</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">cattonum</span><span class="p">)</span><span class="w">
+
+</span><span class="n">df_hazard</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> 
+  </span><span class="n">df_hazard</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">st_drop_geometry</span><span class="p">()</span><span class="w">
+</span></code></pre></div></div>
+
+<h1 id="カテゴリデータの取り扱い">カテゴリデータの取り扱い</h1>
+
+<p>ダミー変数の作成</p>
+
+<p>多くの統計・機械学習モデルでは、数値化を求めます。</p>
+
+<p>だめ… SVM、ニューラルネットワーク</p>
+
+<p>xgboost, glmnet etc.</p>
+
+<p>カテゴリの変数には、次にあげる特徴が含まれる場合があります。</p>
+
+<ol>
+  <li>大小または順序関係</li>
+  <li>重み</li>
+</ol>
+
+<p>ここで紹介する多くの特徴量エンジニアリングは、カテゴリ変数がもつ特徴を考慮しつつ、数値化するものとなります。</p>
+
+<p>定性的</p>
+
+<p>一方で、数値のように扱える郵便番号などは数値として扱ってはいけません。これらは数値出会っても大小関係や連続的な意味をもたないためです。</p>
+
+<p>「どれだけ違うか」ではなく「値が異なることが重要」</p>
+
+<p>メッシュコード</p>
+
+<p>尺度の問題？？</p>
+
+<p>カテゴリに順序を与える
+大きさを示す変数として「大」、「中」、「小」の3項目がある場合、「大」は「小」よりも大きいことはわかります。この関係は1から3の数値に示すことが可能で、大は一番大きな値である3と対応するという変換を行うことができます。</p>
+
+<p>ここではビールへの支出データおよび土砂災害・雪崩メッシュデータを利用します。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_beer2018q2</span><span class="w">
+</span><span class="n">df_hazard</span><span class="w">
+</span></code></pre></div></div>
+
+<p>カテゴリ変数の特徴量エンジニアリングには、次元を増やす、増やさないの両方のパターンがあります。</p>
+
+<p>それぞれの方法をみていきましょう。</p>
+
+<p>色々ある。これで全てではない。weight of evidenceなど。</p>
+
+<p>カテゴリを数値に変換する処理のことを全般的にエンコーディング</p>
+
+<h2 id="ビンカウンティング">ビンカウンティング</h2>
+
+<p>統計量を当てはめるのをビンカウンティング</p>
+
+<h3 id="カウントエンコーディング">カウントエンコーディング</h3>
+
+<p>カウント変数の項目に対して、頻度を求めたものがカウントエンコーディングです。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">set.seed</span><span class="p">(</span><span class="m">1236</span><span class="p">)</span><span class="w">
+</span><span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> 
+  </span><span class="n">df_hazard</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">sample_n</span><span class="p">(</span><span class="m">10</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">hazardDate</span><span class="p">,</span><span class="w"> </span><span class="n">hazardType</span><span class="p">,</span><span class="w"> </span><span class="n">maxRainfall_h</span><span class="p">)</span><span class="w">
+</span><span class="n">df</span><span class="w">
+</span></code></pre></div></div>
+
+<p>このようなデータに対して、hazardTypeのカウントエンコーディングを適用すると次のようになります。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">hazardType</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">hazardDate</span><span class="p">,</span><span class="w">
+            </span><span class="n">hazardType_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">(),</span><span class="w">
+            </span><span class="n">maxRainfall_h</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">ungroup</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">hazardDate</span><span class="p">,</span><span class="w"> </span><span class="n">hazardType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hazardType_</span><span class="p">,</span><span class="w"> </span><span class="n">maxRainfall_h</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>カテゴリ内での出現頻度が多ければ多いほど、特徴量の値は大きくなり、影響も強くなります。一方で、元は異なる水準であったものが同じ出現頻度であった場合にはエンコード後の値が同じになってしまうことに注意です。例では、出現頻度が1の「地すべり」と「雪崩」</p>
+
+<h3 id="ラベルエンコーディング">ラベルエンコーディング</h3>
+
+<p>ラベルエンコーディング (label encoding) はカテゴリに対して一意の数値を割り振るというアイデアが単純なものですが、それではカテゴリがもつ特徴を拾い上げることはできません。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_hazard</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">st_drop_geometry</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">hazardType</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">slice</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="m">2L</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">ungroup</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">distinct</span><span class="p">(</span><span class="n">hazardType</span><span class="p">,</span><span class="w"> </span><span class="n">hazardType_sub</span><span class="p">,</span><span class="w"> </span><span class="n">.keep_all</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">hazardType</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">hazardType_num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">as.factor</span><span class="p">(</span><span class="n">hazardType</span><span class="p">)))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">head</span><span class="p">(</span><span class="m">10</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="ターゲットエンコーディング">ターゲットエンコーディング</h3>
+
+<p>ターゲットエンコーディング (target-based encoding, likelihood encoding) は、カテゴリ変数と対応する目的変数の値を利用した方法です。カテゴリ変数の水準ごとに、水準の項目を目的変数の平均値に置き換えるという処理を行います。例えば、カテゴリ変数にAという項目が4つ含まれ、それぞれに1.5, 3.0, 0, 1.2のoutcomeが与えられているとします。この場合、outcomeの平均値は1.425なので、カテゴリ変数のAは1.425に置き換えられます。また以下のように目的変数が論理値である場合には、それを数値に変換した値を利用します（RではTRUEが1、FALSEが0）。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> 
+  </span><span class="n">tibble</span><span class="p">(</span><span class="w">
+  </span><span class="n">feature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"A"</span><span class="p">,</span><span class="w"> </span><span class="s2">"A"</span><span class="p">,</span><span class="w"> </span><span class="s2">"A"</span><span class="p">,</span><span class="w"> </span><span class="s2">"A"</span><span class="p">,</span><span class="w"> </span><span class="s2">"B"</span><span class="p">,</span><span class="w"> </span><span class="s2">"B"</span><span class="p">,</span><span class="w"> </span><span class="s2">"C"</span><span class="p">,</span><span class="w"> </span><span class="s2">"C"</span><span class="p">),</span><span class="w">
+  </span><span class="n">outcome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">,</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">,</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">,</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">,</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">add_count</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span><span class="w">
+
+</span><span class="n">df</span><span class="w">
+
+</span><span class="n">df</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">outcome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">outcome</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">catto_mean</span><span class="p">(</span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">outcome</span><span class="p">)</span><span class="w">
+
+</span><span class="c1"># df_target_enc &lt;- </span><span class="w">
+</span><span class="c1">#   df %&gt;% </span><span class="w">
+</span><span class="c1">#   add_count(feature) %&gt;%</span><span class="w">
+</span><span class="c1">#   group_by(feature) %&gt;% </span><span class="w">
+</span><span class="c1">#   mutate(mean_encode = sum(outcome) / n) %&gt;% </span><span class="w">
+</span><span class="c1">#   ungroup() %&gt;% </span><span class="w">
+</span><span class="c1">#   select(-feature)</span><span class="w">
+</span><span class="c1"># </span><span class="w">
+</span><span class="c1"># df_target_enc</span><span class="w">
+</span></code></pre></div></div>
+
+<p>データリークを起こしてしまう問題がある。</p>
+
+<p>また</p>
+
+<p>頻度の低い水準がある場合も過学習の原因になってしまう可能性がある。</p>
+
+<h4 id="leave-one-out-エンコーディング">Leave one out エンコーディング</h4>
+
+<p>ターゲットエンコーディングの計算において、</p>
+
+<p>データリークを防ぐように</p>
+
+<p>自身を除いて計算します。</p>
+
+<p>完全に防げるわけではない?</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># df_target_enc %&gt;% </span><span class="w">
+</span><span class="c1">#   group_by(feature) %&gt;% </span><span class="w">
+</span><span class="c1">#   mutate(loo_encode = lead(outcome))</span><span class="w">
+
+</span><span class="n">df</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">outcome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">outcome</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">catto_loo</span><span class="p">(</span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">outcome</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="catboost">CatBoost</h3>
+
+<h2 id="ダミー変数化">ダミー変数化</h2>
+
+<p>カテゴリ変数を数値に変換する処理は
+エンコードと呼ばれます。</p>
+
+<h3 id="ダミーコーディング">ダミーコーディング</h3>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mod_fml</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">formula</span><span class="p">(</span><span class="n">expense</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">date</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">weatherdaytime_06_00_18_00</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>どうして一つ減るのか</p>
+
+<ul>
+  <li>他のダミー変数の値から残り一つの値が推測できる… 他が0であれば1、他のダミー変数に1があれば0</li>
+</ul>
+
+<p>フルランク未満のエンコーディングは One-hotエンコーディング</p>
+
+<ul>
+  <li>ダミー変数が多くなると次元の数が増える (データ件数を上回ることも)</li>
+</ul>
+
+<p>曜日をダミーコーディングする例を考えてみましょう。曜日は7つの値を取りますが、</p>
+
+<p>コントラスト関数は6つのダミー変数で曜日を表現することになります。</p>
+
+<p>6列… 該当する曜日で1, そうでない場合に0</p>
+
+<p>まずは年月日からなる日付の変数から曜日を取り出す必要があります。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_baked_split_date</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> 
+  </span><span class="n">df_beer2018q2</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">recipe</span><span class="p">(</span><span class="n">mod_fml</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">step_date</span><span class="p">(</span><span class="n">date</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">prep</span><span class="p">(</span><span class="n">training</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">df_beer2018q2</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">bake</span><span class="p">(</span><span class="n">new_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">df_beer2018q2</span><span class="p">)</span><span class="w">
+
+</span><span class="n">glimpse</span><span class="p">(</span><span class="n">df_baked_split_date</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>日付を記録するdate列の要素が分解され、新たな特徴量として追加されました。それでは曜日のダミーコーディングを実行します。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_baked_split_date</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">recipe</span><span class="p">(</span><span class="n">expense</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">step_dummy</span><span class="p">(</span><span class="n">date_dow</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">prep</span><span class="p">(</span><span class="n">training</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">df_baked_split_date</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">bake</span><span class="p">(</span><span class="n">new_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">df_baked_split_date</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">starts_with</span><span class="p">(</span><span class="s2">"date_dow"</span><span class="p">),</span><span class="w"> </span><span class="n">everything</span><span class="p">())</span><span class="w">
+</span></code></pre></div></div>
+
+<p>今度は分解した曜日の情報をもとに、ビールの売り上げは「翌日に仕事が控えている曜日よりも休日の方が増えそうだ」という直感を調べてみましょう。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_baked_split_date</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> 
+  </span><span class="n">df_baked_split_date</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">is_weekend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">if_else</span><span class="p">(</span><span class="n">date_dow</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"土"</span><span class="p">,</span><span class="w"> </span><span class="s2">"日"</span><span class="p">),</span><span class="w">
+                              </span><span class="kc">TRUE</span><span class="p">,</span><span class="w">
+                              </span><span class="kc">FALSE</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_baked_split_date</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">ggplot</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">date_dow</span><span class="p">,</span><span class="w"> </span><span class="n">expense</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_boxplot</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">is_weekend</span><span class="p">),</span><span class="w"> </span><span class="n">outlier.shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">NA</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">geom_jitter</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">is_weekend</span><span class="p">),</span><span class="w"> </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0.3</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">scale_color_ds</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w">
+  </span><span class="n">facet_wrap</span><span class="p">(</span><span class="o">~</span><span class="w"> </span><span class="n">date_month</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>目論見通り、どの月でも平日よりも休日の方が支出が増えているようです。また、8月は週ごとに変動が大きく、9月では平日との差がほとんどないということもグラフから読み取れます。新たな特徴量の作成と関係の図示により、経験的な推論を確認するだけでなく、モデルに対する新たな洞察も得ることができました。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 日本の祝日判定に次の項目が利用可能</span><span class="w">
+</span><span class="n">stringr</span><span class="o">::</span><span class="n">str_subset</span><span class="p">(</span><span class="n">timeDate</span><span class="o">::</span><span class="n">listHolidays</span><span class="p">(),</span><span class="w"> </span><span class="s2">"^JP"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>カテゴリに含まれる項目のうち</p>
+
+<p>k-1の</p>
+
+<h3 id="one-hotエンコーディング">One-hotエンコーディング</h3>
+
+<p>カテゴリ変数に含まれる項目を新たな列として扱い、カテゴリに該当する場合は1、そうでない場合には0を与えていく方法です。</p>
+
+<p>ダミー変数とは異なり、ターゲットの項目も残るのが特徴です。</p>
+
+<blockquote>
+  <p>one-hot表現というのはある要素のみが1でその他の要素が0であるような表現方法</p>
+</blockquote>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_baked_split_date</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">recipe</span><span class="p">(</span><span class="n">expense</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">.</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">step_dummy</span><span class="p">(</span><span class="n">date_dow</span><span class="p">,</span><span class="w"> </span><span class="n">one_hot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">prep</span><span class="p">(</span><span class="n">training</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">df_baked_split_date</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">bake</span><span class="p">(</span><span class="n">new_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">df_baked_split_date</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">starts_with</span><span class="p">(</span><span class="s2">"date_dow"</span><span class="p">),</span><span class="w"> </span><span class="n">everything</span><span class="p">())</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p>カテゴリ数に応じて列数が増えることや、新しい値が出現する度に列数を増やす必要があることが問題点</p>
+</blockquote>
+
+<p>ダミーコーディングでは、カテゴリが多い場合にデータサイズが増大し、さらに大量の0と一部の1を含んだスパースデータ (sparse data) になりやすいことに留意しましょう。カテゴリの数が多い場合には次の特徴量ハッシュやビンカウンティングが有効です。</p>
+
+<!-- スパースデータは計算コストが大きくなります -->
+
+<h3 id="effectコーディング">effectコーディング</h3>
+
+<h2 id="カテゴリ変数の縮約拡張">カテゴリ変数の縮約・拡張</h2>
+
+<h3 id="polynomial-encoding">Polynomial encoding</h3>
+
+<h3 id="expansion-encoding">Expansion encoding</h3>
+
+<p>ビールの支出データに含まれるweatherdaytime_06_00_18_00には、「晴」や「曇」だけでなく「曇一時雨」や「雨後時々曇」といった気象に関する項目が含まれます。項目の組み合わせによる表現が可能であるため、カテゴリの数は多くなっています。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_beer2018q2</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">count</span><span class="p">(</span><span class="n">weatherdaytime_06_00_18_00</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>この一次や時々によって区切ることが可能な項目</p>
+
+<p>を新たな特徴量として活用するのがexpansion encodingになります。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_beer2018q2_baked</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> 
+  </span><span class="n">df_beer2018q2</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">select</span><span class="p">(</span><span class="n">date</span><span class="p">,</span><span class="w"> </span><span class="n">expense</span><span class="p">,</span><span class="w"> </span><span class="n">weatherdaytime_06_00_18_00</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">tidyr</span><span class="o">::</span><span class="n">separate</span><span class="p">(</span><span class="n">weatherdaytime_06_00_18_00</span><span class="p">,</span><span class="w"> 
+                  </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"(後一時|一時|後時々|時々|後)"</span><span class="p">,</span><span class="w"> 
+                  </span><span class="n">into</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">paste</span><span class="p">(</span><span class="s2">"weatherdaytime_06_00_18_00"</span><span class="p">,</span><span class="w"> 
+                                </span><span class="nf">c</span><span class="p">(</span><span class="s2">"main"</span><span class="p">,</span><span class="w"> </span><span class="s2">"sub"</span><span class="p">),</span><span class="w">
+                               </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"_"</span><span class="p">))</span><span class="w">
+
+</span><span class="n">df_beer2018q2_baked</span><span class="w">
+</span></code></pre></div></div>
+
+<p>複雑なカテゴリを評価するのではなく、大雑把なカテゴリとして扱いたい場合にはカテゴリの項目を減らすことが有効でしょう。</p>
+
+<div class="language-R input_area highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_beer2018q2_baked</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">count</span><span class="p">(</span><span class="n">weatherdaytime_06_00_18_00_main</span><span class="p">,</span><span class="w">
+        </span><span class="n">weatherdaytime_06_00_18_00_sub</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="多くのカテゴリを持つ場合の処理">多くのカテゴリを持つ場合の処理</h2>
+
+<p>ビンカウンティング以外の方法を紹介します。</p>
+
+<!-- 次元削減の項目も参照 -->
+
+<h3 id="ターゲットエンコーディングの平滑化処理">ターゲットエンコーディングの平滑化処理</h3>
+
+<h3 id="特徴量ハッシング">特徴量ハッシング</h3>
+
+<p>ハッシュ関数を利用した</p>
+
+<p>固定の配列に変換する</p>
+
+<h2 id="まとめ">まとめ</h2>
+
+<ul>
+  <li>カテゴリ変数はツリーベースのモデルを除いて、モデルに適用可能な状態、数値に変換する必要がある</li>
+  <li>もっとも単純なものはカテゴリに含まれる値を独立した変数として扱うこと
+    <ul>
+      <li>カテゴリ内の順序を考慮するには別な方法が必要</li>
+    </ul>
+  </li>
+  <li>テキストも同様に数値化が必要。一般的には頻度の少ない単語が除外される。</li>
+</ul>
+
+<h2 id="関連項目">関連項目</h2>
+
+<h2 id="参考文献">参考文献</h2>
+
+<ul>
+  <li>Max Kuhn and Kjell Johnson (2013). Applied Predictive Modeling (Springer)</li>
+</ul>
+
+              <nav class="c-page__nav">
+  
+    
+    <a id="js-page__nav__prev" class="c-page__nav__prev" href="/practical-ds/02/numeric">
+      〈 <span class="u-margin-right-tiny"></span> 数値データの取り扱い
+    </a>
+  
+
+  
+    
+    <a id="js-page__nav__next" class="c-page__nav__next" href="/practical-ds/02/text">
+      テキストデータの取り扱い <span class="u-margin-right-tiny"></span> 〉
+    </a>
+  
+</nav>
+
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+  </body>
+</html>

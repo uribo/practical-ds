@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,minimum-scale=1">
+
+  <title>データ分析のプロセス</title>
+  <meta name="description" content="">
+
+  <link rel="canonical" href="https://uribo.github.io/practical-ds/01/introduction.html">
+  <link rel="alternate" type="application/rss+xml" title="Data Science and Modeling in Practice" href="https://uribo.github.io/practical-ds/feed.xml">
+
+  <meta property="og:url"         content="https://uribo.github.io/practical-ds/01/introduction.html" />
+<meta property="og:type"        content="article" />
+<meta property="og:title"       content="データ分析のプロセス" />
+<meta property="og:description" content="" />
+<meta property="og:image"       content="" />
+
+
+  <script type="application/ld+json">
+  {
+  "@context": "http://schema.org",
+  "@type": "NewsArticle",
+  "mainEntityOfPage":
+    "https://uribo.github.io/practical-ds/01/introduction.html",
+  "headline":
+    "データ分析のプロセス",
+  "datePublished":
+    "2019-07-04T08:01:20+09:00",
+  "dateModified":
+    "2019-07-04T08:01:20+09:00",
+  "description":
+    "",
+  "author": {
+    "@type": "Person",
+    "name": "Shinya Uryu"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Data 100 at UC Berkeley",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://uribo.github.io/practical-ds",
+      "width": 60,
+      "height": 60
+    }
+  },
+  "image": {
+    "@type": "ImageObject",
+    "url": "https://uribo.github.io/practical-ds",
+    "height": 60,
+    "width": 60
+  }
+}
+
+  </script>
+  <link rel="stylesheet" href="/practical-ds/assets/css/styles.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css ">
+  <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+
+  <!-- <link rel="manifest" href="/manifest.json"> -->
+  <!-- <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#efae0a"> -->
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+  <meta name="theme-color" content="#233947">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="/practical-ds/images/logo/favicon.ico">
+
+  <!-- MathJax Config -->
+  <!-- Allow inline math using $ and automatically break long math lines -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+        processEscapes: true,
+        processEnvironments: true
+    },
+    CommonHTML: {
+        linebreaks: {
+            automatic: true,
+        },
+    },
+});
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_CHTML' async></script>
+
+  <!-- DOM updating function -->
+  <script>
+const runWhenDOMLoaded = cb => {
+  if (document.readyState != 'loading') {
+    cb()
+  } else if (document.addEventListener) {
+    document.addEventListener('DOMContentLoaded', cb)
+  } else {
+    document.attachEvent('onreadystatechange', function() {
+      if (document.readyState == 'complete') cb()
+    })
+  }
+}
+
+// Helper function to init things quickly
+initFunction = function(myfunc) {
+  runWhenDOMLoaded(myfunc);
+  document.addEventListener('turbolinks:load', myfunc);
+};
+</script>
+
+  <!-- Define some javascript variables that will be useful in other javascript -->
+  <script>
+    const site_basename = '/practical-ds';
+  </script>
+
+  <!-- Add AnchorJS to let headers be linked -->
+  <script src="/practical-ds/assets/js/anchor.min.js"  type="text/javascript"></script>
+  <script>
+
+initFunction(function () {
+    anchors.add("main h1, main h2, main h3, main h4")
+});
+
+</script>
+
+  <!-- Include Turbolinks to make page loads fast -->
+  <!-- https://github.com/turbolinks/turbolinks -->
+  <script src="/practical-ds/assets/js/turbolinks.js" async></script>
+  <meta name="turbolinks-cache-control" content="no-cache">
+
+  <!-- Load nbinteract for widgets -->
+  <script src="https://unpkg.com/nbinteract-core" async></script>
+
+  <!-- Load Thebelab for interactive widgets -->
+  <!-- Include Thebelab for interactive code if it's enabled -->
+
+
+  <!-- Google analytics -->
+  <script src="/practical-ds/assets/js/ga.js" async></script>
+
+  <!-- Clipboard copy button -->
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" async></script>
+
+  <!-- Load JS that depends on site variables -->
+  <script>
+/**
+ * Set up copy/paste for code blocks
+ */
+const codeCellId = index => `codecell${index}`
+
+const clipboardButton = id =>
+  `<a class="btn copybtn o-tooltip--left" data-tooltip="Copy" data-clipboard-target="#${id}">
+    <img src="/practical-ds/assets/images/copy-button.svg" alt="Copy to clipboard">
+  </a>`
+
+// Clears selected text since ClipboardJS will select the text when copying
+const clearSelection = () => {
+  if (window.getSelection) {
+    window.getSelection().removeAllRanges()
+  } else if (document.selection) {
+    document.selection.empty()
+  }
+}
+
+// Changes tooltip text for two seconds, then changes it back
+const temporarilyChangeTooltip = (el, newText) => {
+  const oldText = el.getAttribute('data-tooltip')
+  el.setAttribute('data-tooltip', newText)
+  setTimeout(() => el.setAttribute('data-tooltip', oldText), 2000)
+}
+
+const addCopyButtonToCodeCells = () => {
+  // If ClipboardJS hasn't loaded, wait a bit and try again. This
+  // happens because we load ClipboardJS asynchronously.
+  if (window.ClipboardJS === undefined) {
+    setTimeout(addCopyButtonToCodeCells, 250)
+    return
+  }
+
+  const codeCells = document.querySelectorAll('div.highlighter-rouge:not(.output) pre')
+  codeCells.forEach((codeCell, index) => {
+    const id = codeCellId(index)
+    codeCell.setAttribute('id', id)
+    if (document.querySelector(`pre#${id} + a`) == null) {
+      codeCell.insertAdjacentHTML('afterend', clipboardButton(id));
+    }
+  })
+
+  const clipboard = new ClipboardJS('.copybtn')
+  clipboard.on('success', event => {
+    clearSelection()
+    temporarilyChangeTooltip(event.trigger, 'Copied!')
+  })
+
+  clipboard.on('error', event => {
+    temporarilyChangeTooltip(event.trigger, 'Failed to copy')
+  })
+
+  // Get rid of clipboard before the next page visit to avoid memory leak
+  document.addEventListener('turbolinks:before-visit', () =>
+    clipboard.destroy()
+  )
+}
+
+initFunction(addCopyButtonToCodeCells);
+</script>
+
+  <!-- Hide cell code -->
+  
+<script>
+/**
+Add buttons to hide code cells
+*/
+
+
+var setCodeCellVisibility = function(inputField, kind) {
+    // Update the image and class for hidden
+    var id = inputField.getAttribute('data-id');
+    var codeCell = document.querySelector(`#${id}`);
+
+    if (kind === "visible") {
+        codeCell.classList.remove('hidden');
+        inputField.checked = true;
+    } else {
+        codeCell.classList.add('hidden');
+        inputField.checked = false;
+    }
+}
+
+var toggleCodeCellVisibility = function (event) {
+    // The label is clicked, and now we decide what to do based on the input field's clicked status
+    if (event.target.tagName === "LABEL") {
+        var inputField = event.target.previousElementSibling;
+    } else {
+        // It is the span inside the target
+        var inputField = event.target.parentElement.previousElementSibling;
+    }
+
+    if (inputField.checked === true) {
+        setCodeCellVisibility(inputField, "visible");
+    } else {
+        setCodeCellVisibility(inputField, "hidden");
+    }
+}
+
+
+// Button constructor
+const hideCodeButton = id => `<input class="hidebtn" type="checkbox" id="hidebtn${id}" data-id="${id}"><label title="Toggle cell" for="hidebtn${id}" class="plusminus"><span class="pm_h"></span><span class="pm_v"></span></label>`
+
+var addHideButton = function () {
+  // If a hide button is already added, don't add another
+  if (document.querySelector('div.hidecode input') !== null) {
+      return;
+  }
+
+  // Find the input cells and add a hide button
+  document.querySelectorAll('div.input_area div.highlight').forEach(function (item, index) {
+    if (!item.parentElement.classList.contains("hidecode")) {
+        // Skip the cell if it doesn't have a hidecode class
+        return;
+    }
+
+    const id = codeCellId(index)
+    item.setAttribute('id', id);
+    item.insertAdjacentHTML('afterend', hideCodeButton(id))
+
+    // Set up the visibility toggle
+    hideLink = document.querySelector(`#${id} + input + label`);
+    hideLink.addEventListener('click', toggleCodeCellVisibility)
+  });
+}
+
+
+// Initialize the hide buttos
+var initHiddenCells = function () {
+    // Add hide buttons to the cells
+    addHideButton();
+
+    // Toggle the code cells that should be hidden
+    document.querySelectorAll('div.hidecode input').forEach(function (item) {
+        setCodeCellVisibility(item, 'hidden');
+        item.checked = true;
+    })
+}
+
+initFunction(initHiddenCells);
+
+</script>
+
+
+  <!-- Load custom website scripts -->
+  <script src="/practical-ds/assets/js/scripts.js" async></script>
+
+  <!-- Load custom user CSS and JS  -->
+  <script src="/practical-ds/assets/custom/custom.js" async></script>
+  <link rel="stylesheet" href="/practical-ds/assets/custom/custom.css">
+
+  <!-- Update interact links w/ REST param, is defined in includes so we can use templates -->
+  
+
+  <!-- Lunr search code - will only be executed on the /search page -->
+  <script src="/practical-ds/assets/js/lunr/lunr.min.js" type="text/javascript"></script>
+  <script>var initQuery = function() {
+  // See if we have a search box
+  var searchInput = document.querySelector('input#lunr_search');
+  if (searchInput === null) {
+    return;
+  }
+
+  // Function to parse our lunr cache
+  var idx = lunr(function () {
+    this.field('title')
+    this.field('excerpt')
+    this.field('categories')
+    this.field('tags')
+    this.ref('id')
+
+    this.pipeline.remove(lunr.trimmer)
+
+    for (var item in store) {
+      this.add({
+        title: store[item].title,
+        excerpt: store[item].excerpt,
+        categories: store[item].categories,
+        tags: store[item].tags,
+        id: item
+      })
+    }
+  });
+
+  // Run search upon keyup
+  searchInput.addEventListener('keyup', function () {
+    var resultdiv = document.querySelector('#results');
+    var query = document.querySelector("input#lunr_search").value.toLowerCase();
+    var result =
+      idx.query(function (q) {
+        query.split(lunr.tokenizer.separator).forEach(function (term) {
+          q.term(term, { boost: 100 })
+          if(query.lastIndexOf(" ") != query.length-1){
+            q.term(term, {  usePipeline: false, wildcard: lunr.Query.wildcard.TRAILING, boost: 10 })
+          }
+          if (term != ""){
+            q.term(term, {  usePipeline: false, editDistance: 1, boost: 1 })
+          }
+        })
+      });
+
+      // Empty the results div
+      while (resultdiv.firstChild) {
+        resultdiv.removeChild(resultdiv.firstChild);
+      }
+
+    resultdiv.insertAdjacentHTML('afterbegin', '<p class="results__found">'+result.length+' Result(s) found</p>');
+    for (var item in result) {
+      var ref = result[item].ref;
+      if(store[ref].teaser){
+        var searchitem =
+          '<div class="list__item">'+
+            '<article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">'+
+              '<h2 class="archive__item-title" itemprop="headline">'+
+                '<a href="'+store[ref].url+'" rel="permalink">'+store[ref].title+'</a>'+
+              '</h2>'+
+              '<div class="archive__item-teaser">'+
+                '<img src="'+store[ref].teaser+'" alt="">'+
+              '</div>'+
+              '<p class="archive__item-excerpt" itemprop="description">'+store[ref].excerpt.split(" ").splice(0,20).join(" ")+'...</p>'+
+            '</article>'+
+          '</div>';
+      }
+      else{
+    	  var searchitem =
+          '<div class="list__item">'+
+            '<article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">'+
+              '<h2 class="archive__item-title" itemprop="headline">'+
+                '<a href="'+store[ref].url+'" rel="permalink">'+store[ref].title+'</a>'+
+              '</h2>'+
+              '<p class="archive__item-excerpt" itemprop="description">'+store[ref].excerpt.split(" ").splice(0,20).join(" ")+'...</p>'+
+            '</article>'+
+          '</div>';
+      }
+      resultdiv.insertAdjacentHTML('beforeend', searchitem);
+    }
+  });
+};
+
+initFunction(initQuery);
+</script>
+</head>
+
+  <body>
+    <!-- .js-show-sidebar shows sidebar by default -->
+    <div id="js-textbook" class="c-textbook js-show-sidebar">
+      
+
+
+
+<nav id="js-sidebar" class="c-textbook__sidebar">
+  <a href="https://jupyter.org/jupyter-book/"><img src="/practical-ds/images/logo/logo.png" class="textbook_logo" id="sidebar-logo" data-turbolinks-permanent/></a>
+  <h2 class="c-sidebar__title">Data Science and Modeling in Practice</h2>
+  <ul class="c-sidebar__chapters">
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry c-sidebar__entry--active"
+          href="/practical-ds/intro.html"
+        >
+          
+          Home
+        </a>
+
+        
+      </li>
+
+      
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="https://github.com/uribo/practical-ds"
+        >
+          
+          GitHub repository
+        </a>
+
+        
+      </li>
+
+      
+    
+      
+      
+        <li class="c-sidebar__chapter"><a class="c-sidebar__entry" href="/practical-ds/search.html">Search</a></li>
+        
+      
+      
+        <li class="c-sidebar__divider"></li>
+        
+      
+      
+        <li><h2 class="c-sidebar__title">Demo textbook</li>
+        
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="/practical-ds/01/readme.html"
+        >
+          
+          データ分析の流れ
+        </a>
+
+        
+
+          
+          
+          
+          
+
+          
+
+          <ul class="c-sidebar__sections ">
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry c-sidebar__entry--active"
+                  href="/practical-ds/01/introduction.html"
+                >
+                  
+                  データ分析のプロセス
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/01/eda.html"
+                >
+                  
+                  探索的データ分析
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/01/tidy_data.html"
+                >
+                  
+                  tidyデータと前処理
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/01/tidymodels_workflow.html"
+                >
+                  
+                  モデルの構築から評価まで
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+          </ul>
+        
+      </li>
+
+      
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="/practical-ds/02/readme.html"
+        >
+          
+          特徴量エンジニアリング
+        </a>
+
+        
+
+          
+          
+          
+          
+
+          
+
+          <ul class="c-sidebar__sections ">
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/numeric.html"
+                >
+                  
+                  数値データの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/categorical.html"
+                >
+                  
+                  カテゴリデータの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/text.html"
+                >
+                  
+                  テキストデータの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/date-and-time.html"
+                >
+                  
+                  日付・時間データの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/02/spatial-data.html"
+                >
+                  
+                  地理空間データの取り扱いの取り扱い
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+          </ul>
+        
+      </li>
+
+      
+    
+      
+      
+
+      
+      
+
+      
+      
+      <li class="c-sidebar__chapter">
+        <a class="c-sidebar__entry "
+          href="/practical-ds/03/readme.html"
+        >
+          
+          より良いモデルを目指して
+        </a>
+
+        
+
+          
+          
+          
+          
+
+          
+
+          <ul class="c-sidebar__sections ">
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/handling-missing-data.html"
+                >
+                  
+                  欠損値の処理
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/dimension-reduction.html"
+                >
+                  
+                  次元削減
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/model-performance.html"
+                >
+                  
+                  モデルの性能評価
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/data-splitting.html"
+                >
+                  
+                  データ分割
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/feature-selection.html"
+                >
+                  
+                  変数重要度
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+              
+              
+
+              <li class="c-sidebar__section">
+                <a class="c-sidebar__entry "
+                  href="/practical-ds/03/interpretability.html"
+                >
+                  
+                  モデルの解釈
+                </a>
+
+                
+                
+
+              </li>
+              
+            
+          </ul>
+        
+      </li>
+
+      
+    
+  </ul>
+  <p class="sidebar_footer">Powered by <a href="https://github.com/jupyter/jupyter-book">Jupyter Book</a></p>
+</nav>
+
+      
+      <!-- Shamelessly copied from minimal mistakes -->
+
+
+<!-- TOC will only show up if it has at least one item -->
+
+
+  <aside class="sidebar__right">
+    <nav class="onthispage">
+      <header><h4 class="nav__title"><i class="fa fa-list"></i>   On this page</h4></header>
+      <ul class="toc__menu">
+  <li><a href="#問題設定とモデル">問題設定とモデル</a>
+    <ul>
+      <li><a href="#回帰">回帰</a></li>
+    </ul>
+  </li>
+  <li><a href="#分類-判別">分類 (判別)</a>
+    <ul>
+      <li><a href="#クラスタリング">クラスタリング</a></li>
+    </ul>
+  </li>
+  <li><a href="#データの持つ意味">データの持つ意味</a>
+    <ul>
+      <li><a href="#データを特徴量に落とし込む">データを特徴量に落とし込む</a></li>
+      <li><a href="#特徴量エンジニアリング">特徴量エンジニアリング</a></li>
+      <li><a href="#どうして特徴量エンジニアリングが必要なのか">どうして特徴量エンジニアリングが必要なのか</a></li>
+      <li><a href="#特徴量エンジニアリング以外で重要なこと">特徴量エンジニアリング以外で重要なこと</a></li>
+      <li><a href="#特徴空間">特徴空間</a></li>
+    </ul>
+  </li>
+  <li><a href="#本書の構成">本書の構成</a>
+    <ul>
+      <li><a href="#対象とする読者">対象とする読者</a></li>
+      <li><a href="#ゴール">ゴール</a></li>
+    </ul>
+  </li>
+</ul>
+    </nav>
+  </aside>
+
+
+      
+      <main class="c-textbook__page" tabindex="-1">
+          <div class="o-wrapper">
+            <div class="c-sidebar-toggle">
+  <!-- We show the sidebar by default so we use .is-active -->
+  <button
+    id="js-sidebar-toggle"
+    class="hamburger hamburger--arrowalt is-active"
+  >
+    <span class="hamburger-box">
+      <span class="hamburger-inner"></span>
+    </span>
+    <span class="c-sidebar-toggle__label">Toggle Sidebar</span>
+  </button>
+</div>
+
+            
+<div class="buttons">
+
+
+
+
+
+</div>
+
+
+            <div class="c-textbook__content">
+              <!--- 全体の交通整理 --->
+
+<h1 id="データ分析のプロセス">データ分析のプロセス</h1>
+
+<p>課題や目標が設定され、動き出したデータ分析のプロジェクトは、いつも直線に進んでいく訳ではありません。</p>
+
+<p>的な道のりでないことがしばしばあります。</p>
+
+<p>最初の段階として、利用するデータの読み込みが思うようにいかなかったりしてつまづいてしまうこともあります。それが済んだらデータを整理・整形する作業が発生します。多くのデータは入力された状態でコンピュータが利用しやすい形式とは異なっているためです。</p>
+
+<!--tidy data -->
+
+<p>そしてここからがさらに骨の折れる作業です。
+今日のテーマもここの作業段階での話となります。具体的にはデータの加工・変形と可視化、そしてモデルの構築です。これらの作業は互いに繋がっている点に注意してください。</p>
+
+<p>反復して行うことがしばしばあります。また一般的にデータをモデルに投入する前の加工作業を前処理と呼びますが、</p>
+
+<p>効率的なモデルを開発する過程は</p>
+
+<ul>
+  <li>反復的</li>
+</ul>
+
+<p>複数のモデルを構築し、調整や検証をすることになるでしょう。</p>
+
+<p><img src="../images/tidy-workflow.png" alt="データ分析のワークフロー。Garrett and Hadley (2016) より作成" /></p>
+
+<p>典型的な（もちろん常にこの通りに事が運ぶわけではありませんし、繰り返しの数にも差がありますし、後戻りも必要になるでしょう。）</p>
+
+<p>モデルの実行以外にも</p>
+
+<p>これらはモデル構築の作業と紐づいています。モデルの結果からさらなる処理を加えていくことでモデルを磨き上げていくのです。
+探索的なデータ分析、定量分析、特徴量エンジニアリング</p>
+
+<p>可視化やモデルを実行した結果は垂れ流しにしておくわけには行きません。どのような手段にせその結果を伝達することが必要になります。</p>
+
+<p>といった作業があります。</p>
+
+<ul>
+  <li>「何を解くか」</li>
+  <li>ドメイン知識が求められることも</li>
+</ul>
+
+<p>直感に基づく初期モデル</p>
+
+<h2 id="問題設定とモデル">問題設定とモデル</h2>
+
+<ul>
+  <li>モデルに応じて、データの分布などに仮定をおいているものがある
+    <ul>
+      <li>仮定に合わないデータを与えた場合、適切な結果が得られない恐れがある</li>
+      <li>… 特徴量エンジニアリング</li>
+      <li>e.g. 線形モデル… 誤差が等分散正規分布であることを仮定
+        <ul>
+          <li>正規分布に従わない場合は一般化線形モデルを利用するなどの対処</li>
+        </ul>
+      </li>
+      <li>e.g. K-meansクラスタリング… 各クラスタが同じ大きさ
+        <ul>
+          <li>クラスタの大きさに偏りがある場合には混合正規分布の利用を検討</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>ノーフリーランチ定理
+    <ul>
+      <li>あらゆる問題で性能の良い万能なモデル・アルゴリズムは存在しない</li>
+      <li>問題・目的に適したモデルを選択する</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="回帰">回帰</h3>
+
+<ul>
+  <li>入力xから実数の出力yを予測</li>
+  <li>線形または非線形な関係を記述</li>
+  <li>パラメータ推定</li>
+</ul>
+
+<h2 id="分類-判別">分類 (判別)</h2>
+
+<ul>
+  <li>入力xからカテゴリの出力yを予測</li>
+  <li>線形または非線形な関係を記述</li>
+  <li>パラメータ推定</li>
+</ul>
+
+<h3 id="クラスタリング">クラスタリング</h3>
+
+<ul>
+  <li>混合正規分布</li>
+  <li>トピックモデル、LDA</li>
+</ul>
+
+<p>ここでは各手法についての説明は行いません。データ分析、機械学習についての専門書は多く出版されているため、末尾の参考文献をご覧ください。</p>
+
+<!-- ds メインということを忘れなく-->
+
+<ul>
+  <li>教師あり学習</li>
+  <li>教師なし学習</li>
+</ul>
+
+<h2 id="データの持つ意味">データの持つ意味</h2>
+
+<ul>
+  <li>データ型に基づく分類
+    <ul>
+      <li>数値</li>
+      <li>カテゴリ
+        <ul>
+          <li>順序つき</li>
+        </ul>
+      </li>
+      <li>論理値</li>
+      <li>文字列</li>
+    </ul>
+  </li>
+  <li>尺度を元にした分類
+    <ul>
+      <li>名義尺度</li>
+      <li>順序尺度</li>
+      <li>間隔尺度</li>
+      <li>比例尺度</li>
+    </ul>
+  </li>
+  <li>特殊系
+    <ul>
+      <li>日付・時間</li>
+      <li>地理空間・座標</li>
+    </ul>
+  </li>
+  <li>機械学習モデルでは数値データを入力の前提にしているものが多い</li>
+</ul>
+
+<h3 id="データを特徴量に落とし込む">データを特徴量に落とし込む</h3>
+
+<p>データをモデルに当てはめる、アルゴリズムによる計算を実行するには数値化が必要になります。</p>
+
+<p>多くのデータは数値化されていますが、</p>
+
+<p>また、すでに数値となっているデータに対しても、より良い特徴量として扱うために変換処理を加えることがあります。</p>
+
+<ul>
+  <li>表形式のデータでは、行に観測が記録され、複数の列からなる特徴量が含まれる</li>
+  <li>一つの文書や一回のつぶやきが観測され、フレーズや単語が特徴になる</li>
+  <li>画像データでは、色や線の情報を特徴量として利用する</li>
+</ul>
+
+<h3 id="特徴量エンジニアリング">特徴量エンジニアリング</h3>
+
+<p>特徴量エンジニアリングは</p>
+
+<ul>
+  <li>特徴量エンジニアリング… モデルに適した形（数値）への変換</li>
+  <li>前処理（クレンジング）との比較…
+    <ul>
+      <li>前処理は減算のプロセス</li>
+      <li>特徴量エンジニアリングは（主に）加算のプロセス
+        <ul>
+          <li>変数を減らすこともある</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>データの持つ特徴を強調することもできる</li>
+  <li>知識をデータに反映させる
+    <ul>
+      <li>ドメイン知識</li>
+    </ul>
+  </li>
+  <li>共通の「知識」も活用できる… この方法を紹介する</li>
+</ul>
+
+<p>“Garbage in, garbage out”</p>
+
+<ul>
+  <li>問題の本質は何か?</li>
+  <li>どのように相互作用をもたらすか</li>
+</ul>
+
+<p>5つのベストプラクティス</p>
+
+<p>モデルが識別可能な形式に処理する必要がある</p>
+
+<p>予測モデルの種類（線形モデル、KNN、ニューラルネットワークなどのモデルか決定木やランダムフォレストを利用する木ベースのモデルか）と</p>
+
+<p>データの種類に応じて適用する前処理が異なる</p>
+
+<h3 id="どうして特徴量エンジニアリングが必要なのか">どうして特徴量エンジニアリングが必要なのか</h3>
+
+<ul>
+  <li>価値のある特徴量を作成、ノイズをもたらす特徴量を除去する… 精度の高いモデルを構築する</li>
+</ul>
+
+<p>モデルの性能に大きな影響を及ぼす
+特定の特徴量を組み合わせることでモデルの性能が向上することがある</p>
+
+<p>データを数値的に表現する方法はいくらも存在する</p>
+
+<p>入力に与えられた変数から出力変数の値を予測・分類する… パターンを掴むことが大事。</p>
+
+<p>特徴量はパターンと言い換えても良いでしょう。</p>
+
+<p>生データと呼ぶことがりますが、生データのままでは特徴を表現することが難しいことがあります。</p>
+
+<p>特徴量エンジニアリングによってデータのパターンを見出しやすくするようにするのが我々の仕事になります。</p>
+
+<ul>
+  <li>代表的な変数を選ぶこと、集約すること</li>
+</ul>
+
+<p>日付</p>
+
+<ul>
+  <li>日付を構成する年月日を別々の変数として扱う（個々の要素は数値になる）</li>
+  <li>年間での経過日数</li>
+  <li>休日であったか、休暇中であったかなど</li>
+</ul>
+
+<p>ビールの売り上げ</p>
+
+<ul>
+  <li>年はそれほど重要ではない。夏の気温が高い時期（6月から9月ごろ）が重要そう。日にちは関係するだろうか?</li>
+  <li>夏… 150~日め??</li>
+  <li>平日よりも休日</li>
+</ul>
+
+<!-- ref) 02/date-and-time -->
+
+<p>これらを表現する方法を選び出すことが重要になります。</p>
+
+<h4 id="特徴量エンジニアリングのサブタスク">特徴量エンジニアリングのサブタスク</h4>
+
+<!-- Sub-Problems of Feature Engineering -->
+
+<ul>
+  <li>特徴をモデルに落とし込む</li>
+  <li>変数重要度</li>
+  <li>特徴抽出</li>
+  <li>特徴量選択
+    <ul>
+      <li>フィルタ法… 無関係な特徴,相関</li>
+      <li>反復特徴量選択</li>
+      <li>モデル組み込み</li>
+    </ul>
+  </li>
+  <li>特徴量の構築、組み合わせ、集約</li>
+</ul>
+
+<h3 id="特徴量エンジニアリング以外で重要なこと">特徴量エンジニアリング以外で重要なこと</h3>
+
+<ul>
+  <li>データセットの分割</li>
+  <li>モデル性能評価の指標</li>
+  <li>パラメータ調整</li>
+</ul>
+
+<p>モデルのパラメータはモデルの外部にあり、データからは推定できない。
+用意された初期値や経験則、試行錯誤によって最適値を見出す</p>
+
+<p>機械学習モデルの全体的な動作を制御するため、非常に重要
+事前に定義された損失関数を最小化する</p>
+
+<p>ハイパーパラメータの組み合わせを見つける
+然もなくば、モデルが収束して損失関数を効率的に最小化できないことで良い結果が得られない</p>
+
+<p>グリッドサーチ、ベイジアン最適化など</p>
+
+<p>(Kaggleではより良い性能のモデルを求められるが、実用的には最適化は突き詰める必要がないかもしれない… 時間とのトレードオフ。特徴量を磨き上げる方が重要)</p>
+
+<h3 id="特徴空間">特徴空間</h3>
+
+<h2 id="本書の構成">本書の構成</h2>
+
+<ol>
+  <li>全体像を把握する</li>
+  <li>特徴量エンジニアリング各論（多種多様なデータに対応できるように）</li>
+</ol>
+
+<h3 id="対象とする読者">対象とする読者</h3>
+
+<h3 id="ゴール">ゴール</h3>
+
+              <nav class="c-page__nav">
+  
+    
+    <a id="js-page__nav__prev" class="c-page__nav__prev" href="/practical-ds/01/readme">
+      〈 <span class="u-margin-right-tiny"></span> データ分析の流れ
+    </a>
+  
+
+  
+    
+    <a id="js-page__nav__next" class="c-page__nav__next" href="/practical-ds/01/eda">
+      探索的データ分析 <span class="u-margin-right-tiny"></span> 〉
+    </a>
+  
+</nav>
+
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+  </body>
+</html>
