@@ -22,8 +22,8 @@ email: suika1127@gmail.com
 description: >-
   Practice for data science and machine learning model
 
-baseurl: /               # the subpath of your site, e.g. /blog. If there is no subpath for your site, use an empty string ""
-url: YOUR URL              # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: /practical-ds           # the subpath of your site, e.g. /blog. If there is no subpath for your site, use an empty string ""
+url: https://uribo.github.io              # the base hostname & protocol for your site, e.g. http://example.com
 
 
 #######################################################################################
@@ -145,15 +145,16 @@ exclude:
 - .RData
 - .Ruserdata
 - .env
+- .gitignore
 - Dockerfile
 - docker-compose.yaml
 - .jupyter/
 - .sass-chace/
 - data-raw/
-- \*.R
-- \*.Rmd
-- \*.pxm
-- \*.rds
+- "*.R"
+- "*.Rmd"
+- "*.pxm"
+- "*.rds"
 
 plugins:
 - jekyll-redirect-from

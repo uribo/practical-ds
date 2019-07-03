@@ -52,7 +52,7 @@
     url: /01/introduction
   - title: 探索的データ分析
     url: /01/eda
-  - title: tidyデータ
+  - title: tidyデータと前処理
     url: /01/tidy_data
   - title: モデルの構築から評価まで
     url: /01/tidymodels_workflow

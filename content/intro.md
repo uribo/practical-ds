@@ -17,6 +17,26 @@ RとPython、これらの違いは何でしょうか。データサイエンテ�
 
 ## 目次
 
+- [データ分析の流れ](01/readme)
+    - [データ分析のプロセス](01/introduction)
+    - [探索的データ分析](01/eda)
+    - [tidyデータと前処理](01/tidy_data)
+    - [モデルの構築から評価まで](01/tidymodels_workflow)
+- [特徴量エンジニアリング](02/readme)
+    - [数値データの取り扱い](02/numeric)
+    - [カテゴリデータの取り扱い](02/categorical)
+    - [テキストデータの取り扱い](02/text)
+    - [日付・時間データの取り扱い](02/date-and-time)
+    - [地理空間データの取り扱いの取り扱い](02/spatial-data)
+- [より良いモデルを目指して](03/readme)
+  - [欠損値の処理](03/handling-missing-data)
+  - [次元削減](03/dimension-reduction)
+  - [モデルの性能評価](03/model-performance)
+  - [データ分割](03/data-splitting)
+  - [変数重要度](03/feature-selection)
+  - [モデルの解釈](03/interpretability)
+
+
 
 ### 参考文献
 
