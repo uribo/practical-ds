@@ -27,7 +27,7 @@ RとPython、これらの違いは何でしょうか。データサイエンテ�
     - [カテゴリデータの取り扱い](02/categorical)
     - [テキストデータの取り扱い](02/text)
     - [日付・時間データの取り扱い](02/date-and-time)
-    - [地理空間データの取り扱いの取り扱い](02/spatial-data)
+    - [地理空間データの取り扱い(02/spatial-data)
 - [より良いモデルを目指して](03/readme)
   - [欠損値の処理](03/handling-missing-data)
   - [次元削減](03/dimension-reduction)
