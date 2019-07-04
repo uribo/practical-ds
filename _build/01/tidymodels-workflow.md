@@ -1,11 +1,9 @@
 ---
-redirect_from:
-  - "/01/tidymodels-workflow"
-interact_link: content/01/tidymodels_workflow.ipynb
+interact_link: content/01/tidymodels-workflow.ipynb
 kernel_name: ir
 title: 'モデルの構築から評価まで'
 prev_page:
-  url: /01/tidy_data
+  url: /01/tidy-data
   title: 'tidyデータと前処理'
 next_page:
   url: /02/readme

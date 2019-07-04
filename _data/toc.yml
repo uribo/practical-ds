@@ -53,9 +53,9 @@
   - title: 探索的データ分析
     url: /01/eda
   - title: tidyデータと前処理
-    url: /01/tidy_data
+    url: /01/tidy-data
   - title: モデルの構築から評価まで
-    url: /01/tidymodels_workflow
+    url: /01/tidymodels-workflow
 
 - title: 特徴量エンジニアリング
   url: /02/readme

@@ -1,7 +1,7 @@
 ---
 title: '特徴量エンジニアリング'
 prev_page:
-  url: /01/tidymodels_workflow
+  url: /01/tidymodels-workflow
   title: 'モデルの構築から評価まで'
 next_page:
   url: /02/numeric

@@ -1,14 +1,12 @@
 ---
-redirect_from:
-  - "/01/tidy-data"
-interact_link: content/01/tidy_data.ipynb
+interact_link: content/01/tidy-data.ipynb
 kernel_name: ir
 title: 'tidyデータと前処理'
 prev_page:
   url: /01/eda
   title: '探索的データ分析'
 next_page:
-  url: /01/tidymodels_workflow
+  url: /01/tidymodels-workflow
   title: 'モデルの構築から評価まで'
 comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
 ---
