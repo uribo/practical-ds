@@ -95,7 +95,7 @@ RとPython、これらの違いは何でしょうか。データサイエンテ�
 
 ## プロジェクトの情報
 
-**執筆者**: Uryu Shinya ([\@uribo](https://github.com/uribo), Twitter: [\@u_ribo](http://twitter.com/u_ribo) )
+**執筆者**: Uryu Shinya ([@uribo](https://github.com/uribo), Twitter: [@u_ribo](http://twitter.com/u_ribo) )
 
 **ライセンス**: BY-SA 4.0
 

@@ -8,7 +8,5 @@ next_page:
   title: '欠損値の処理'
 comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
 ---
-# 特徴量エンジニアリング
-
-各項目で1章
+# より良いモデルを目指して
 
