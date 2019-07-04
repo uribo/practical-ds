@@ -13,6 +13,10 @@ jupyter:
     name: ir
 ---
 
+```{r include=FALSE, results="hide"}
+source(here::here("R/setup.R"))
+```
+
 # 探索的データ分析
 
 データを料理する前に、どのようなデータが与えられているのか確認することが大切です。この段階を踏むことで、データに対する理解が深まり、より良いモデルの構築に繋がる可能性もあります。こうした一連の作業は探索的データ分析 (Exploratory Data Analysis: EDA)と呼ばれます。この作業には、データの集計、要約、可視化が含まれます。
@@ -35,22 +39,18 @@ EDAがデータ分析の作業において早期段階で行われるのは、�
 
 データを手に入れたら、分析作業へ取り掛かる前にまずはデータを眺めてみることにしましょう。眺める、と言ってもデータの値を1つずつ見ていくわけではありません。これから扱うデータにはどのような値が含まれているのか、データ型が処理されているか、また全体の大きさはどれくらいなのか欠損はどれだけあるかと言った情報を俯瞰的に整理していきます。
 
-```{r include=FALSE}
-source(here::here("R/setup.R"))
-```
-
 ### データの大きさ
 
 データフレームは行と列からなります。いくつかの関数を使って読み込んだデータの大きさを調べてみましょう。
 
-```{r}
+```{r eval=TRUE}
 dim(df_lp_kanto)
 ```
 
 `dim()`をデータフレームに適用すると、そのサイズを数値ベクトルで返します。最初の要素が行数、2番目の数字が列数を示します。これは次の`ncol()`、`nrow()`により個別に求めることができます。
 
 
-```{r}
+```{r eval=TRUE}
 nrow(df_lp_kanto)
 ncol(df_lp_kanto)
 ```
@@ -60,7 +60,7 @@ ncol(df_lp_kanto)
 
 データフレームの一部を表示して、列名と値の確認をしてみましょう。`head()`をデータフレームに対して実行すると先頭の数行を表示します。また`tail()` でデータフレームの最後の行を表示できます。いずれの関数も引数`n = ` に実数を与えることで表示される行数を制御可能です。
 
-```{r}
+```{r eval=TRUE}
 head(df_lp_kanto)
 
 tail(df_lp_kanto, n = 3)
@@ -70,7 +70,7 @@ tail(df_lp_kanto, n = 3)
 
 データ型や件数、欠損の状況を調べます。
 
-```{r}
+```{r eval=TRUE}
 glimpse(df_lp_kanto)
 ```
 
@@ -139,11 +139,9 @@ df_lp_kanto %>%
 
 また時系列データの例としてビールへの支出データも利用します。
 
-
-
 ## 数値データ
 
-```{r}
+```{r eval=TRUE, warning=FALSE}
 df_is_num <- 
   df_lp_kanto %>% 
   select(-starts_with(".")) %>% 
@@ -152,7 +150,7 @@ df_is_num <-
 
 ## カテゴリデータ
 
-```{r}
+```{r eval=TRUE, warning=FALSE}
 df_is_cat <- 
   df_lp_kanto %>% 
   select(-starts_with(".")) %>% 
@@ -160,14 +158,14 @@ df_is_cat <-
   verify(ncol(.) == 13)
 ```
 
-```{r}
+```{r eval=TRUE}
 df_is_cat %>% 
   count(name_of_nearest_station, sort = TRUE)
 ```
 
 ## 論理値
 
-```{r}
+```{r eval=TRUE}
 df_is_log <-
   df_lp_kanto %>% 
   select(-starts_with(".")) %>% 
@@ -176,11 +174,11 @@ df_is_log <-
 ```
 
 
-```{r}
+```{r eval=TRUE}
 gg_count_var <- function(data, var) {
   var <- rlang::enquo(var)
   var_label <- rlang::quo_name(var)
-  data %>% 
+    data %>% 
     count(!!var) %>% 
     ggplot(aes(forcats::fct_reorder(!!var, n), n)) +
     geom_bar(stat = "identity") +
@@ -189,19 +187,28 @@ gg_count_var <- function(data, var) {
 }
 ```
 
-```{r}
+```{r pref08_name_of_nearest_station, echo=TRUE, eval=FALSE, fig.height=10}
 df_is_cat %>% 
   filter(stringr::str_detect(administrative_area_code, "^08")) %>% 
   gg_count_var(name_of_nearest_station)
 ```
 
-```{r}
+![](../images/pref08_name_of_nearest_station-1.png)
+
+```{r pref08_categorical_count, echo=TRUE, fig.height=16, eval=TRUE}
 purrr::map(
-  rlang::syms(names(df_is_cat)),
+  rlang::syms(str_subset(names(df_is_cat), "name_of_nearest_station", negate = TRUE)),
   ~ gg_count_var(df_is_cat %>% 
-                     filter(stringr::str_detect(administrative_area_code, "^08")), 
-                 !!.x))
+                   filter(stringr::str_detect(administrative_area_code, "^08")), 
+                 !!.x)) %>% 
+    plot_grid(plotlist = ., ncol = 2)
 ```
+
+![](../images/pref08_categorical_count-1.png)
+
+何枚かの図は文字が潰れてしまいましたが、いくつかのカテゴリデータについて掴めたことがあります。
+
+
 
 ### 全体
 

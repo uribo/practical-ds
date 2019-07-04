@@ -1,7 +1,13 @@
 source(here::here("R/core_pkgs.R"))
 # source(here::here("R/data-converter.R"))
+source(here::here("R/ggplot_jp_font.R"))
 source(here::here("R/step_stri_trans.R"))
 source("https://gist.githubusercontent.com/uribo/bc5df991469c8024cc3db78aa669df7a/raw/ac177741ea185292b38c0a00cf9b1bfb052321ae/ds_view.R")
+
+theme_set(theme_light(base_size = 8,
+                      base_family = dplyr::if_else(grepl("mac", sessioninfo::os_name()),
+                                                   "IPAexGothic",
+                                                   "IPAGothic")))
 
 # lp... prep_landprice.R
 
@@ -120,7 +126,11 @@ drake::loadd(plan_datasetup,
                       "ne_jpn", "ne_knt", "ne_kys"))
 
 knitr::opts_chunk$set(echo = TRUE,
-                      eval = FALSE)
+                      eval = FALSE, 
+                      fig.path = here::here("content/images/"),
+                      fig.width = 6,
+                      fig.height = 4,
+                      dpi = 300)
 
 # df_hazard %>% 
 #   group_by(hazardType, meshCode) %>% 

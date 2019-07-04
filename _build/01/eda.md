@@ -11,6 +11,14 @@ next_page:
 comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
 ---
 
+
+
+{:.input_area}
+```R
+source(here::here("R/setup.R"))
+```
+
+
 # 探索的データ分析
 
 データを料理する前に、どのようなデータが与えられているのか確認することが大切です。この段階を踏むことで、データに対する理解が深まり、より良いモデルの構築に繋がる可能性もあります。こうした一連の作業は探索的データ分析 (Exploratory Data Analysis: EDA)と呼ばれます。この作業には、データの集計、要約、可視化が含まれます。
@@ -33,14 +41,6 @@ EDAがデータ分析の作業において早期段階で行われるのは、�
 
 データを手に入れたら、分析作業へ取り掛かる前にまずはデータを眺めてみることにしましょう。眺める、と言ってもデータの値を1つずつ見ていくわけではありません。これから扱うデータにはどのような値が含まれているのか、データ型が処理されているか、また全体の大きさはどれくらいなのか欠損はどれだけあるかと言った情報を俯瞰的に整理していきます。
 
-
-
-{:.input_area}
-```R
-source(here::here("R/setup.R"))
-```
-
-
 ### データの大きさ
 
 データフレームは行と列からなります。いくつかの関数を使って読み込んだデータの大きさを調べてみましょう。
@@ -56,8 +56,8 @@ dim(df_lp_kanto)
 
 <div markdown="0" class="output output_html">
 <ol class=list-inline>
-	<li>7961</li>
-	<li>40</li>
+	<li>8476</li>
+	<li>45</li>
 </ol>
 
 </div>
@@ -77,13 +77,13 @@ ncol(df_lp_kanto)
 
 
 <div markdown="0" class="output output_html">
-7961
+8476
 </div>
 
 
 
 <div markdown="0" class="output output_html">
-40
+45
 </div>
 
 
@@ -104,18 +104,18 @@ tail(df_lp_kanto, n = 3)
 
 <div markdown="0" class="output output_html">
 <table>
-<caption>A tibble: 6 × 40</caption>
+<caption>A tibble: 6 × 45</caption>
 <thead>
-	<tr><th scope=col>.row_id</th><th scope=col>prefecture</th><th scope=col>administrative_area_code</th><th scope=col>posted_land_price</th><th scope=col>name_of_nearest_station</th><th scope=col>distance_from_station</th><th scope=col>acreage</th><th scope=col>current_use</th><th scope=col>building_structure</th><th scope=col>attribute_change_supplied_facility</th><th scope=col>⋯</th><th scope=col>attribute_change_distance_from_station</th><th scope=col>attribute_change_use_district</th><th scope=col>attribute_change_fire_area</th><th scope=col>attribute_change_urban_planning_area</th><th scope=col>attribute_change_forest_law</th><th scope=col>attribute_change_parks_law</th><th scope=col>attribute_change_building_coverage</th><th scope=col>common_surveyed_position</th><th scope=col>.longitude</th><th scope=col>.latitude</th></tr>
-	<tr><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>⋯</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>
+	<tr><th scope=col>.row_id</th><th scope=col>.prefecture</th><th scope=col>administrative_area_code</th><th scope=col>posted_land_price</th><th scope=col>name_of_nearest_station</th><th scope=col>distance_from_station</th><th scope=col>acreage</th><th scope=col>current_use</th><th scope=col>usage_description</th><th scope=col>building_structure</th><th scope=col>⋯</th><th scope=col>attribute_change_use_district</th><th scope=col>attribute_change_fire_area</th><th scope=col>attribute_change_urban_planning_area</th><th scope=col>attribute_change_forest_law</th><th scope=col>attribute_change_parks_law</th><th scope=col>attribute_change_building_coverage</th><th scope=col>common_surveyed_position</th><th scope=col>.longitude</th><th scope=col>.latitude</th><th scope=col>night_population</th></tr>
+	<tr><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>⋯</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>
 </thead>
 <tbody>
-	<tr><td>11955</td><td>群馬県</td><td>10426</td><td>39000</td><td>長野原草津口</td><td>13000</td><td>166</td><td>住宅     </td><td>W2</td><td>FALSE</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.5921</td><td>36.61913</td></tr>
-	<tr><td>11956</td><td>群馬県</td><td>10426</td><td>56800</td><td>長野原草津口</td><td>13000</td><td>226</td><td>店舗     </td><td>W1</td><td>FALSE</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.5933</td><td>36.62025</td></tr>
-	<tr><td>11965</td><td>群馬県</td><td>10426</td><td>29800</td><td>長野原草津口</td><td>14000</td><td>173</td><td>住宅     </td><td>W2</td><td>FALSE</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.6083</td><td>36.62088</td></tr>
-	<tr><td>12079</td><td>群馬県</td><td>10211</td><td>24900</td><td>西松井田    </td><td>  950</td><td>112</td><td>住宅,店舗</td><td>W2</td><td>FALSE</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.7953</td><td>36.31541</td></tr>
-	<tr><td>12086</td><td>群馬県</td><td>10211</td><td>20500</td><td>松井田      </td><td>  750</td><td>264</td><td>住宅     </td><td>W2</td><td>FALSE</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.8013</td><td>36.31065</td></tr>
-	<tr><td>12103</td><td>群馬県</td><td>10429</td><td>13300</td><td>群馬原町    </td><td> 1400</td><td>329</td><td>住宅     </td><td>W2</td><td>FALSE</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.8224</td><td>36.56371</td></tr>
+	<tr><td>13534</td><td>群馬県</td><td>10425</td><td> 4150</td><td>万座・鹿沢口</td><td> 8700</td><td>317</td><td>住宅,その他</td><td>別荘</td><td>W1</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.5383</td><td>36.46920</td><td>9780</td></tr>
+	<tr><td>13604</td><td>群馬県</td><td>10426</td><td>39000</td><td>長野原草津口</td><td>13000</td><td>166</td><td>住宅       </td><td>NA  </td><td>W2</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.5921</td><td>36.61913</td><td>6518</td></tr>
+	<tr><td>13605</td><td>群馬県</td><td>10426</td><td>56800</td><td>長野原草津口</td><td>13000</td><td>226</td><td>店舗       </td><td>NA  </td><td>W1</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.5933</td><td>36.62025</td><td>6518</td></tr>
+	<tr><td>13613</td><td>群馬県</td><td>10424</td><td> 2700</td><td>羽根尾      </td><td> 5500</td><td>274</td><td>住宅,その他</td><td>別荘</td><td>W2</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.6017</td><td>36.52271</td><td>5536</td></tr>
+	<tr><td>13620</td><td>群馬県</td><td>10424</td><td>12100</td><td>羽根尾      </td><td>   80</td><td>357</td><td>住宅       </td><td>NA  </td><td>W2</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.6058</td><td>36.54922</td><td>5536</td></tr>
+	<tr><td>13621</td><td>群馬県</td><td>10426</td><td>29800</td><td>長野原草津口</td><td>14000</td><td>173</td><td>住宅       </td><td>NA  </td><td>W2</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>138.6083</td><td>36.62088</td><td>6518</td></tr>
 </tbody>
 </table>
 
@@ -125,15 +125,15 @@ tail(df_lp_kanto, n = 3)
 
 <div markdown="0" class="output output_html">
 <table>
-<caption>A tibble: 3 × 40</caption>
+<caption>A tibble: 3 × 45</caption>
 <thead>
-	<tr><th scope=col>.row_id</th><th scope=col>prefecture</th><th scope=col>administrative_area_code</th><th scope=col>posted_land_price</th><th scope=col>name_of_nearest_station</th><th scope=col>distance_from_station</th><th scope=col>acreage</th><th scope=col>current_use</th><th scope=col>building_structure</th><th scope=col>attribute_change_supplied_facility</th><th scope=col>⋯</th><th scope=col>attribute_change_distance_from_station</th><th scope=col>attribute_change_use_district</th><th scope=col>attribute_change_fire_area</th><th scope=col>attribute_change_urban_planning_area</th><th scope=col>attribute_change_forest_law</th><th scope=col>attribute_change_parks_law</th><th scope=col>attribute_change_building_coverage</th><th scope=col>common_surveyed_position</th><th scope=col>.longitude</th><th scope=col>.latitude</th></tr>
-	<tr><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>⋯</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>
+	<tr><th scope=col>.row_id</th><th scope=col>.prefecture</th><th scope=col>administrative_area_code</th><th scope=col>posted_land_price</th><th scope=col>name_of_nearest_station</th><th scope=col>distance_from_station</th><th scope=col>acreage</th><th scope=col>current_use</th><th scope=col>usage_description</th><th scope=col>building_structure</th><th scope=col>⋯</th><th scope=col>attribute_change_use_district</th><th scope=col>attribute_change_fire_area</th><th scope=col>attribute_change_urban_planning_area</th><th scope=col>attribute_change_forest_law</th><th scope=col>attribute_change_parks_law</th><th scope=col>attribute_change_building_coverage</th><th scope=col>common_surveyed_position</th><th scope=col>.longitude</th><th scope=col>.latitude</th><th scope=col>night_population</th></tr>
+	<tr><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;int&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>⋯</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;lgl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>
 </thead>
 <tbody>
-	<tr><td>21343</td><td>茨城県</td><td>08232</td><td>15600</td><td>銚子</td><td>3200</td><td>125</td><td>住宅     </td><td>W2</td><td>FALSE</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>140.8311</td><td>35.74772</td></tr>
-	<tr><td>21363</td><td>千葉県</td><td>12202</td><td>41200</td><td>銚子</td><td>1800</td><td>119</td><td>住宅,店舗</td><td>S3</td><td>FALSE</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>140.8434</td><td>35.73295</td></tr>
-	<tr><td>21375</td><td>千葉県</td><td>12202</td><td>31500</td><td>銚子</td><td>2200</td><td>111</td><td>住宅     </td><td>W2</td><td>FALSE</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>140.8480</td><td>35.73405</td></tr>
+	<tr><td>23818</td><td>茨城県</td><td>08232</td><td>15600</td><td>銚子</td><td>3200</td><td>125</td><td>住宅     </td><td>NA</td><td>W2</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>140.8311</td><td>35.74772</td><td>94522</td></tr>
+	<tr><td>23839</td><td>千葉県</td><td>12202</td><td>41200</td><td>銚子</td><td>1800</td><td>119</td><td>住宅,店舗</td><td>NA</td><td>S3</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>140.8434</td><td>35.73295</td><td>64415</td></tr>
+	<tr><td>23851</td><td>千葉県</td><td>12202</td><td>31500</td><td>銚子</td><td>2200</td><td>111</td><td>住宅     </td><td>NA</td><td>W2</td><td>⋯</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>FALSE</td><td>140.8480</td><td>35.73405</td><td>64415</td></tr>
 </tbody>
 </table>
 
@@ -154,35 +154,39 @@ glimpse(df_lp_kanto)
 
 {:.output .output_stream}
 ```
-Observations: 7,961
-Variables: 40
-$ .row_id                                [3m[38;5;246m<int>[39m[23m 11955, 11956, 11965, 12079, 1…
-$ prefecture                             [3m[38;5;246m<chr>[39m[23m "群馬県", "群馬県", "群馬県", "群馬県", "…
-$ administrative_area_code               [3m[38;5;246m<chr>[39m[23m "10426", "10426", "10426", "1…
-$ posted_land_price                      [3m[38;5;246m<int>[39m[23m 39000, 56800, 29800, 24900, 2…
-$ name_of_nearest_station                [3m[38;5;246m<chr>[39m[23m "長野原草津口", "長野原草津口", "長野原草津口",…
-$ distance_from_station                  [3m[38;5;246m<int>[39m[23m 13000, 13000, 14000, 950, 750…
-$ acreage                                [3m[38;5;246m<int>[39m[23m 166, 226, 173, 112, 264, 329,…
-$ current_use                            [3m[38;5;246m<chr>[39m[23m "住宅", "店舗", "住宅", "住宅,店舗", "住…
-$ building_structure                     [3m[38;5;246m<chr>[39m[23m "W2", "W1", "W2", "W2", "W2",…
+Observations: 8,476
+Variables: 45
+$ .row_id                                [3m[38;5;246m<int>[39m[23m 13534, 13604, 13605, 13613, 1…
+$ .prefecture                            [3m[38;5;246m<chr>[39m[23m "群馬県", "群馬県", "群馬県", "群馬県", "…
+$ administrative_area_code               [3m[38;5;246m<chr>[39m[23m "10425", "10426", "10426", "1…
+$ posted_land_price                      [3m[38;5;246m<int>[39m[23m 4150, 39000, 56800, 2700, 121…
+$ name_of_nearest_station                [3m[38;5;246m<chr>[39m[23m "万座・鹿沢口", "長野原草津口", "長野原草津口",…
+$ distance_from_station                  [3m[38;5;246m<int>[39m[23m 8700, 13000, 13000, 5500, 80,…
+$ acreage                                [3m[38;5;246m<int>[39m[23m 317, 166, 226, 274, 357, 173,…
+$ current_use                            [3m[38;5;246m<chr>[39m[23m "住宅,その他", "住宅", "店舗", "住宅,その他…
+$ usage_description                      [3m[38;5;246m<chr>[39m[23m "別荘", NA, NA, "別荘", NA, NA, N…
+$ building_structure                     [3m[38;5;246m<chr>[39m[23m "W1", "W2", "W1", "W2", "W2",…
 $ attribute_change_supplied_facility     [3m[38;5;246m<lgl>[39m[23m FALSE, FALSE, FALSE, FALSE, F…
 $ water_facility                         [3m[38;5;246m<lgl>[39m[23m TRUE, TRUE, TRUE, TRUE, TRUE,…
 $ gas_facility                           [3m[38;5;246m<lgl>[39m[23m FALSE, FALSE, FALSE, FALSE, F…
-$ sewage_facility                        [3m[38;5;246m<lgl>[39m[23m TRUE, TRUE, TRUE, FALSE, FALS…
-$ depth_ratio                            [3m[38;5;246m<dbl>[39m[23m 1.0, 2.0, 1.0, 3.0, 1.0, 1.5,…
-$ number_of_floors                       [3m[38;5;246m<int>[39m[23m 2, 1, 2, 2, 2, 2, 2, 2, 2, 2,…
+$ sewage_facility                        [3m[38;5;246m<lgl>[39m[23m FALSE, TRUE, TRUE, TRUE, TRUE…
+$ proximity_with_transportation_facility [3m[38;5;246m<chr>[39m[23m NA, NA, NA, NA, NA, NA, NA, N…
+$ depth_ratio                            [3m[38;5;246m<dbl>[39m[23m 1.0, 1.0, 2.0, 2.0, 1.5, 1.0,…
+$ number_of_floors                       [3m[38;5;246m<int>[39m[23m 1, 2, 1, 2, 2, 2, 2, 1, 2, 2,…
 $ number_of_basement_floors              [3m[38;5;246m<int>[39m[23m 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-$ use_district                           [3m[38;5;246m<chr>[39m[23m "2住居", "近商", "2住居", "近商", "1住…
-$ building_coverage                      [3m[38;5;246m<dbl>[39m[23m 60, 80, 60, 80, 60, 60, 80, 6…
-$ configuration                          [3m[38;5;246m<chr>[39m[23m NA, "台形", NA, NA, "台形", "台形",…
-$ surrounding_present_usage              [3m[38;5;246m<chr>[39m[23m "一般住宅の中にアパート等が混在する住宅地域", "土産店…
+$ use_district                           [3m[38;5;246m<chr>[39m[23m NA, "2住居", "近商", NA, NA, "2住居…
+$ building_coverage                      [3m[38;5;246m<dbl>[39m[23m 0, 60, 80, 70, 70, 60, 70, 70…
+$ configuration                          [3m[38;5;246m<chr>[39m[23m NA, NA, "台形", NA, NA, NA, "台形…
+$ surrounding_present_usage              [3m[38;5;246m<chr>[39m[23m "低層別荘が建ち並ぶ環境の良い別荘地域", "一般住宅の中…
 $ fire_area                              [3m[38;5;246m<chr>[39m[23m NA, NA, NA, NA, NA, NA, NA, N…
-$ urban_planning_area                    [3m[38;5;246m<chr>[39m[23m "非線引", "非線引", "非線引", "非線引", "…
+$ urban_planning_area                    [3m[38;5;246m<chr>[39m[23m "都計外", "非線引", "非線引", "非線引", "…
+$ forest_law                             [3m[38;5;246m<chr>[39m[23m NA, NA, NA, NA, NA, NA, NA, N…
+$ parks_law                              [3m[38;5;246m<chr>[39m[23m NA, NA, NA, NA, NA, NA, NA, N…
 $ attribute_change_floor_area_ratio      [3m[38;5;246m<lgl>[39m[23m FALSE, FALSE, FALSE, FALSE, F…
-$ frontage_ratio                         [3m[38;5;246m<dbl>[39m[23m 1.2, 1.0, 1.0, 1.0, 1.2, 1.0,…
-$ floor_area_ratio                       [3m[38;5;246m<dbl>[39m[23m 200, 300, 200, 200, 200, 200,…
-$ attribute_change_selected_land_status  [3m[38;5;246m<chr>[39m[23m "1", "1", "1", "1", "1", "1",…
-$ attribute_change_address               [3m[38;5;246m<lgl>[39m[23m FALSE, FALSE, FALSE, TRUE, FA…
+$ frontage_ratio                         [3m[38;5;246m<dbl>[39m[23m 1.2, 1.2, 1.0, 1.0, 1.0, 1.0,…
+$ floor_area_ratio                       [3m[38;5;246m<dbl>[39m[23m 0, 200, 300, 400, 400, 200, 4…
+$ attribute_change_selected_land_status  [3m[38;5;246m<dbl>[39m[23m 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,…
+$ attribute_change_address               [3m[38;5;246m<lgl>[39m[23m FALSE, FALSE, FALSE, FALSE, F…
 $ attribute_change_acreage               [3m[38;5;246m<lgl>[39m[23m FALSE, FALSE, FALSE, FALSE, F…
 $ attribute_change_current_use           [3m[38;5;246m<lgl>[39m[23m FALSE, FALSE, FALSE, FALSE, F…
 $ attribute_change_building_structure    [3m[38;5;246m<lgl>[39m[23m FALSE, FALSE, FALSE, FALSE, F…
@@ -194,8 +198,9 @@ $ attribute_change_forest_law            [3m[38;5;246m<lgl>[39m[23m FALSE, F
 $ attribute_change_parks_law             [3m[38;5;246m<lgl>[39m[23m FALSE, FALSE, FALSE, FALSE, F…
 $ attribute_change_building_coverage     [3m[38;5;246m<lgl>[39m[23m FALSE, FALSE, FALSE, FALSE, F…
 $ common_surveyed_position               [3m[38;5;246m<lgl>[39m[23m FALSE, FALSE, FALSE, FALSE, F…
-$ .longitude                             [3m[38;5;246m<dbl>[39m[23m 138.5921, 138.5933, 138.6083,…
-$ .latitude                              [3m[38;5;246m<dbl>[39m[23m 36.61913, 36.62025, 36.62088,…
+$ .longitude                             [3m[38;5;246m<dbl>[39m[23m 138.5383, 138.5921, 138.5933,…
+$ .latitude                              [3m[38;5;246m<dbl>[39m[23m 36.46920, 36.61913, 36.62025,…
+$ night_population                       [3m[38;5;246m<dbl>[39m[23m 9780, 6518, 6518, 5536, 5536,…
 
 ```
 
@@ -225,6 +230,12 @@ df_lp_kanto %>%
 ```
 
 
+
+<div markdown="0" class="output output_html">
+1986
+</div>
+
+
 明確な答えがあるわけではありませんが、以下の情報はデータ全体、各変数について把握しておくと良いでしょう。またデータの偏りや出現傾向、分布のパターンは可視化を行い確認するのが効率的です。
 
 ## 要約統計量の算出
@@ -240,104 +251,118 @@ summary(df_lp_kanto)
 
 {:.output .output_data_text}
 ```
-    .row_id       prefecture        administrative_area_code posted_land_price 
- Min.   :11955   Length:7961        Length:7961              Min.   :    5660  
- 1st Qu.:14496   Class :character   Class :character         1st Qu.:   74500  
- Median :16488   Mode  :character   Mode  :character         Median :  167000  
- Mean   :16531                                               Mean   :  440857  
- 3rd Qu.:18518                                               3rd Qu.:  323000  
- Max.   :21375                                               Max.   :55500000  
- name_of_nearest_station distance_from_station    acreage        
- Length:7961             Min.   :    0         Min.   :    46.0  
- Class :character        1st Qu.:  500         1st Qu.:   136.0  
- Mode  :character        Median :  900         Median :   176.0  
-                         Mean   : 1394         Mean   :   748.1  
-                         3rd Qu.: 1700         3rd Qu.:   249.0  
-                         Max.   :24000         Max.   :413215.0  
- current_use        building_structure attribute_change_supplied_facility
- Length:7961        Length:7961        Mode :logical                     
- Class :character   Class :character   FALSE:7917                        
- Mode  :character   Mode  :character   TRUE :44                          
-                                                                         
-                                                                         
-                                                                         
- water_facility  gas_facility    sewage_facility  depth_ratio   
- Mode :logical   Mode :logical   Mode :logical   Min.   :1.000  
- FALSE:8         FALSE:1401      FALSE:377       1st Qu.:1.000  
- TRUE :7953      TRUE :6560      TRUE :7584      Median :1.500  
-                                                 Mean   :1.468  
-                                                 3rd Qu.:1.500  
-                                                 Max.   :6.500  
+    .row_id      .prefecture        administrative_area_code posted_land_price 
+ Min.   :13534   Length:8476        Length:8476              Min.   :     613  
+ 1st Qu.:16404   Class :character   Class :character         1st Qu.:   59900  
+ Median :18532   Mode  :character   Mode  :character         Median :  155000  
+ Mean   :18584                                               Mean   :  415432  
+ 3rd Qu.:20708                                               3rd Qu.:  308000  
+ Max.   :23851                                               Max.   :55500000  
+ name_of_nearest_station distance_from_station    acreage      
+ Length:8476             Min.   :    0         Min.   :    46  
+ Class :character        1st Qu.:  500         1st Qu.:   140  
+ Mode  :character        Median : 1000         Median :   181  
+                         Mean   : 1566         Mean   :   751  
+                         3rd Qu.: 1800         3rd Qu.:   272  
+                         Max.   :24000         Max.   :413215  
+ current_use        usage_description  building_structure
+ Length:8476        Length:8476        Length:8476       
+ Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character  
+                                                         
+                                                         
+                                                         
+ attribute_change_supplied_facility water_facility  gas_facility   
+ Mode :logical                      Mode :logical   Mode :logical  
+ FALSE:8429                         FALSE:49        FALSE:1860     
+ TRUE :47                           TRUE :8427      TRUE :6616     
+                                                                   
+                                                                   
+                                                                   
+ sewage_facility proximity_with_transportation_facility  depth_ratio   
+ Mode :logical   Length:8476                            Min.   :0.000  
+ FALSE:701       Class :character                       1st Qu.:1.000  
+ TRUE :7775      Mode  :character                       Median :1.200  
+                                                        Mean   :1.459  
+                                                        3rd Qu.:1.500  
+                                                        Max.   :6.500  
  number_of_floors number_of_basement_floors use_district      
- Min.   : 0.000   Min.   :0.00000           Length:7961       
+ Min.   : 0.000   Min.   :0.00000           Length:8476       
  1st Qu.: 2.000   1st Qu.:0.00000           Class :character  
  Median : 2.000   Median :0.00000           Mode  :character  
- Mean   : 2.782   Mean   :0.08052                             
- 3rd Qu.: 3.000   3rd Qu.:0.00000                             
+ Mean   : 2.718   Mean   :0.07574                             
+ 3rd Qu.: 2.000   3rd Qu.:0.00000                             
  Max.   :52.000   Max.   :6.00000                             
  building_coverage configuration      surrounding_present_usage
- Min.   :30.00     Length:7961        Length:7961              
+ Min.   : 0.00     Length:8476        Length:8476              
  1st Qu.:50.00     Class :character   Class :character         
  Median :60.00     Mode  :character   Mode  :character         
- Mean   :60.38                                                 
+ Mean   :60.17                                                 
  3rd Qu.:60.00                                                 
  Max.   :80.00                                                 
-  fire_area         urban_planning_area attribute_change_floor_area_ratio
- Length:7961        Length:7961         Mode :logical                    
- Class :character   Class :character    FALSE:7959                       
- Mode  :character   Mode  :character    TRUE :2                          
-                                                                         
-                                                                         
-                                                                         
- frontage_ratio  floor_area_ratio attribute_change_selected_land_status
- Min.   :1.000   Min.   :  50.0   Length:7961                          
- 1st Qu.:1.000   1st Qu.: 100.0   Class :character                     
- Median :1.000   Median : 200.0   Mode  :character                     
- Mean   :1.067   Mean   : 218.6                                        
- 3rd Qu.:1.000   3rd Qu.: 200.0                                        
- Max.   :5.500   Max.   :1300.0                                        
- attribute_change_address attribute_change_acreage attribute_change_current_use
- Mode :logical            Mode :logical            Mode :logical               
- FALSE:7899               FALSE:7939               FALSE:7888                  
- TRUE :62                 TRUE :22                 TRUE :73                    
-                                                                               
-                                                                               
-                                                                               
+  fire_area         urban_planning_area  forest_law         parks_law        
+ Length:8476        Length:8476         Length:8476        Length:8476       
+ Class :character   Class :character    Class :character   Class :character  
+ Mode  :character   Mode  :character    Mode  :character   Mode  :character  
+                                                                             
+                                                                             
+                                                                             
+ attribute_change_floor_area_ratio frontage_ratio  floor_area_ratio
+ Mode :logical                     Min.   :0.000   Min.   :   0.0  
+ FALSE:8474                        1st Qu.:1.000   1st Qu.: 100.0  
+ TRUE :2                           Median :1.000   Median : 200.0  
+                                   Mean   :1.066   Mean   : 216.6  
+                                   3rd Qu.:1.000   3rd Qu.: 200.0  
+                                   Max.   :5.500   Max.   :1300.0  
+ attribute_change_selected_land_status attribute_change_address
+ Min.   :1.000                         Mode :logical           
+ 1st Qu.:1.000                         FALSE:8411              
+ Median :1.000                         TRUE :65                
+ Mean   :1.027                                                 
+ 3rd Qu.:1.000                                                 
+ Max.   :4.000                                                 
+ attribute_change_acreage attribute_change_current_use
+ Mode :logical            Mode :logical               
+ FALSE:8450               FALSE:8402                  
+ TRUE :26                 TRUE :74                    
+                                                      
+                                                      
+                                                      
  attribute_change_building_structure attribute_change_distance_from_station
  Mode :logical                       Mode :logical                         
- FALSE:7893                          FALSE:7918                            
- TRUE :68                            TRUE :43                              
+ FALSE:8406                          FALSE:8431                            
+ TRUE :70                            TRUE :45                              
                                                                            
                                                                            
                                                                            
  attribute_change_use_district attribute_change_fire_area
  Mode :logical                 Mode :logical             
- FALSE:7960                    FALSE:7902                
+ FALSE:8475                    FALSE:8417                
  TRUE :1                       TRUE :59                  
                                                          
                                                          
                                                          
  attribute_change_urban_planning_area attribute_change_forest_law
  Mode :logical                        Mode :logical              
- FALSE:7960                           FALSE:7961                 
+ FALSE:8475                           FALSE:8476                 
  TRUE :1                                                         
                                                                  
                                                                  
                                                                  
  attribute_change_parks_law attribute_change_building_coverage
  Mode :logical              Mode :logical                     
- FALSE:7961                 FALSE:7959                        
+ FALSE:8476                 FALSE:8474                        
                             TRUE :2                           
                                                               
                                                               
                                                               
- common_surveyed_position   .longitude      .latitude    
- Mode :logical            Min.   :138.6   Min.   :34.98  
- FALSE:7357               1st Qu.:139.5   1st Qu.:35.59  
- TRUE :604                Median :139.7   Median :35.71  
-                          Mean   :139.7   Mean   :35.77  
-                          3rd Qu.:139.9   3rd Qu.:35.88  
-                          Max.   :140.8   Max.   :37.02  
+ common_surveyed_position   .longitude      .latitude     night_population
+ Mode :logical            Min.   :138.5   Min.   :34.98   Min.   :  3214  
+ FALSE:7870               1st Qu.:139.5   1st Qu.:35.59   1st Qu.:118919  
+ TRUE :606                Median :139.7   Median :35.72   Median :200012  
+                          Mean   :139.7   Mean   :35.79   Mean   :259450  
+                          3rd Qu.:139.9   3rd Qu.:35.92   3rd Qu.:341076  
+                          Max.   :140.8   Max.   :37.02   Max.   :903346  
 ```
 
 
@@ -366,23 +391,23 @@ df_lp_kanto %>%
 	<tr><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>
 </thead>
 <tbody>
-	<tr><td>attribute_change_supplied_facility    </td><td>0.07414234</td></tr>
-	<tr><td>water_facility                        </td><td>0.03168620</td></tr>
-	<tr><td>gas_facility                          </td><td>0.38082955</td></tr>
-	<tr><td>sewage_facility                       </td><td>0.21241222</td></tr>
-	<tr><td>attribute_change_floor_area_ratio     </td><td>0.01584907</td></tr>
-	<tr><td>attribute_change_address              </td><td>0.08791066</td></tr>
-	<tr><td>attribute_change_acreage              </td><td>0.05249935</td></tr>
-	<tr><td>attribute_change_current_use          </td><td>0.09532450</td></tr>
-	<tr><td>attribute_change_building_structure   </td><td>0.09203122</td></tr>
-	<tr><td>attribute_change_distance_from_station</td><td>0.07329960</td></tr>
-	<tr><td>attribute_change_use_district         </td><td>0.01120769</td></tr>
-	<tr><td>attribute_change_fire_area            </td><td>0.08577371</td></tr>
-	<tr><td>attribute_change_urban_planning_area  </td><td>0.01120769</td></tr>
+	<tr><td>attribute_change_supplied_facility    </td><td>0.07426285</td></tr>
+	<tr><td>water_facility                        </td><td>0.07581746</td></tr>
+	<tr><td>gas_facility                          </td><td>0.41389377</td></tr>
+	<tr><td>sewage_facility                       </td><td>0.27545070</td></tr>
+	<tr><td>attribute_change_floor_area_ratio     </td><td>0.01536009</td></tr>
+	<tr><td>attribute_change_address              </td><td>0.08723990</td></tr>
+	<tr><td>attribute_change_acreage              </td><td>0.05530313</td></tr>
+	<tr><td>attribute_change_current_use          </td><td>0.09303404</td></tr>
+	<tr><td>attribute_change_building_structure   </td><td>0.09050621</td></tr>
+	<tr><td>attribute_change_distance_from_station</td><td>0.07267424</td></tr>
+	<tr><td>attribute_change_use_district         </td><td>0.01086187</td></tr>
+	<tr><td>attribute_change_fire_area            </td><td>0.08314561</td></tr>
+	<tr><td>attribute_change_urban_planning_area  </td><td>0.01086187</td></tr>
 	<tr><td>attribute_change_forest_law           </td><td>0.00000000</td></tr>
 	<tr><td>attribute_change_parks_law            </td><td>0.00000000</td></tr>
-	<tr><td>attribute_change_building_coverage    </td><td>0.01584907</td></tr>
-	<tr><td>common_surveyed_position              </td><td>0.26480641</td></tr>
+	<tr><td>attribute_change_building_coverage    </td><td>0.01536009</td></tr>
+	<tr><td>common_surveyed_position              </td><td>0.25766673</td></tr>
 </tbody>
 </table>
 
@@ -407,23 +432,25 @@ df_lp_kanto %>%
 <dl>
 	<dt>$character</dt>
 		<dd><table>
-<caption>A tbl: 11 × 8</caption>
+<caption>A tbl: 13 × 8</caption>
 <thead>
 	<tr><th scope=col>variable</th><th scope=col>missing</th><th scope=col>complete</th><th scope=col>n</th><th scope=col>min</th><th scope=col>max</th><th scope=col>empty</th><th scope=col>n_unique</th></tr>
 	<tr><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th></tr>
 </thead>
 <tbody>
-	<tr><td>administrative_area_code             </td><td>0   </td><td>7961</td><td>7961</td><td>5 </td><td>5 </td><td>0</td><td>317 </td></tr>
-	<tr><td>attribute_change_selected_land_status</td><td>0   </td><td>7961</td><td>7961</td><td>1 </td><td>1 </td><td>0</td><td>3   </td></tr>
-	<tr><td>building_structure                   </td><td>189 </td><td>7772</td><td>7961</td><td>2 </td><td>8 </td><td>0</td><td>130 </td></tr>
-	<tr><td>configuration                        </td><td>7087</td><td>874 </td><td>7961</td><td>2 </td><td>3 </td><td>0</td><td>2   </td></tr>
-	<tr><td>current_use                          </td><td>0   </td><td>7961</td><td>7961</td><td>2 </td><td>14</td><td>0</td><td>69  </td></tr>
-	<tr><td>fire_area                            </td><td>4344</td><td>3617</td><td>7961</td><td>2 </td><td>2 </td><td>0</td><td>2   </td></tr>
-	<tr><td>name_of_nearest_station              </td><td>0   </td><td>7961</td><td>7961</td><td>1 </td><td>14</td><td>0</td><td>1424</td></tr>
-	<tr><td>prefecture                           </td><td>0   </td><td>7961</td><td>7961</td><td>3 </td><td>4 </td><td>0</td><td>7   </td></tr>
-	<tr><td>surrounding_present_usage            </td><td>0   </td><td>7961</td><td>7961</td><td>15</td><td>22</td><td>0</td><td>4047</td></tr>
-	<tr><td>urban_planning_area                  </td><td>0   </td><td>7961</td><td>7961</td><td>2 </td><td>3 </td><td>0</td><td>3   </td></tr>
-	<tr><td>use_district                         </td><td>0   </td><td>7961</td><td>7961</td><td>2 </td><td>3 </td><td>0</td><td>12  </td></tr>
+	<tr><td>administrative_area_code              </td><td>0   </td><td>8476</td><td>8476</td><td>5 </td><td>5 </td><td>0</td><td>329 </td></tr>
+	<tr><td>building_structure                    </td><td>220 </td><td>8256</td><td>8476</td><td>2 </td><td>8 </td><td>0</td><td>130 </td></tr>
+	<tr><td>configuration                         </td><td>7454</td><td>1022</td><td>8476</td><td>2 </td><td>3 </td><td>0</td><td>2   </td></tr>
+	<tr><td>current_use                           </td><td>0   </td><td>8476</td><td>8476</td><td>2 </td><td>14</td><td>0</td><td>70  </td></tr>
+	<tr><td>fire_area                             </td><td>4859</td><td>3617</td><td>8476</td><td>2 </td><td>2 </td><td>0</td><td>2   </td></tr>
+	<tr><td>forest_law                            </td><td>8450</td><td>26  </td><td>8476</td><td>3 </td><td>3 </td><td>0</td><td>1   </td></tr>
+	<tr><td>name_of_nearest_station               </td><td>0   </td><td>8476</td><td>8476</td><td>1 </td><td>14</td><td>0</td><td>1481</td></tr>
+	<tr><td>parks_law                             </td><td>8465</td><td>11  </td><td>8476</td><td>7 </td><td>7 </td><td>0</td><td>2   </td></tr>
+	<tr><td>proximity_with_transportation_facility</td><td>8308</td><td>168 </td><td>8476</td><td>2 </td><td>6 </td><td>0</td><td>3   </td></tr>
+	<tr><td>surrounding_present_usage             </td><td>0   </td><td>8476</td><td>8476</td><td>15</td><td>22</td><td>0</td><td>4397</td></tr>
+	<tr><td>urban_planning_area                   </td><td>0   </td><td>8476</td><td>8476</td><td>2 </td><td>3 </td><td>0</td><td>4   </td></tr>
+	<tr><td>usage_description                     </td><td>7552</td><td>924 </td><td>8476</td><td>1 </td><td>8 </td><td>0</td><td>40  </td></tr>
+	<tr><td>use_district                          </td><td>515 </td><td>7961</td><td>8476</td><td>2 </td><td>3 </td><td>0</td><td>12  </td></tr>
 </tbody>
 </table>
 </dd>
@@ -435,11 +462,11 @@ df_lp_kanto %>%
 	<tr><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th></tr>
 </thead>
 <tbody>
-	<tr><td>acreage                  </td><td>0</td><td>7961</td><td>7961</td><td>   748.05 </td><td>   7468.15</td><td>46  </td><td>136  </td><td>176   </td><td>249   </td><td>413215  </td><td>▇▁▁▁▁▁▁▁</td></tr>
-	<tr><td>distance_from_station    </td><td>0</td><td>7961</td><td>7961</td><td>  1393.74 </td><td>   1711.62</td><td>0   </td><td>500  </td><td>900   </td><td>1700  </td><td>24000   </td><td>▇▁▁▁▁▁▁▁</td></tr>
-	<tr><td>number_of_basement_floors</td><td>0</td><td>7961</td><td>7961</td><td>     0.081</td><td>      0.34</td><td>0   </td><td>0    </td><td>0     </td><td>0     </td><td>6       </td><td>▇▁▁▁▁▁▁▁</td></tr>
-	<tr><td>number_of_floors         </td><td>0</td><td>7961</td><td>7961</td><td>     2.78 </td><td>      2.27</td><td>0   </td><td>2    </td><td>2     </td><td>3     </td><td>52      </td><td>▇▁▁▁▁▁▁▁</td></tr>
-	<tr><td>posted_land_price        </td><td>0</td><td>7961</td><td>7961</td><td>440856.77 </td><td>1819677.45</td><td>5660</td><td>74500</td><td>167000</td><td>323000</td><td>55500000</td><td>▇▁▁▁▁▁▁▁</td></tr>
+	<tr><td>acreage                  </td><td>0</td><td>8476</td><td>8476</td><td>   750.95 </td><td>   7246.83</td><td>46 </td><td>140  </td><td>181   </td><td>272   </td><td>413215  </td><td>▇▁▁▁▁▁▁▁</td></tr>
+	<tr><td>distance_from_station    </td><td>0</td><td>8476</td><td>8476</td><td>  1565.6  </td><td>   1964.8 </td><td>0  </td><td>500  </td><td>1000  </td><td>1800  </td><td>24000   </td><td>▇▁▁▁▁▁▁▁</td></tr>
+	<tr><td>number_of_basement_floors</td><td>0</td><td>8476</td><td>8476</td><td>     0.076</td><td>      0.33</td><td>0  </td><td>0    </td><td>0     </td><td>0     </td><td>6       </td><td>▇▁▁▁▁▁▁▁</td></tr>
+	<tr><td>number_of_floors         </td><td>0</td><td>8476</td><td>8476</td><td>     2.72 </td><td>      2.22</td><td>0  </td><td>2    </td><td>2     </td><td>2     </td><td>52      </td><td>▇▁▁▁▁▁▁▁</td></tr>
+	<tr><td>posted_land_price        </td><td>0</td><td>8476</td><td>8476</td><td>415431.75 </td><td>1766361.43</td><td>613</td><td>59900</td><td>155000</td><td>308000</td><td>55500000</td><td>▇▁▁▁▁▁▁▁</td></tr>
 </tbody>
 </table>
 </dd>
@@ -451,38 +478,40 @@ df_lp_kanto %>%
 	<tr><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th></tr>
 </thead>
 <tbody>
-	<tr><td>attribute_change_acreage              </td><td>0</td><td>7961</td><td>7961</td><td>0.0028 </td><td>FAL: 7939, TRU: 22, NA: 0  </td></tr>
-	<tr><td>attribute_change_address              </td><td>0</td><td>7961</td><td>7961</td><td>0.0078 </td><td>FAL: 7899, TRU: 62, NA: 0  </td></tr>
-	<tr><td>attribute_change_building_coverage    </td><td>0</td><td>7961</td><td>7961</td><td>0.00025</td><td>FAL: 7959, TRU: 2, NA: 0   </td></tr>
-	<tr><td>attribute_change_building_structure   </td><td>0</td><td>7961</td><td>7961</td><td>0.0085 </td><td>FAL: 7893, TRU: 68, NA: 0  </td></tr>
-	<tr><td>attribute_change_current_use          </td><td>0</td><td>7961</td><td>7961</td><td>0.0092 </td><td>FAL: 7888, TRU: 73, NA: 0  </td></tr>
-	<tr><td>attribute_change_distance_from_station</td><td>0</td><td>7961</td><td>7961</td><td>0.0054 </td><td>FAL: 7918, TRU: 43, NA: 0  </td></tr>
-	<tr><td>attribute_change_fire_area            </td><td>0</td><td>7961</td><td>7961</td><td>0.0074 </td><td>FAL: 7902, TRU: 59, NA: 0  </td></tr>
-	<tr><td>attribute_change_floor_area_ratio     </td><td>0</td><td>7961</td><td>7961</td><td>0.00025</td><td>FAL: 7959, TRU: 2, NA: 0   </td></tr>
-	<tr><td>attribute_change_forest_law           </td><td>0</td><td>7961</td><td>7961</td><td>0      </td><td>FAL: 7961, NA: 0           </td></tr>
-	<tr><td>attribute_change_parks_law            </td><td>0</td><td>7961</td><td>7961</td><td>0      </td><td>FAL: 7961, NA: 0           </td></tr>
-	<tr><td>attribute_change_supplied_facility    </td><td>0</td><td>7961</td><td>7961</td><td>0.0055 </td><td>FAL: 7917, TRU: 44, NA: 0  </td></tr>
-	<tr><td>attribute_change_urban_planning_area  </td><td>0</td><td>7961</td><td>7961</td><td>0.00013</td><td>FAL: 7960, TRU: 1, NA: 0   </td></tr>
-	<tr><td>attribute_change_use_district         </td><td>0</td><td>7961</td><td>7961</td><td>0.00013</td><td>FAL: 7960, TRU: 1, NA: 0   </td></tr>
-	<tr><td>common_surveyed_position              </td><td>0</td><td>7961</td><td>7961</td><td>0.076  </td><td>FAL: 7357, TRU: 604, NA: 0 </td></tr>
-	<tr><td>gas_facility                          </td><td>0</td><td>7961</td><td>7961</td><td>0.82   </td><td>TRU: 6560, FAL: 1401, NA: 0</td></tr>
-	<tr><td>sewage_facility                       </td><td>0</td><td>7961</td><td>7961</td><td>0.95   </td><td>TRU: 7584, FAL: 377, NA: 0 </td></tr>
-	<tr><td>water_facility                        </td><td>0</td><td>7961</td><td>7961</td><td>1      </td><td>TRU: 7953, FAL: 8, NA: 0   </td></tr>
+	<tr><td>attribute_change_acreage              </td><td>0</td><td>8476</td><td>8476</td><td>0.0031 </td><td>FAL: 8450, TRU: 26, NA: 0  </td></tr>
+	<tr><td>attribute_change_address              </td><td>0</td><td>8476</td><td>8476</td><td>0.0077 </td><td>FAL: 8411, TRU: 65, NA: 0  </td></tr>
+	<tr><td>attribute_change_building_coverage    </td><td>0</td><td>8476</td><td>8476</td><td>0.00024</td><td>FAL: 8474, TRU: 2, NA: 0   </td></tr>
+	<tr><td>attribute_change_building_structure   </td><td>0</td><td>8476</td><td>8476</td><td>0.0083 </td><td>FAL: 8406, TRU: 70, NA: 0  </td></tr>
+	<tr><td>attribute_change_current_use          </td><td>0</td><td>8476</td><td>8476</td><td>0.0087 </td><td>FAL: 8402, TRU: 74, NA: 0  </td></tr>
+	<tr><td>attribute_change_distance_from_station</td><td>0</td><td>8476</td><td>8476</td><td>0.0053 </td><td>FAL: 8431, TRU: 45, NA: 0  </td></tr>
+	<tr><td>attribute_change_fire_area            </td><td>0</td><td>8476</td><td>8476</td><td>0.007  </td><td>FAL: 8417, TRU: 59, NA: 0  </td></tr>
+	<tr><td>attribute_change_floor_area_ratio     </td><td>0</td><td>8476</td><td>8476</td><td>0.00024</td><td>FAL: 8474, TRU: 2, NA: 0   </td></tr>
+	<tr><td>attribute_change_forest_law           </td><td>0</td><td>8476</td><td>8476</td><td>0      </td><td>FAL: 8476, NA: 0           </td></tr>
+	<tr><td>attribute_change_parks_law            </td><td>0</td><td>8476</td><td>8476</td><td>0      </td><td>FAL: 8476, NA: 0           </td></tr>
+	<tr><td>attribute_change_supplied_facility    </td><td>0</td><td>8476</td><td>8476</td><td>0.0055 </td><td>FAL: 8429, TRU: 47, NA: 0  </td></tr>
+	<tr><td>attribute_change_urban_planning_area  </td><td>0</td><td>8476</td><td>8476</td><td>0.00012</td><td>FAL: 8475, TRU: 1, NA: 0   </td></tr>
+	<tr><td>attribute_change_use_district         </td><td>0</td><td>8476</td><td>8476</td><td>0.00012</td><td>FAL: 8475, TRU: 1, NA: 0   </td></tr>
+	<tr><td>common_surveyed_position              </td><td>0</td><td>8476</td><td>8476</td><td>0.071  </td><td>FAL: 7870, TRU: 606, NA: 0 </td></tr>
+	<tr><td>gas_facility                          </td><td>0</td><td>8476</td><td>8476</td><td>0.78   </td><td>TRU: 6616, FAL: 1860, NA: 0</td></tr>
+	<tr><td>sewage_facility                       </td><td>0</td><td>8476</td><td>8476</td><td>0.92   </td><td>TRU: 7775, FAL: 701, NA: 0 </td></tr>
+	<tr><td>water_facility                        </td><td>0</td><td>8476</td><td>8476</td><td>0.99   </td><td>TRU: 8427, FAL: 49, NA: 0  </td></tr>
 </tbody>
 </table>
 </dd>
 	<dt>$numeric</dt>
 		<dd><table>
-<caption>A tbl: 4 × 12</caption>
+<caption>A tbl: 6 × 12</caption>
 <thead>
 	<tr><th scope=col>variable</th><th scope=col>missing</th><th scope=col>complete</th><th scope=col>n</th><th scope=col>mean</th><th scope=col>sd</th><th scope=col>p0</th><th scope=col>p25</th><th scope=col>p50</th><th scope=col>p75</th><th scope=col>p100</th><th scope=col>hist</th></tr>
 	<tr><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;chr&gt;</th></tr>
 </thead>
 <tbody>
-	<tr><td>building_coverage</td><td>0</td><td>7961</td><td>7961</td><td> 60.38</td><td> 12.21</td><td>30</td><td>50 </td><td> 60  </td><td> 60  </td><td>  80  </td><td>▁▂▁▃▇▁▁▃</td></tr>
-	<tr><td>depth_ratio      </td><td>0</td><td>7961</td><td>7961</td><td>  1.47</td><td>  0.55</td><td>1 </td><td>1  </td><td>  1.5</td><td>  1.5</td><td>   6.5</td><td>▇▂▁▁▁▁▁▁</td></tr>
-	<tr><td>floor_area_ratio </td><td>0</td><td>7961</td><td>7961</td><td>218.63</td><td>145.24</td><td>50</td><td>100</td><td>200  </td><td>200  </td><td>1300  </td><td>▇▁▁▁▁▁▁▁</td></tr>
-	<tr><td>frontage_ratio   </td><td>0</td><td>7961</td><td>7961</td><td>  1.07</td><td>  0.21</td><td>1 </td><td>1  </td><td>  1  </td><td>  1  </td><td>   5.5</td><td>▇▁▁▁▁▁▁▁</td></tr>
+	<tr><td>attribute_change_selected_land_status</td><td>0</td><td>8476</td><td>8476</td><td>     1.03</td><td>     0.28</td><td>1   </td><td>1     </td><td>     1  </td><td>     1  </td><td>     4  </td><td>▇▁▁▁▁▁▁▁</td></tr>
+	<tr><td>building_coverage                    </td><td>0</td><td>8476</td><td>8476</td><td>    60.17</td><td>    12.42</td><td>0   </td><td>50    </td><td>    60  </td><td>    60  </td><td>    80  </td><td>▁▁▁▂▂▇▁▃</td></tr>
+	<tr><td>depth_ratio                          </td><td>0</td><td>8476</td><td>8476</td><td>     1.46</td><td>     0.55</td><td>0   </td><td>1     </td><td>     1.2</td><td>     1.5</td><td>     6.5</td><td>▁▇▂▁▁▁▁▁</td></tr>
+	<tr><td>floor_area_ratio                     </td><td>0</td><td>8476</td><td>8476</td><td>   216.6 </td><td>   142.24</td><td>0   </td><td>100   </td><td>   200  </td><td>   200  </td><td>  1300  </td><td>▅▇▁▁▁▁▁▁</td></tr>
+	<tr><td>frontage_ratio                       </td><td>0</td><td>8476</td><td>8476</td><td>     1.07</td><td>     0.22</td><td>0   </td><td>1     </td><td>     1  </td><td>     1  </td><td>     5.5</td><td>▁▇▁▁▁▁▁▁</td></tr>
+	<tr><td>night_population                     </td><td>0</td><td>8476</td><td>8476</td><td>259450.38</td><td>197975.79</td><td>3214</td><td>118919</td><td>200012  </td><td>341076  </td><td>903346  </td><td>▆▇▃▂▁▁▁▁</td></tr>
 </tbody>
 </table>
 </dd>
@@ -502,7 +531,6 @@ df_lp_kanto %>%
 以下では引き続き、地価公示データを使います。このデータには位置情報も含まれているため、地図上へのデータのマッピングも試みます。
 
 また時系列データの例としてビールへの支出データも利用します。
-
 
 ## 数値データ
 
@@ -543,46 +571,45 @@ df_is_cat %>%
 
 <div markdown="0" class="output output_html">
 <table>
-<caption>A tibble: 1424 × 2</caption>
+<caption>A tibble: 1481 × 2</caption>
 <thead>
 	<tr><th scope=col>name_of_nearest_station</th><th scope=col>n</th></tr>
 	<tr><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;int&gt;</th></tr>
 </thead>
 <tbody>
-	<tr><td>本厚木    </td><td>54</td></tr>
-	<tr><td>平塚      </td><td>49</td></tr>
-	<tr><td>宇都宮    </td><td>48</td></tr>
-	<tr><td>水戸      </td><td>48</td></tr>
-	<tr><td>八王子    </td><td>47</td></tr>
+	<tr><td>本厚木    </td><td>59</td></tr>
+	<tr><td>水戸      </td><td>56</td></tr>
+	<tr><td>宇都宮    </td><td>55</td></tr>
+	<tr><td>平塚      </td><td>51</td></tr>
+	<tr><td>八王子    </td><td>48</td></tr>
+	<tr><td>柏        </td><td>41</td></tr>
 	<tr><td>川崎      </td><td>40</td></tr>
-	<tr><td>柏        </td><td>40</td></tr>
-	<tr><td>木更津    </td><td>34</td></tr>
-	<tr><td>千葉      </td><td>33</td></tr>
-	<tr><td>大宮      </td><td>33</td></tr>
+	<tr><td>木更津    </td><td>36</td></tr>
+	<tr><td>千葉      </td><td>35</td></tr>
+	<tr><td>前橋      </td><td>34</td></tr>
+	<tr><td>大宮      </td><td>34</td></tr>
+	<tr><td>古河      </td><td>33</td></tr>
+	<tr><td>逗子      </td><td>32</td></tr>
+	<tr><td>橋本      </td><td>31</td></tr>
 	<tr><td>戸塚      </td><td>31</td></tr>
 	<tr><td>三鷹      </td><td>31</td></tr>
-	<tr><td>逗子      </td><td>31</td></tr>
-	<tr><td>前橋      </td><td>31</td></tr>
-	<tr><td>橋本      </td><td>29</td></tr>
-	<tr><td>茅ケ崎    </td><td>28</td></tr>
-	<tr><td>君津      </td><td>28</td></tr>
-	<tr><td>古河      </td><td>28</td></tr>
-	<tr><td>東武宇都宮</td><td>28</td></tr>
-	<tr><td>熊谷      </td><td>27</td></tr>
-	<tr><td>土浦      </td><td>27</td></tr>
-	<tr><td>小山      </td><td>26</td></tr>
-	<tr><td>秦野      </td><td>25</td></tr>
+	<tr><td>東武宇都宮</td><td>31</td></tr>
+	<tr><td>熊谷      </td><td>30</td></tr>
+	<tr><td>君津      </td><td>30</td></tr>
+	<tr><td>茅ケ崎    </td><td>29</td></tr>
+	<tr><td>小山      </td><td>29</td></tr>
+	<tr><td>土浦      </td><td>29</td></tr>
+	<tr><td>守谷      </td><td>27</td></tr>
+	<tr><td>秦野      </td><td>26</td></tr>
 	<tr><td>蕨        </td><td>25</td></tr>
 	<tr><td>五井      </td><td>24</td></tr>
+	<tr><td>荒川沖    </td><td>24</td></tr>
 	<tr><td>川口      </td><td>24</td></tr>
-	<tr><td>太田      </td><td>23</td></tr>
-	<tr><td>本八幡    </td><td>23</td></tr>
-	<tr><td>稲毛      </td><td>22</td></tr>
-	<tr><td>高崎      </td><td>22</td></tr>
+	<tr><td>つくば    </td><td>23</td></tr>
+	<tr><td>牛久      </td><td>23</td></tr>
 	<tr><td>⋮</td><td>⋮</td></tr>
-	<tr><td>舞岡        </td><td>1</td></tr>
-	<tr><td>風祭        </td><td>1</td></tr>
 	<tr><td>福浦        </td><td>1</td></tr>
+	<tr><td>片貝        </td><td>1</td></tr>
 	<tr><td>片瀬江ノ島  </td><td>1</td></tr>
 	<tr><td>宝町        </td><td>1</td></tr>
 	<tr><td>北鹿沼      </td><td>1</td></tr>
@@ -593,22 +620,23 @@ df_is_cat %>%
 	<tr><td>北府中      </td><td>1</td></tr>
 	<tr><td>堀切        </td><td>1</td></tr>
 	<tr><td>本所吾妻橋  </td><td>1</td></tr>
+	<tr><td>本納        </td><td>1</td></tr>
 	<tr><td>本蓮沼      </td><td>1</td></tr>
-	<tr><td>茂林寺前    </td><td>1</td></tr>
+	<tr><td>万座・鹿沢口</td><td>1</td></tr>
+	<tr><td>万博記念公園</td><td>1</td></tr>
 	<tr><td>木場        </td><td>1</td></tr>
 	<tr><td>門沢橋      </td><td>1</td></tr>
 	<tr><td>野崎        </td><td>1</td></tr>
-	<tr><td>野州大塚    </td><td>1</td></tr>
 	<tr><td>野島公園    </td><td>1</td></tr>
 	<tr><td>柳小路      </td><td>1</td></tr>
 	<tr><td>柳瀬川      </td><td>1</td></tr>
-	<tr><td>友部        </td><td>1</td></tr>
+	<tr><td>柳生        </td><td>1</td></tr>
 	<tr><td>立会川      </td><td>1</td></tr>
+	<tr><td>竜舞        </td><td>1</td></tr>
 	<tr><td>緑が丘      </td><td>1</td></tr>
 	<tr><td>六本木一丁目</td><td>1</td></tr>
 	<tr><td>和戸        </td><td>1</td></tr>
 	<tr><td>和泉多摩川  </td><td>1</td></tr>
-	<tr><td>楡木        </td><td>1</td></tr>
 	<tr><td>茗荷谷      </td><td>1</td></tr>
 </tbody>
 </table>
@@ -637,7 +665,7 @@ df_is_log <-
 gg_count_var <- function(data, var) {
   var <- rlang::enquo(var)
   var_label <- rlang::quo_name(var)
-  data %>% 
+    data %>% 
     count(!!var) %>% 
     ggplot(aes(forcats::fct_reorder(!!var, n), n)) +
     geom_bar(stat = "identity") +
@@ -657,26 +685,24 @@ df_is_cat %>%
 ```
 
 
-{:.output .output_traceback_line}
-```
-
-    Error in df_is_cat %>% filter(stringr::str_detect(administrative_area_code, : could not find function "%>%"
-    Traceback:
-
-
-
-```
+![](../images/pref08_name_of_nearest_station-1.png)
 
 
 
 {:.input_area}
 ```R
 purrr::map(
-  rlang::syms(names(df_is_cat)),
+  rlang::syms(str_subset(names(df_is_cat), "name_of_nearest_station", negate = TRUE)),
   ~ gg_count_var(df_is_cat %>% 
-                     filter(stringr::str_detect(administrative_area_code, "^08")), 
-                 !!.x))
+                   filter(stringr::str_detect(administrative_area_code, "^08")), 
+                 !!.x)) %>% 
+    plot_grid(plotlist = ., ncol = 2)
 ```
+
+
+![](../images/pref08_categorical_count-1.png)
+
+何枚かの図は文字が潰れてしまいましたが、いくつかのカテゴリデータについて掴めたことがあります。
 
 
 ### 全体
@@ -691,7 +717,7 @@ vis_dat(df_lp_kanto)
 
 
 {:.output .output_png}
-![png](../images/01/eda_31_0.png)
+![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_31_0.png)
 
 
 
@@ -715,7 +741,7 @@ df_lp_kanto %>%
 
 
 {:.output .output_png}
-![png](../images/01/eda_33_0.png)
+![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_33_0.png)
 
 
 
@@ -760,12 +786,6 @@ df_lp_kanto %>%
 ```
 
 
-
-{:.output .output_png}
-![png](../images/01/eda_39_0.png)
-
-
-
 #### 散布図
 
 
@@ -779,12 +799,6 @@ df_lp_kanto %>%
 
 
 
-{:.output .output_png}
-![png](../images/01/eda_41_0.png)
-
-
-
-
 
 {:.input_area}
 ```R
@@ -792,12 +806,6 @@ df_lp_kanto %>%
   ggplot(aes(distance_from_station, acreage)) +
   geom_point()
 ```
-
-
-
-{:.output .output_png}
-![png](../images/01/eda_42_0.png)
-
 
 
 ## 特殊なデータの視覚化
@@ -819,12 +827,6 @@ df_beer2018q2 %>%
 
 
 
-{:.output .output_png}
-![png](../images/01/eda_44_0.png)
-
-
-
-
 
 {:.input_area}
 ```R
@@ -832,12 +834,6 @@ df_beer2018q2 %>%
   ggplot(aes(expense)) +
   geom_histogram(bins = 30)
 ```
-
-
-
-{:.output .output_png}
-![png](../images/01/eda_45_0.png)
-
 
 
 ### 空間データ
@@ -885,36 +881,6 @@ df_is_num %>%
 df_is_num %>% 
   corrr::correlate()
 ```
-
-
-
-<div markdown="0" class="output output_html">
-<table>
-<caption>A cor_df: 9 × 10</caption>
-<thead>
-	<tr><th scope=col>rowname</th><th scope=col>posted_land_price</th><th scope=col>distance_from_station</th><th scope=col>acreage</th><th scope=col>depth_ratio</th><th scope=col>number_of_floors</th><th scope=col>number_of_basement_floors</th><th scope=col>building_coverage</th><th scope=col>frontage_ratio</th><th scope=col>floor_area_ratio</th></tr>
-	<tr><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>
-</thead>
-<tbody>
-	<tr><td>posted_land_price        </td><td>          NA</td><td>-0.12569556</td><td> 0.008325032</td><td> 0.035318432</td><td> 0.43575145</td><td> 0.54212619</td><td> 0.219008524</td><td> 0.05208925</td><td> 0.475119082</td></tr>
-	<tr><td>distance_from_station    </td><td>-0.125695563</td><td>         NA</td><td> 0.055539845</td><td>-0.058296485</td><td>-0.22518578</td><td>-0.14142070</td><td>-0.223526922</td><td>-0.01190656</td><td>-0.247763455</td></tr>
-	<tr><td>acreage                  </td><td> 0.008325032</td><td> 0.05553984</td><td>          NA</td><td> 0.007448354</td><td>-0.01239013</td><td> 0.01656375</td><td> 0.005623651</td><td> 0.04439868</td><td> 0.009836352</td></tr>
-	<tr><td>depth_ratio              </td><td> 0.035318432</td><td>-0.05829648</td><td> 0.007448354</td><td>          NA</td><td> 0.09296341</td><td> 0.04112338</td><td> 0.275825237</td><td>-0.27393794</td><td> 0.218882108</td></tr>
-	<tr><td>number_of_floors         </td><td> 0.435751449</td><td>-0.22518578</td><td>-0.012390130</td><td> 0.092963407</td><td>         NA</td><td> 0.54821812</td><td> 0.486307961</td><td> 0.08079867</td><td> 0.692709498</td></tr>
-	<tr><td>number_of_basement_floors</td><td> 0.542126188</td><td>-0.14142070</td><td> 0.016563753</td><td> 0.041123382</td><td> 0.54821812</td><td>         NA</td><td> 0.276671976</td><td> 0.04071109</td><td> 0.495451275</td></tr>
-	<tr><td>building_coverage        </td><td> 0.219008524</td><td>-0.22352692</td><td> 0.005623651</td><td> 0.275825237</td><td> 0.48630796</td><td> 0.27667198</td><td>          NA</td><td> 0.03729320</td><td> 0.804167426</td></tr>
-	<tr><td>frontage_ratio           </td><td> 0.052089252</td><td>-0.01190656</td><td> 0.044398678</td><td>-0.273937938</td><td> 0.08079867</td><td> 0.04071109</td><td> 0.037293202</td><td>         NA</td><td> 0.057795901</td></tr>
-	<tr><td>floor_area_ratio         </td><td> 0.475119082</td><td>-0.24776345</td><td> 0.009836352</td><td> 0.218882108</td><td> 0.69270950</td><td> 0.49545127</td><td> 0.804167426</td><td> 0.05779590</td><td>          NA</td></tr>
-</tbody>
-</table>
-
-</div>
-
-
-
-{:.output .output_png}
-![png](../images/01/eda_50_1.png)
-
 
 
 
