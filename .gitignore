@@ -14,6 +14,7 @@
 content/*.html
 ### Jupyter book ###
 .local
-
 *.pxm/
 R/data-converter.R
+_site
+
