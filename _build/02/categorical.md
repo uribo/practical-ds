@@ -16,8 +16,6 @@ comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /con
 {:.input_area}
 ```R
 source(here::here("R/setup.R"))
-library(cattonum)
-
 df_hazard <- 
   df_hazard %>% 
   st_drop_geometry()
@@ -27,6 +25,8 @@ df_hazard <-
 # カテゴリデータの取り扱い
 
 ダミー変数の作成
+
+カテゴリデータが表現する値は連続的に変化するものではありません。
 
 多くの統計・機械学習モデルでは、数値化を求めます。
 
@@ -54,7 +54,15 @@ xgboost, glmnet etc.
 カテゴリに順序を与える
 大きさを示す変数として「大」、「中」、「小」の3項目がある場合、「大」は「小」よりも大きいことはわかります。この関係は1から3の数値に示すことが可能で、大は一番大きな値である3と対応するという変換を行うことができます。
 
-ここではビールへの支出データおよび土砂災害・雪崩メッシュデータを利用します。
+<!-- ここではビールへの支出データおよび土砂災害・雪崩メッシュデータを利用します。 -->
+
+
+
+{:.input_area}
+```R
+library(cattonum)
+```
+
 
 
 
@@ -62,6 +70,7 @@ xgboost, glmnet etc.
 ```R
 df_beer2018q2
 df_hazard
+df_lp_kanto
 ```
 
 
@@ -198,114 +207,113 @@ df %>%
 
 ## ダミー変数化
 
-カテゴリ変数を数値に変換する処理は
-エンコードと呼ばれます。
+カテゴリ変数を数値に変換する処理として最も一般的なのが、カテゴリ変数をダミー変数化してしまうことです。カテゴリに含まれる水準の値を特徴量に直接用いるもので、ダミーコーディング、one-hotエンコーディング、effectコーディングの3種類があります。これらはカテゴリに含まれるk種類の値を特徴量として扱う際の挙動が異なります。
 
 ### ダミーコーディング
+
+ダミーコーディングは統計分析でも広く使われるカテゴリ変数の数値化手法です。該当する値を含む場合に1、そうでなければ0を各特徴量に与えます。ダミーコーディングではカテゴリが取りうる数、自由度 k-1の特徴量を生成します。自由度 k-1 で十分である理由は、他のダミー変数の値から残りの一つの値が推測可能だからです。
+
+具体例で示しましょう。3つの水準 (A, B, C)をもつカテゴリ変数をダミーコーディングすると、2つの特徴量ができます。ここでは`feature_B`,`feature_C`という名前をつけました。ここで、Aをもつデータを探すのは簡単です。ダミー変数には0と1の値が格納され、該当しない場合には0ですので`feature_B`,`feature_C`両方で0のデータがAになります。Aのようなダミー変数に含まれないカテゴリは参照カテゴリと呼ばれます。参照カテゴリに対して、`feature_B`、`feature_C`の値が決まります。
 
 
 
 {:.input_area}
 ```R
-mod_fml <- formula(expense ~ date + weatherdaytime_06_00_18_00)
+df %>% 
+  recipe(~ feature) %>% 
+  step_dummy(feature) %>% 
+  prep() %>% 
+  juice()
 ```
 
 
-どうして一つ減るのか
+ダミーコーディングを利用したモデリングはその結果の解釈が容易になります。これを地価公示データの都市計画区分 (`urban_planning_area`) をダミー変数化することで示しましょう。都市計画区分の列は次に示すように4つの値を取りますが、1つを参照カテゴリとして扱い、3つのダミー変数で表現することになります。
 
-- 他のダミー変数の値から残り一つの値が推測できる... 他が0であれば1、他のダミー変数に1があれば0
+
+
+{:.input_area}
+```R
+unique(df_lp_kanto$urban_planning_area)
+```
+
+
+
+
+{:.input_area}
+```R
+df_lp_kanto_dummy_baked <- 
+  df_lp_kanto %>% 
+  recipe(posted_land_price ~ .) %>% 
+  step_dummy(urban_planning_area) %>% 
+  prep() %>% 
+  bake(posted_land_price, starts_with("urban_planning_area"), new_data = df_lp_kanto)
+
+df_lp_kanto_dummy_baked
+```
+
+
+都市計画区分の情報のみを使って、公示価格を予測する線形回帰モデルを適用します。
+
+
+
+{:.input_area}
+```R
+df_lp_kanto_dummy_baked %>% 
+  lm(posted_land_price ~ ., data = .) %>% 
+  tidy()
+```
+
+
+推定された結果の切片は、参照カテゴリの平均値を示します。つまり「市街化」の効果です。市街化に対して、他の係数はいずれも負値を取っています。これは市街化の影響が地下価格に影響し、他のカテゴリは効果が小さいことを示す結果です。ダミーエンコーディングではカテゴリの水準の一つを切片として利用可能なため、モデルの解釈が容易になるのです。
+
+
+
+{:.input_area}
+```R
+df_lp_kanto %>% 
+  ggplot(aes(urban_planning_area, posted_land_price)) +
+  geom_bar(stat = "identity")
+```
+
 
 フルランク未満のエンコーディングは One-hotエンコーディング
 
 - ダミー変数が多くなると次元の数が増える (データ件数を上回ることも)
 
-曜日をダミーコーディングする例を考えてみましょう。曜日は7つの値を取りますが、
-
-コントラスト関数は6つのダミー変数で曜日を表現することになります。
-
-6列... 該当する曜日で1, そうでない場合に0
-
-まずは年月日からなる日付の変数から曜日を取り出す必要があります。
 
 
-
-{:.input_area}
-```R
-df_baked_split_date <- 
-  df_beer2018q2 %>% 
-  recipe(mod_fml) %>% 
-  step_date(date) %>% 
-  prep(training = df_beer2018q2) %>% 
-  bake(new_data = df_beer2018q2)
-
-glimpse(df_baked_split_date)
-```
-
-
-日付を記録するdate列の要素が分解され、新たな特徴量として追加されました。それでは曜日のダミーコーディングを実行します。
-
-
-
-{:.input_area}
-```R
-df_baked_split_date %>% 
-  recipe(expense ~ .) %>% 
-  step_dummy(date_dow) %>% 
-  prep(training = df_baked_split_date) %>% 
-  bake(new_data = df_baked_split_date) %>% 
-  select(starts_with("date_dow"), everything())
-```
-
-
-今度は分解した曜日の情報をもとに、ビールの売り上げは「翌日に仕事が控えている曜日よりも休日の方が増えそうだ」という直感を調べてみましょう。
-
-
-
-{:.input_area}
-```R
-df_baked_split_date <- 
-  df_baked_split_date %>% 
-  mutate(is_weekend = if_else(date_dow %in% c("土", "日"),
-                              TRUE,
-                              FALSE))
-```
-
-
-
-
-{:.input_area}
-```R
-df_baked_split_date %>% 
-  ggplot(aes(date_dow, expense)) +
-  geom_boxplot(aes(color = is_weekend), outlier.shape = NA) +
-  geom_jitter(aes(color = is_weekend), alpha = 0.3) +
-  scale_color_ds() +
-  facet_wrap(~ date_month)
-```
-
-
-目論見通り、どの月でも平日よりも休日の方が支出が増えているようです。また、8月は週ごとに変動が大きく、9月では平日との差がほとんどないということもグラフから読み取れます。新たな特徴量の作成と関係の図示により、経験的な推論を確認するだけでなく、モデルに対する新たな洞察も得ることができました。
-
-
-
-{:.input_area}
-```R
-# 日本の祝日判定に次の項目が利用可能
-stringr::str_subset(timeDate::listHolidays(), "^JP")
-```
-
-
-カテゴリに含まれる項目のうち
-
-k-1の
 
 ### One-hotエンコーディング
 
-カテゴリ変数に含まれる項目を新たな列として扱い、カテゴリに該当する場合は1、そうでない場合には0を与えていく方法です。
+カテゴリ変数に含まれる項目を新たな列として扱い、各列の値には0または1を与えていく方法をOne-hotエンコーディングと言います。
+
+カテゴリに該当する場合は1、そうでない場合には0を与えていく方法です（ある要素が1で他の要素が0であるようにする表現をone-hot表現と呼びます）。
 
 ダミー変数とは異なり、ターゲットの項目も残るのが特徴です。
 
-> one-hot表現というのはある要素のみが1でその他の要素が0であるような表現方法
+この変数に対してOne-hotエンコーディングを行うと
+
+
+
+{:.input_area}
+```R
+df_lp_kanto$urban_planning_area %>% unique()
+```
+
+
+
+
+{:.input_area}
+```R
+df_lp_kanto %>% 
+  recipe(~ .) %>% 
+  step_dummy(urban_planning_area, one_hot = TRUE) %>% 
+  prep() %>% 
+  bake(starts_with("urban_planning_area"), new_data = df_lp_kanto)
+```
+
+
+今回はカテゴリの水準数が4であったために4つの特徴量が新たに作られました。
 
 
 

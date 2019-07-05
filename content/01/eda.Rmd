@@ -352,6 +352,10 @@ all.equal(
   df_lp_kanto$attribute_change_floor_area_ratio)
 ```
 
+#### t-SNE
+
+高次元データの2次元散布図を用いた可視化に利用される
+
 
 #### モデルの利用
 

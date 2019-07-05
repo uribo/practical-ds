@@ -3,11 +3,11 @@ interact_link: content/01/eda.ipynb
 kernel_name: ir
 title: '探索的データ分析'
 prev_page:
-  url: /01/introduction
-  title: 'データ分析のプロセス'
-next_page:
-  url: /01/tidy_data
+  url: /01/tidy-data
   title: 'tidyデータと前処理'
+next_page:
+  url: /01/tidymodels-workflow
+  title: 'モデルの構築から評価まで'
 comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
 ---
 
@@ -717,7 +717,7 @@ vis_dat(df_lp_kanto)
 
 
 {:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_31_0.png)
+![png](../images/01/eda_31_0.png)
 
 
 
@@ -741,7 +741,7 @@ df_lp_kanto %>%
 
 
 {:.output .output_png}
-![png](/Users/suryu/Library/Mobile%20Documents/com~apple~CloudDocs/jupyter_book/practical-ds/_build/images/01/eda_33_0.png)
+![png](../images/01/eda_33_0.png)
 
 
 
@@ -899,6 +899,10 @@ all.equal(
   df_lp_kanto$attribute_change_floor_area_ratio)
 ```
 
+
+#### t-SNE
+
+高次元データの2次元散布図を用いた可視化に利用される
 
 #### モデルの利用
 

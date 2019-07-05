@@ -6,8 +6,8 @@ prev_page:
   url: /01/readme
   title: 'データ分析の流れ'
 next_page:
-  url: /01/eda
-  title: '探索的データ分析'
+  url: /01/tidy-data
+  title: 'tidyデータと前処理'
 comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
 ---
 

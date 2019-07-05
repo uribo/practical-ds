@@ -3,8 +3,8 @@ interact_link: content/01/tidymodels-workflow.ipynb
 kernel_name: ir
 title: 'モデルの構築から評価まで'
 prev_page:
-  url: /01/tidy-data
-  title: 'tidyデータと前処理'
+  url: /01/eda
+  title: '探索的データ分析'
 next_page:
   url: /02/readme
   title: '特徴量エンジニアリング'
@@ -44,6 +44,9 @@ source(here::here("R/setup.R"))
 - 単純な無作為抽出による分割 (hold-out)
     - データが大規模なら良いが（特に属性の数との関係に注意。属性数がデータ件数よりも多い場合ではよくない。大きなサンプリングバイアスをもたらす恐れがある）
         - 分割可能な層がないか... 層化抽出法を検討
+
+モデルの実行は一般的にはシンプルなものから始めるのが良いとされます。複雑なモデルでは計算コストが高くなりがちなことや、結果の解釈が困難になるという欠点があります。対してシンプルなモデルはその逆です。また、思わぬところでデータの異常に気がつくかもしれません（前処理が十分でなかった、予測性能が明らかに高くなりすぎた（過学習やデータリークの可能性）など）。シンプルなモデルから複雑なモデルにしていく作業は
+逆の手順よりも簡単なように思えます。複数の変数がモデルに組み込まれている場合、どの変数が目的変数に対して重要であるかを[変数重要度](feature-selection)により見ていくことになり、その判断に困ることがあるためです。変数重要度については後の章で解説します。しかしデータの性質や過去の経験を活用できる場合にはこの通りではありません。状況に応じた戦略を使い分けるべきでしょう。
 
 ## モデルの構築から評価まで
 
@@ -236,9 +239,10 @@ test_pred %>%
 
 ## 関連項目
 
-- データ分割
+- [データ分割](03/data-splitting)
 
 ## 参考文献
 
 - Aurélien Géron (2017). Hands-On Machine Learning with Scikit-Learn and TensorFlow (O'Reilly) (**翻訳** 長尾高弘訳 (2018). scikit-learnとTensorFlowによる実践機械学習 (オライリー))
+- 有賀康顕、中山 心太、西林孝 (2018). 仕事ではじめる機械学習 (オライリー)
 - Max Kuhn and Kjell Johnson (2019).[Feature Engineering and Selection: A Practical Approach for Predictive Models](https://bookdown.org/max/FES/) (CRC Press)

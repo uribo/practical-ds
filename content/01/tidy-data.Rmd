@@ -13,9 +13,21 @@ jupyter:
     name: ir
 ---
 
+```{r setup, include=FALSE}
+source(here::here("R/setup.R"))
+```
+
 # tidyデータ: 人間にも機械にも優しいデータの記述形式
 
-前処理
+データが手に入ってすぐに、モデルに利用できることはごく稀です。
+
+前処理と呼ばれる作業が必要になります。
+
+ここではtidyデータと呼ばれる
+
+形式へのデータ整形方法と一般的な前処理について紹介します。
+
+欠損値の削除や外れ値の削除
 
 データの質が統計モデリングや機械学習の学習効果に影響を及ぼします。
 
@@ -27,13 +39,9 @@ jupyter:
 
 横長
 
-```{r setup, include=FALSE}
-source(here::here("R/setup.R"))
-```
-
 ## データ型
 
-- 表示した状態では同じように見えてもプログラムの中では異なる値として扱われることも
+表示した状態では同じように見えてもプログラムの中では異なる値として扱われることがあります。
 
 
 ```{r}
@@ -54,16 +62,30 @@ class(lubridate::as_date(x))
 
 ### 前処理の必要性1: 重回帰モデル
 
-<!-- 標準化だけでなく、多重共線性の問題もここで触れておく -->
+```{r}
+df_lp_kanto %>% 
+  lm(posted_land_price ~ distance_from_station + acreage + night_population,
+     data = .) %>% 
+  tidy()
+```
 
+`distance_from_staion` の影響が一番強く、`acreage`、`night_population`が続きます。しかし `distance_from_staion` の値が大きすぎて他の変数の効果が小さいように見えます。これは元のスケールの影響を受けているためです。 `distance_from_staion` と `acreage` の1は同じ単位ではありません。偏回帰係数を比較する場合、スケーリングを行っておく必要があります。
+
+```{r}
+df_lp_kanto %>% 
+  recipe(posted_land_price ~ distance_from_station + acreage + night_population) %>% 
+  step_center(all_predictors()) %>% 
+  step_scale(all_predictors()) %>% 
+  prep() %>% 
+  juice() %>% 
+  lm(posted_land_price ~ .,
+     data = .) %>% 
+  tidy()
+```
 
 ### 前処理の必要性2: 変数間のスケールが揃わない主成分分析
 
-主成分分析（詳細は別の章）では入力に用いる変数間のスケールが標準化されていることが前提です。
-
-距離を利用するため
-
-標準化を行わない場合の結果を見てみましょう。
+[主成分分析](03/dimension-reduction)では入力に用いる変数間のスケールが標準化されていることが前提です。それは特徴量空間におけるデータ間を距離を利用するためです。そのため、値の範囲が大きく異なる変数があることでその影響を強く受けます。まずは標準化を行わない場合の結果を見てみましょう。
 
 ```{r}
 pca_res <- 
@@ -94,12 +116,76 @@ summary(pca_res)
 
 ### 前処理の必要性3: kNN
 
-<!--scalingされていないデータの悪影響 KNNでの例 https://ishitonton.hatenablog.com/entry/2019/02/24/184253 -->
+```{r}
+library(FNN)
+set.seed(12)
+
+split_hazard <- 
+  df_hazard_kys %>%
+  select(hazard, max_elevation, mean_slope_aspect) %>% 
+  drop_na() %>% 
+  rsample::initial_split(strata = "hazard")
+
+df_train <- training(split_hazard)
+df_test <- testing(split_hazard)
+
+p1 <-
+  ggplot(df_train, aes(max_elevation, mean_slope_aspect)) +
+  geom_point(aes(color = hazard))
+
+# p1 + 
+#   ylim(range(df_train$max_elevation))
+# 
+# plot_grid(p1, p2)
+
+knn_res <- knn(df_train, df_test, df_train$hazard, k = 2, prob = FALSE)
+df_test$predict <- knn_res
+attr(knn_res, "nn.index") %>% as.data.frame() %>% as_tibble() %>% .[21, ]
+
+p2 <-
+  ggplot(df_test,
+       aes(max_elevation, mean_slope_aspect)) +
+  geom_point(aes(color = predict))
+
+# get.knn(df_test %>% select_if(is.numeric), k = 2)["nn.index"] %>% as.data.frame() %>% .[397, ]
 
 
+p3 <- 
+  p2 + 
+  scale_color_manual(values = c("gray", "gray")) +
+  geom_point(data = df_test %>% 
+               slice(c(397, 147, 271)), 
+         aes(max_elevation, mean_slope_aspect),
+      #   color = "transparent",
+         size = 3)
+
+p3 +
+  ylim(range(df_test$max_elevation))
 
 
-## 標準化と正規化
+rec <- 
+  df_train %>% 
+  recipe(hazard ~ .) %>% 
+  step_center(all_predictors()) %>% 
+  step_scale(all_predictors())
+
+df_train_baked <- 
+  rec %>% 
+  prep(training = df_train) %>% 
+  bake(new_data = df_train)
+df_test_baked <- 
+  rec %>% 
+  prep(training = df_train) %>% 
+  bake(new_data = df_test)
+
+knn(df_train_baked, df_test_baked, df_train_baked$hazard, k = 2) %>% 
+  table()
+```
+
+
+<!-- ### 前処理の必要性4: SVM -->
+
+## スケーリング処理
 
 変数間のスケールを統一する処理には複数の方法があります。いずれもデータが取りうる値のスケールを変換し、一定の範囲に収める処理を行います。これらは個々の特徴量に対して適用され、後に述べるような対数変換のようにデータの分布を変化させない変換方法になります。
 
@@ -107,11 +193,13 @@ PLSなどで恩恵がありますが
 
 一方でデータが持つ単位を失ってしまうことは、データの解釈を困難にさせます。
 
-データの分布には影響しない
+これらのスケーリング処理はデータの分布には影響しないことが特徴です。
 
 ### Min-Maxスケーリング
 
 特徴量の値を0~1の範囲に収める変換をMin-Maxスケーリングと呼びます。
+
+Min-Maxスケーリングを行う際は、数値の取り得る値があらかじめわかっているものが望ましいです。データとして存在しない値や外れ値が与えられることで、その値に引っ張られて相対的な差がなくなってしまう恐れがあるからです。
 
 ```{r}
 # 地価データの「最寄り駅までの距離」の範囲
@@ -138,7 +226,7 @@ p2 <-
   geom_violin(color = ds_col(5)) +
   ylab("min_max(lp_dist)")
 
-cowplot::plot_grid(p1, p2)
+plot_grid(p1, p2)
 ```
 
 
@@ -404,9 +492,16 @@ df_lp_kanto_clean %>%
 
 テキストデータの前処理については[別の章](02/text)で解説します。
 
+### 次元削減と特徴量抽出
+
+元データの情報を可能な限り多く含んだ状態を維持しつつ、新たな特徴量を抽出するプロセスとして[次元削減](03/dimension-reduction)があります。主成分分析に代表されるように、これらの手法は高次元のデータのばらつきをより失わない方法で圧縮します。。特に主成分分析では高次元空間上に直交するベクトルを特徴量（成分）とすることから、入力に相関のある特徴量を与えても無相関の特徴量を得ることが可能です。
+
+なお主成分分析は変数のスケールの影響を強く受けます。実行する前にはスケーリング処理を行うようにしましょう。主成分分析を含めた次元削減の実行については[次元削減](03/dimension-reduction)で解説します。
+
 ## 関連項目
 
-- [特徴量選択](feature-selection)
+- [次元削減](03/dimension-reduction)
+- [特徴量選択](03/feature-selection)
 
 ## 参考文献
 

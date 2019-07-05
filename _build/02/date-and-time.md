@@ -51,6 +51,34 @@ library(lubridate)
 
 日付もそれほど重要ではなさそうです。むしろ日付によって変わる平日・休日の違いが影響しそうですが、これについてはあとで処理を加えていくことにします。
 
+ビールの支出データに記録されている日付の曜日をダミーコーディングする例を考えてみましょう。曜日は7つの値を取りますが、コントラスト関数は6つのダミー変数で曜日を表現することになります。
+
+6列... 該当する曜日で1, そうでない場合に0
+
+まずは年月日からなる日付の変数から曜日を取り出す必要があります。
+
+
+
+{:.input_area}
+```R
+mod_fml <- formula(expense ~ date + weatherdaytime_06_00_18_00)
+```
+
+
+日付を記録するdate列の要素が分解され、新たな特徴量として追加されました。それでは曜日のダミーコーディングを実行します。
+
+
+
+{:.input_area}
+```R
+df_baked_split_date %>% 
+  recipe(expense ~ .) %>% 
+  step_dummy(date_dow) %>% 
+  prep(training = df_baked_split_date) %>% 
+  bake(new_data = df_baked_split_date) %>% 
+  select(starts_with("date_dow"), everything())
+```
+
 
 
 
@@ -67,6 +95,59 @@ df_beer_prep <-
   juice(expense, starts_with("date"), temperature_average)
 
 df_beer_prep
+```
+
+
+
+
+{:.input_area}
+```R
+df_baked_split_date <- 
+  df_beer2018q2 %>% 
+  recipe(mod_fml) %>% 
+  step_date(date) %>% 
+  prep(training = df_beer2018q2) %>% 
+  bake(new_data = df_beer2018q2)
+
+glimpse(df_baked_split_date)
+```
+
+
+今度は分解した曜日の情報をもとに、ビールの売り上げは「翌日に仕事が控えている曜日よりも休日の方が増えそうだ」という直感を調べてみましょう。
+
+
+
+{:.input_area}
+```R
+df_baked_split_date <- 
+  df_baked_split_date %>% 
+  mutate(is_weekend = if_else(date_dow %in% c("土", "日"),
+                              TRUE,
+                              FALSE))
+```
+
+
+
+
+{:.input_area}
+```R
+df_baked_split_date %>% 
+  ggplot(aes(date_dow, expense)) +
+  geom_boxplot(aes(color = is_weekend), outlier.shape = NA) +
+  geom_jitter(aes(color = is_weekend), alpha = 0.3) +
+  scale_color_ds() +
+  facet_wrap(~ date_month)
+```
+
+
+目論見通り、どの月でも平日よりも休日の方が支出が増えているようです。また、8月は週ごとに変動が大きく、9月では平日との差がほとんどないということもグラフから読み取れます。新たな特徴量の作成と関係の図示により、経験的な推論を確認するだけでなく、モデルに対する新たな洞察も得ることができました。
+
+
+
+{:.input_area}
+```R
+# 日本の祝日判定に次の項目が利用可能
+stringr::str_subset(timeDate::listHolidays(), "^JP")
 ```
 
 
