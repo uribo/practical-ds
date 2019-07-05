@@ -83,7 +83,7 @@ plan_datasetup <-
     jpmesh::meshcode_sf(meshCode),
   df_hazard_kys = 
     readr::read_csv(here::here("data-raw/hazard_kyusyu201607.csv"),
-                    col_types = c("Dclccccdcddlllllddddddddddd")) %>% 
+                    col_types = c("Dclcdccdcddlllllddddddddddd")) %>% 
     verify(dim(.) == c(2214, 27)),
   sf_hazard_kys = 
     df_hazard_kys %>% 

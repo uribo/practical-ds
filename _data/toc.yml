@@ -50,10 +50,10 @@
   sections:
   - title: データ分析のプロセス
     url: /01/introduction
-  - title: 探索的データ分析
-    url: /01/eda
   - title: tidyデータと前処理
     url: /01/tidy-data
+  - title: 探索的データ分析
+    url: /01/eda
   - title: モデルの構築から評価まで
     url: /01/tidymodels-workflow
 
