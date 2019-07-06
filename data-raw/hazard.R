@@ -18,6 +18,7 @@ library(sf)
 library(assertr)
 library(ensurer)
 library(ggplot2)
+source("https://gist.githubusercontent.com/uribo/5c67ef24dcaf17402175b0d474cd8cb2/raw/0136636eab1ac905e019189e775c75bd20efb523/ksj_parse_a30a5.R")
 
 # 1. ksjからのデータ取得 ----------------------------------------------------------
 plan_hazard_mesh <- drake::drake_plan(
@@ -26,7 +27,7 @@ plan_hazard_mesh <- drake::drake_plan(
     # path <- "~/Documents/resources/国土数値情報/A30a5/A30a5-11_5637-jgd_GML/A30a5-11_5637_SedimentDisasterAndSnowslide.shp"
     # 
     # df_hazard5637 <-
-    #   collect_a30a5(path)
+    #   ksj_parse_a30a5(path)
     # 
     # df_hazard5637 %>%
     #   st_drop_geometry() %>%
@@ -47,45 +48,45 @@ plan_hazard_mesh <- drake::drake_plan(
     #             exdir = paste0("~/Documents/resources/国土数値情報/A30a5/",
     #                            stringr::str_remove(basename(.x), ".zip"))
     #   ))
+    },
     df_hazard =
       fs::dir_ls(here::here("data-raw/A30a5"),
                  recurse = TRUE,
                  regexp = ".shp") %>%
       ensure(length(.) == 106L) %>% 
       purrr::map(
-        collect_a30a5
+        ksj_parse_a30a5
       ) %>%
       purrr::reduce(rbind) %>% 
       verify(dim(.) == c(4315, 11)) %>% 
-      st_transform(crs = 4326)
-    df_hazard =
-      df_hazard %>%
+      st_transform(crs = 4326) %>% 
       st_drop_geometry() %>%
       tidyr::extract(hazardType,
                      into = c("hazardType_", "hazardType_sub"), regex = "(.+)(\\(.+\\))",
                      remove = FALSE) %>%
       mutate(hazardType_ = if_else(is.na(hazardType_), hazardType, hazardType_)) %>%
       select(-hazardType) %>%
-      rename(hazardType = hazardType_)
+      rename(hazardType = hazardType_) %>% 
+    tidyr::extract(hazardType_sub, "hazardType_sub") %>% 
+    mutate(hazardType = stringr::str_remove(hazardType, "\\(.+")),
     df_hazard %>% 
-      write_csv(here::here("data-raw/hazard.csv"))
-  },
-  df_hazard = 
-    read_csv(here::here("data-raw/hazard.csv"),
-             col_types = cols(
-               prefectureName = col_character(),
-               cityName = col_character(),
-               hazardDate = col_date(format = ""),
-               hazardType = col_character(),
-               hazardType_sub = col_character(),
-               maxRainfallFor_24h = col_double(),
-               maxRainfall_h = col_double(),
-               inclination = col_character(),
-               outflowSediment_m3 = col_double(),
-               landslideLength_m = col_double(),
-               meshCode = col_character()
-             )) %>% 
-    jpmesh::meshcode_sf(meshCode)
+      write_csv(here::here("data-raw/hazard.csv"))#,
+  # df_hazard = 
+  #   read_csv(here::here("data-raw/hazard.csv"),
+  #            col_types = cols(
+  #              prefectureName = col_character(),
+  #              cityName = col_character(),
+  #              hazardDate = col_date(format = ""),
+  #              hazardType = col_character(),
+  #              hazardType_sub = col_character(),
+  #              maxRainfallFor_24h = col_double(),
+  #              maxRainfall_h = col_double(),
+  #              inclination = col_character(),
+  #              outflowSediment_m3 = col_double(),
+  #              landslideLength_m = col_double(),
+  #              meshCode = col_character()
+  #            )) %>% 
+  # jpmesh::meshcode_sf(meshCode)
 )
 drake::make(plan_hazard_mesh, packages = c("dplyr", "sf", "readr"))
 drake::loadd(plan_hazard_mesh, list = c("df_hazard"))

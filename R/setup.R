@@ -8,9 +8,6 @@ theme_set(theme_light(base_size = 8,
                       base_family = dplyr::if_else(grepl("mac", sessioninfo::os_name()),
                                                    "IPAexGothic",
                                                    "IPAGothic")))
-
-# lp... prep_landprice.R
-
 plan_datasetup <- 
   drake::drake_plan(
     # df_lp = 
@@ -79,8 +76,10 @@ plan_datasetup <-
                       outflowSediment_m3 = col_double(),
                       landslideLength_m = col_double(),
                       meshCode = col_character()
-                    )) %>% 
-    jpmesh::meshcode_sf(meshCode),
+                    )),
+  sf_hazard = 
+    df_hazard %>% 
+    jpmesh::meshcode_sf(mesh_var = meshCode),
   df_hazard_kys = 
     readr::read_csv(here::here("data-raw/hazard_kyusyu201607.csv"),
                     col_types = c("Dclcdccdcddlllllddddddddddd")) %>% 
@@ -119,9 +118,9 @@ plan_datasetup <-
 drake::make(plan_datasetup)
 drake::loadd(plan_datasetup,
              list = c(
-               #"df_lp", 
                       "df_lp_kanto", 
-                      "df_hazard", "df_hazard_kys", "sf_hazard_kys",
+                      "df_hazard", "sf_hazard",
+                      "df_hazard_kys", "sf_hazard_kys",
                       "df_beer", "df_beer2018q2",
                       "ne_jpn", "ne_knt", "ne_kys"))
 

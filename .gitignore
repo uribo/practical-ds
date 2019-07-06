@@ -17,4 +17,3 @@ content/*.html
 *.pxm/
 R/data-converter.R
 _site
-
