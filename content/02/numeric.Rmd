@@ -47,15 +47,13 @@ k近傍法やサポートベクターマシンは、特徴空間上の外れ値�
 - 変数変換
 - 変数間の関係を見つめ直す
 
-まずは個別の説明変数に対して有効な
-
-変換方法を紹介します。
+この章では、これらの作戦を個別に紹介してきます。
 
 ## 対数変換
 
-数値データの特徴量エンジニアリングとして最初に検討するのが対数変換です。これは[前処理](01/tidy-data)で扱ったスケール変換とは対象の変数の値を変えるという意味では同じですが、大きな違いがあります。スケール変換では変数のばらつきを元にする変換のため、変換後の値でも分布は変わりませんでした。しかし対数変換ではデータの分布を変えます。
+数値データの特徴量エンジニアリングとして最初に検討するのが対数変換です。これは[前処理](01/tidy-data)で扱ったスケール変換とは対象の変数の値を変えるという意味では同じですが、大きな違いがあります。スケール変換では変数のばらつきを元にする変換のために変換後の値でも分布は変わりません。しかし対数変換ではデータの分布が変化します。
 
-対数変換の効果が大きいのは偏りがある数値データです。次の図は地価公示データの地価をヒストグラムにプロットした図と、同じデータに対数変換を施したものです。
+対数変換の効果が大きいのは偏りがある数値データです。裾の長いデータ (long tail) とも呼びます。次の図は地価公示データの地価をヒストグラムにプロットした図と、同じデータに対数変換を施したものです。
 
 ```{r log_transform_compared, echo=TRUE, eval=FALSE}
 p_base <- 
@@ -80,70 +78,118 @@ plot_grid(
 
 ![](../images/log_transform_compared-1.png)
 
-対数変換には次の特徴があります。
-
-- 特徴量のスケールが大きい時はその範囲を縮小し、小さい時は拡大します。これにより、裾の長い分布を正規分布の形に近づけることが期待されます。
-- 平均値が大きいグループほど分散が大きい場合には、対数変換により等分散性が確保されることが多い
-
-
-一方、10を底とするこの対数変換では、0やを扱うことができないという欠点もあります。そのため、強引に正の値となるような加算の処理をしてから対数変換を行うことがあります。このような処理に対して、足し合わせる数値を下駄に例えて「下駄を履かせる」と表現することがあります。
-
-```{r}
-log10(0)
-log10(-1)
-log10(0 + 1)
-```
-
-ただしこの「下駄」も負値についても非負値とするために「...を足す」のような処理をすると解釈が難しくなる問題があります。ここでは詳しく解説しませんが、0や負値を含んだ特徴量を扱えるYeo-Johnson変換 (Yeo-Johnson Power Transformations) が効果的な時があります。
-
-
-```{r}
-df_lp_kanto %>% 
-  ggplot(aes(posted_land_price, distance_from_station, color = prefecture)) +
-  geom_point() +
-  scale_fill_identity() +
-  scale_x_log10() +
-  scale_y_log10()
-```
-
-
-
+対数変換には次の特徴があります。特徴量のスケールが大きい時はその範囲を縮小し、小さい時は拡大します。これにより、裾の長い分布を押しつぶしたように山のある分布に近づけることができます。また分散が大きなデータでは平均値が大きいほど等分散になりやすい傾向にあります。
 
 ### Box-Cox変換
 
-- パラメータ \lambda を変更することで、対数変換 (\lambda = 0)、平方根変換 (\lambda = 0.5)、逆数変換 (\lambda = -1.0)
-- 平方根変換 はカウントデータに適する?
-- 対数変換よりもBox-Cox変換の方が裾を縮小させることが期待される
-- 0より大きい値
-    - 0および負値に対応したYeo-Johnson変換については説明しない
+正規分布に従わないデータに対して線形回帰モデルを適用すると推定が思うように行かないことがあります。これは線形回帰モデルが一般に入力に対して正規分布のデータを仮定しているためです。このようなデータでは、正規分布でない分布を背景とする回帰モデルを利用することが一番の対策です。しかしここではデータの分布を変えることでデータを正規分布に近づける方法を紹介しましょう。
 
-```{r}
-ggplot(df_lp_kanto, aes(acreage)) +
-  geom_histogram(bins = 30)
+ポアソン分布は平均と分散が等しいという性質があります。平均 $\lambda$ が大きいほど分散が大きくなり、分布の裾が重くなります。地価公示データの土地の面積を示す変数 `acreage` は裾の重い分布をしてます (ヒストグラムは後ほど作成します)。 このデータを正規分布に近づけるにはどうすれば良いでしょう。先に紹介した対数変換は1つの手段です。
 
-rec <- 
+データが正規分布に従っているかは、シャピロ-ウィルクの正規性検定や正規確率グラフ (QQプロット) の描画で確かめられます。 を例に見てみます。元のデータと対数変換した値を使って、シャピロ-ウィルクの正規性検定を行います。この統計手法の帰無仮説は「変数は正規分布にしたがう」です。 $P < 0.05$ となれば帰無仮説は棄却されます。すなわち正規分布の仮定が保証できなくなります。
+
+```{r eval=TRUE}
+shapiro.test(sample(df_lp_kanto$acreage, 5000)) %>% tidy()
+shapiro.test(log(sample(df_lp_kanto$acreage, 5000))) %>% tidy()
+shapiro.test(log(sample(df_lp_kanto$acreage, 5000), base = 10)) %>% tidy()
+```
+
+いずれの結果も統計的有意に帰無仮説を棄却するものでした。続いて正規確率グラフを作成します。このグラフでは、度数分布図で得られた度数の累積値より作成される累積度数分布図の縦軸を変形したもので、データが正規分布に従うのであれば直線上に並ぶというものです。
+
+```{r qq_plot, echo=TRUE, fig.height=6, eval=FALSE}
+ggplot(df_lp_kanto, aes(sample = log(acreage, base = 10))) + 
+  stat_qq() +
+  stat_qq_line()
+```
+
+![](../images/qq_plot-1.png)
+
+対数変換により小さな値の集団は正規分布に近づきましたが、途中から大きくずれてしまいました。これはデータの平均と分散の大きさを反映した結果です。
+
+分散が平均に依存しないように変換をする方法として分散安定変換があります。ポアソン分布に従うデータ $X$ を平方根で変換すると $\tilde{X} = \sqrt{X}$ となり、平均とは無関係に分散がほぼ一定になります。
+
+対数変換と平方根変換を一般化したものとしてBox-Cox変換があります。Box-Cox変換はパラメータ $\lambda$ を指定する必要があり、パラメータ $\lambda$ を変更することで、対数変換 ($\lambda$ = 0)、平方根変換 ($\lambda$ = 0.5)、逆数変換 ($\lambda$ = -1.0) に対応します。
+
+土地の面積にBox-Cox変換を施し、改めて正規性の検定を行いましょう。
+
+```{r eval=TRUE}
+rec_lp_acreage <- 
   recipe(~ acreage, data = df_lp_kanto)
 
-rec %>%
+df_lp_acreage_boxcox <- 
+  rec_lp_acreage %>% 
+  step_BoxCox(all_predictors()) %>%
+  prep(training = df_lp_kanto) %>% 
+  juice(all_predictors())
+```
+
+```{r eval=TRUE}
+shapiro.test(sample(df_lp_acreage_boxcox$acreage, 5000)) %>% tidy()
+```
+
+```{r qq_plot_after_boxcox_transform, echo=TRUE, fig.height=6, eval=FALSE}
+df_lp_acreage_boxcox %>% 
+  ggplot(aes(sample = acreage)) +
+  stat_qq() +
+  stat_qq_line()
+```
+
+統計的には正規分布ではないと判断されましたが、正規確率グラフを見るとより多くのデータが正規分布に近づいていることがわかります。最後に、土地面積のデータにさまざまな変換を施したヒストグラムを比較のために作っておきましょう。
+
+![](../images/qq_plot_after_boxcox_transform-1.png)
+
+```{r lp_acreage_transform, echo=FALSE, eval=FALSE}
+p1 <- 
+  ggplot(df_lp_kanto, aes(acreage)) +
+  geom_histogram(bins = 30) +
+  ggtitle("raw") +
+  aes(fill = ds_col(1)) +
+  scale_fill_identity()
+
+p2 <- 
+  rec_lp_acreage %>%
   step_sqrt(all_predictors()) %>%
   prep(training = df_lp_kanto) %>%
   juice(all_predictors()) %>%
   ggplot(aes(acreage)) +
-  geom_histogram(bins = 30)
+  geom_histogram(bins = 30) +
+  ggtitle("sqrt") +
+  aes(fill = ds_col(2)) +
+  scale_fill_identity()
 
-rec %>%
-  step_log(all_predictors()) %>%
+p3 <- 
+  rec_lp_acreage %>%
+  step_log(all_predictors(), base = 10) %>%
   prep(training = df_lp_kanto) %>%
   juice(all_predictors()) %>%
   ggplot(aes(acreage)) +
-  geom_histogram(bins = 30)
+  geom_histogram(bins = 30) +
+  ggtitle("log (base10)") +
+  aes(fill = ds_col(3)) +
+  scale_fill_identity()
 
-rec %>% 
-  step_BoxCox(all_predictors()) %>% 
-  prep(training = df_lp_kanto) %>% 
-  juice(all_predictors()) %>% 
+p4 <- 
+  df_lp_acreage_boxcox %>% 
   ggplot(aes(acreage)) +
-  geom_histogram(bins = 30)
+  geom_histogram(bins = 30, show.legend = FALSE) +
+  ggtitle("Box-Cox") +
+  aes(fill = ds_col(4)) +
+  scale_fill_identity()
+
+plot_grid(p1, p2, p3, p4, ncol = 2, labels = "AUTO")
+```
+
+![](../images/lp_acreage_transform-1.png)
+
+対数変換やBox-Cox変換は、0や負値を扱えないという欠点もあります。そのため、強引に正の値となるような加算の処理をしてから対数変換を行うことがあります。このような処理に対して、足し合わせる数値を下駄に例えて「下駄を履かせる」と表現することがあります。ただしこの「下駄」も負値についても非負値とするために「...を足す」のような処理をすると解釈が難しくなる問題があります。ここでは詳しく解説しませんが、0や負値を含んだ特徴量を扱えるYeo-Johnson変換 (Yeo-Johnson Power Transformations) が効果的な時があります。
+
+```{r eval=TRUE}
+# 0 や 負値では対数変換が行えない
+log(0)
+log10(0)
+log10(-1)
+# 下駄を履かせる処理
+log10(0 + 1)
 ```
 
 ## ロジット変換
@@ -173,52 +219,26 @@ df_transed %>%
   geom_point()
 ```
 
-## Binning
+## ビン詰め (ビニング, binning)
+
+ビン詰めあるいは離散化は、量的変数を1組あるいはそれ以上のカテゴリに変換する作業です。ここで新たに「ビン」という言葉が出てきました。ビンはカテゴリの値が入る容器だと考えてください。ヒストグラムで使われる「ビン」と同じものです。数値データを扱う際、単一の変数の四分位数を求めることがありますが、それと同じような作業です。四分在数ではデータのばらつきを3つに区切ります。
+
+- 結果の解釈が簡単になる
+- データの変動を抑える
+
+いろいろな方法がある
+
+一変数統計量として
 
 
 
-<!-- fe-categorical? -->
+連続値をとる数値を離散値に
 
+線形モデルで効果を発揮します。
 
+複数の特徴量に分割する
 
-## シークエンス
-
-- 移動平均
-- 外れ値をもつ場合には平滑化が有効
-
-```{r}
-mod_rec <- 
-  df_lp_kanto %>%
-  select(posted_land_price, number_of_floors) %>% 
-  recipe(formula = ~ .)
-
-df_trans <- 
-  mod_rec %>% 
-  step_BoxCox(all_numeric()) %>% 
-  prep() %>% 
-  juice()
-
-p1 <- df_lp_kanto %>% 
-  ggplot(aes(posted_land_price)) +
-  geom_histogram(bins = 30, fill = ds_col(1))
-
-p2 <- df_trans %>% 
-  ggplot(aes(posted_land_price)) +
-  geom_histogram(bins = 30, fill = ds_col(5))
-
-plot_grid(p1, p2)
-```
-
-## カウントデータの取り扱い
-
-<!-- ビン（レンジ）カウンティング -->
-
-## 二値化
-
-```{r}
-
-```
-
+決定木では利点がない
 
 - スケールによる影響を緩和するためにカウントデータを離散化
 
@@ -250,6 +270,38 @@ binned <-
              prefix = "distance_bins")
 table(predict(binned, df_lp_kanto$distance_from_station))
 ```
+
+## シークエンス
+
+- 移動平均
+- 外れ値をもつ場合には平滑化が有効
+
+```{r}
+mod_rec <- 
+  df_lp_kanto %>%
+  select(posted_land_price, number_of_floors) %>% 
+  recipe(formula = ~ .)
+
+df_trans <- 
+  mod_rec %>% 
+  step_BoxCox(all_numeric()) %>% 
+  prep() %>% 
+  juice()
+
+p1 <- df_lp_kanto %>% 
+  ggplot(aes(posted_land_price)) +
+  geom_histogram(bins = 30, fill = ds_col(1))
+
+p2 <- df_trans %>% 
+  ggplot(aes(posted_land_price)) +
+  geom_histogram(bins = 30, fill = ds_col(5))
+
+plot_grid(p1, p2)
+```
+
+## カウントデータの取り扱い
+
+## 二値化
 
 ```{r}
 # box-cox変換 ---------------------------------------------------------------
@@ -372,7 +424,41 @@ df_train %>%
 
 <!-- ビニングや多項式特徴量、-->
 
-## 交互作用特徴量
+## より豊かな表現
+
+モデルの表現を豊かにするための特徴量エンジニアリングとして
+
+多項式特徴量や交互作用特徴量が利用可能です。
+
+線形モデルで有効?
+
+特に線形モデルでは一般に多項式特徴量、交互作用特徴量を追加することで精度向上が期待されます。
+
+
+
+
+### 多項式特徴量
+
+```{r}
+data(biomass)
+
+biomass_tr <- biomass[biomass$dataset == "Training",]
+biomass_te <- biomass[biomass$dataset == "Testing",]
+
+rec <- recipe(HHV ~ carbon + hydrogen + oxygen + nitrogen + sulfur,
+              data = biomass_tr)
+
+quadratic <- rec %>%
+  step_poly(carbon, hydrogen)
+quadratic <- prep(quadratic, training = biomass_tr)
+
+expanded <- bake(quadratic, biomass_te)
+expanded
+
+```
+
+
+### 交互作用特徴量
 
 ## 次元集約によると特徴量の作成
 
@@ -399,3 +485,5 @@ df_train %>%
 ## 参考文献
 
 - Max Kuhn and Kjell Johnson (2013). Applied Predictive Modeling. (Springer)
+- Sarah Guido and Andreas Müller (2016). Introduction to Machine Learning with Python A Guide for Data Scientists (O'Reilly) (**翻訳** 中田秀基訳 (2017). Pythonではじめる機械学習 scikit-learnで学ぶ特徴量エンジニアリングと機械学習の基礎 (オライリー))
+- Max Kuhn and Kjell Johnson (2019). Feature Engineering and Selection: A Practical Approach for Predictive Models (CRC Press)
