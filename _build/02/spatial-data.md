@@ -1,6 +1,7 @@
 ---
 interact_link: content/02/spatial-data.ipynb
 kernel_name: ir
+has_widgets: false
 title: '地理空間データの取り扱い'
 prev_page:
   url: /02/date-and-time
@@ -44,7 +45,16 @@ source(here::here("R/setup.R"))
 ## ジオコーディングと逆ジオコーディング
 
 緯度経度を都道府県に
-メッシュコードに
+緯度経度をメッシュコードに, メッシュコードから緯度経度に
+
+
+
+{:.input_area}
+```R
+df_hazard %>% 
+  select(meshCode)
+```
+
 
 ## 隣接関係
 

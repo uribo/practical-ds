@@ -1,7 +1,7 @@
 ---
 title: 'データ分析の流れ'
 prev_page:
-  url: /https://github.com/uribo/practical-ds
+  url: https://github.com/uribo/practical-ds
   title: 'GitHub repository'
 next_page:
   url: /01/introduction

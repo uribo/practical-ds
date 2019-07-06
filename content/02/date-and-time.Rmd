@@ -96,6 +96,15 @@ df_baked_split_date <-
 glimpse(df_baked_split_date)
 ```
 
+```{r}
+df_baked_split_date %>% 
+  recipe(expense ~ .) %>% 
+  step_dummy(date_dow, one_hot = TRUE) %>% 
+  prep(training = df_baked_split_date) %>% 
+  bake(new_data = df_baked_split_date) %>% 
+  select(starts_with("date_dow"), everything())
+```
+
 今度は分解した曜日の情報をもとに、ビールの売り上げは「翌日に仕事が控えている曜日よりも休日の方が増えそうだ」という直感を調べてみましょう。
 
 ```{r}

@@ -1,6 +1,7 @@
 ---
 interact_link: content/02/date-and-time.ipynb
 kernel_name: ir
+has_widgets: false
 title: '日付・時間データの取り扱い'
 prev_page:
   url: /02/text
@@ -110,6 +111,19 @@ df_baked_split_date <-
   bake(new_data = df_beer2018q2)
 
 glimpse(df_baked_split_date)
+```
+
+
+
+
+{:.input_area}
+```R
+df_baked_split_date %>% 
+  recipe(expense ~ .) %>% 
+  step_dummy(date_dow, one_hot = TRUE) %>% 
+  prep(training = df_baked_split_date) %>% 
+  bake(new_data = df_baked_split_date) %>% 
+  select(starts_with("date_dow"), everything())
 ```
 
 
