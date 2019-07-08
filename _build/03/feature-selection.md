@@ -6,8 +6,8 @@ prev_page:
   url: /03/data-splitting
   title: 'データ分割'
 next_page:
-  url: /03/interpretability
-  title: 'モデルの解釈'
+  url: /03/parameter-tuning
+  title: 'ハイパーパラメータの調整'
 comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
 ---
 

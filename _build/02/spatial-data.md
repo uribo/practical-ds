@@ -1,7 +1,6 @@
 ---
 interact_link: content/02/spatial-data.ipynb
 kernel_name: ir
-has_widgets: false
 title: '地理空間データの取り扱い'
 prev_page:
   url: /02/date-and-time
@@ -21,6 +20,7 @@ source(here::here("R/setup.R"))
 
 
 # 地理空間データの取り扱い
+
 
 ## 空間データの特徴
 

@@ -15,7 +15,7 @@ jupyter:
 
 # 欠損データの処理
 
-```{r setup, include=FALSE, results="hide"}
+```{r setup, eval=TRUE, include=FALSE, results="hide"}
 source(here::here("R/setup.R"))
 ```
 
@@ -265,7 +265,7 @@ prep(impute_hazard,
 
 近い値の平均値
 
-<!-- DMwRを使った knnによる補完 -->
+<!-- DMwRを使った knnによる補完 step_knnimpute -->
 
 ```{r}
 library(DMwR)
@@ -339,3 +339,4 @@ d_comp %>%
 - Max Kuhn and Kjell Johnson (2019). Feature Engineering and Selection: A Practical Approach for Predictive Models (CRC Press)
 
 <!-- textlint-enable prh -->
+

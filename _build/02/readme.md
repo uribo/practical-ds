@@ -12,3 +12,5 @@ comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /con
 
 各項目で1章
 
+1. 一般的に効果があるとされる特徴量エンジニアリング（守り）と
+2. ドメイン知識に紐づく特徴量エンジニアリング（攻め）

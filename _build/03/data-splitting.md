@@ -15,6 +15,10 @@ comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /con
 
 # データ分割
 
+- 単純な無作為抽出による分割 (hold-out)
+    - データが大規模なら良いが（特に属性の数との関係に注意。属性数がデータ件数よりも多い場合ではよくない。大きなサンプリングバイアスをもたらす恐れがある）
+        - 分割可能な層がないか... 層化抽出法を検討
+
 構築したモデルが課された問題に対して有効な
 
 汎化性能を評価することが大事
@@ -450,3 +454,4 @@ df_landprice_mod %>%
 
 ## 参考文献
 
+- Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani (2013). An Introduction to Statistical Learning with Applications in R (Springer)

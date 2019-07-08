@@ -1,16 +1,22 @@
+################################
+# 単純な分割
+################################
 source(here::here("R/setup.R"))
 
 plan_beer_prep <- drake::drake_plan(
+  # 第3主成分で96%を説明
   pca_res = 
     df_beer %>% 
     select(-month, -ends_with("days"), -cloud_covering_mean) %>% 
     select(-year) %>% 
-    select(-expense) %>% 
-    prcomp(., center = TRUE, .scale =  TRUE) %>% 
+    select(-expense) %>%
+    # 気温、湿度、風速などの気象変数でPCA
+    prcomp(., center = TRUE, scale. =  TRUE) %>% 
     summary(),
+  # data split
   split_beer = 
     df_beer %>% 
-    initial_time_split(),
+    initial_time_split(prop = 3/4),
   df_beer_train = 
     split_beer %>% 
     training(),
@@ -20,22 +26,26 @@ plan_beer_prep <- drake::drake_plan(
   beer_dimension_reduce_rec = 
     df_beer_train %>% 
     recipe(expense ~ .) %>% 
+    # 年の情報は使わない
     step_rm(year) %>% 
+    # 主成分分析、第3主成分までの主成分得点を特徴量として利用
     step_center(all_predictors(), -month, -ends_with("days"), -cloud_covering_mean) %>% 
     step_scale(all_predictors(), -month, -ends_with("days"), -cloud_covering_mean) %>% 
     step_pca(all_predictors(), -month, -ends_with("days"), -cloud_covering_mean,
-             num_comp = 2)
+             num_comp = 3),
+  df_beer_baked_train =
+    beer_dimension_reduce_rec %>% 
+    prep(training = df_beer_train) %>% 
+    bake(new_data = df_beer_train),
+  df_beer_baked_test = 
+    beer_dimension_reduce_rec %>% 
+    prep(training = df_beer_train) %>% 
+    bake(new_data = df_beer_test)  
 )
-drake::make(plan_beer_prep)
-drake::loadd(plan_beer_prep, list = c("df_beer_train", "df_beer_test", "beer_dimension_reduce_rec"))
-
-
-df_beer_train <- 
-  beer_dimension_reduce_rec %>% 
-  prep() %>% 
-  juice()
-
-df_beer_test = 
-  beer_dimension_reduce_rec %>% 
-  prep() %>% 
-  bake(new_data = df_beer_test)
+drake::make(plan_beer_prep, seed = 123)
+drake::loadd(plan_beer_prep, 
+             list = c("df_beer_train",
+                      "df_beer_test",
+                      "df_beer_baked_train", 
+                      "df_beer_baked_test", 
+                      "beer_dimension_reduce_rec"))

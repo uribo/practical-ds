@@ -195,7 +195,7 @@ df_is_cat %>%
 
 ![](../images/pref08_name_of_nearest_station-1.png)
 
-```{r pref08_categorical_count, echo=TRUE, fig.height=16, eval=TRUE}
+```{r pref08_categorical_count, echo=TRUE, eval=TRUE, fig.height=16}
 purrr::map(
   rlang::syms(str_subset(names(df_is_cat), "name_of_nearest_station", negate = TRUE)),
   ~ gg_count_var(df_is_cat %>% 

@@ -98,7 +98,7 @@ source("https://gist.githubusercontent.com/uribo/5c67ef24dcaf17402175b0d474cd8cb
 #   by_element = TRUE) %>% units::set_units(km)
 plan_land_price_spatial_fe <- drake::drake_plan(
   sf_kanto_station = 
-    ksj_parse_s12("~/Documents/resources/国土数値情報/S12/S12-18_GML/S12-18_NumberOfPassengers.geojson") %>% 
+    ksj_parse_s12(here::here("data-raw/S12/S12-18_GML/S12-18_NumberOfPassengers.geojson")) %>% 
     st_join(st_union(ne_knt) %>% 
               st_sf(), join = st_within, left = FALSE) %>% 
     filter(S12_030 == 1, S12_031 == 1) %>% 
@@ -108,7 +108,7 @@ plan_land_price_spatial_fe <- drake::drake_plan(
     verify(dim(.) == c(1990, 3)),
     #select(S12_001, num_range("S12_", range = 30:33, width = 3, prefix = "0")),
   sf_kanto_did =
-    fs::dir_ls("~/Documents/resources/国土数値情報/A16/",
+    fs::dir_ls(here::here("data-raw/A16/"),
                regexp = paste0("A16-15_(",
                                paste0(sprintf("%02d", seq.int(8, 14)), collapse = "|"),
                                ")_GML/.+_DID.shp"),
@@ -137,10 +137,12 @@ plan_land_price_spatial_fe <- drake::drake_plan(
            .longitude = sf::st_coordinates(geometry)[, 1],
            .latitude = sf::st_coordinates(geometry)[, 2]) %>%
     st_drop_geometry() %>%
-    assertr::verify(dim(.) == c(8476, 115)))
+    assertr::verify(dim(.) == c(8476, 115)),
+  if (dir.exists(here::here("data")) == FALSE) {
+    dir.create(here::here("data"))
+  },
+  df_lp_kanto_sp_baked %>% 
+    write_rds(here::here("data/lp_kanto.rds")))
 drake::make(plan_land_price_spatial_fe)
 drake::loadd(plan_land_price_spatial_fe, 
              list = c("df_lp_kanto_sp_baked"))
-
-df_lp_kanto_sp_baked %>% 
-  write_rds(here::here("data/lp_kanto.rds"))

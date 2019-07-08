@@ -23,7 +23,7 @@ source(here::here("R/setup.R"))
 
 データ分析においてもっとも一般的な型が数値データです。商品の価格やウェブページのアクセス件数、株価の変動など多くのデータが数値で表されます。このことからわかるように、一言で数値データといっても実数から整数、マイナスの値を持つものまで多様な種類が存在します。
 
-多くのモデルが数値の入力を前提としているため、数値をそのまま利用することもできます。しかし特徴量エンジニアリングが不要というわけではありません。具体的には線形回帰モデルでは、出力から得られる値の誤差が正規分布に従うことを仮定します。そのため正規分布とは異なる形状の分布をもつデータ、例えば離散値ではその仮定が成立しない可能性があります。この問題を解決するため、元のデータを正規分布に近似させるという特徴量エンジニアリングが有効になります。
+多くのモデルが数値の入力を前提としているため、数値をそのまま利用することもできます。しかし特徴量エンジニアリングが不要というわけではありません。具体的には線形回帰モデルでは、出力から得られる値の誤差が正規分布に従うことを仮定します。そのため正規分布とは異なる形状の分布をもつデータ、例えば離散値ではその仮定が成立しないことが可能性があります。この問題を解決するため、元のデータを正規分布に近似させるという特徴量エンジニアリングが有効になります。
 
 良い特徴量というのはデータの特徴を強く反映します。連続的な数値の二値化あるいは離散化により、モデルの精度を改善できる見込みがあります。また数値以外のテキストや画像データを数値化した際、さらなる特徴量エンジニアリングが必要になることがあります。つまり数値データの処理は特徴量エンジニアリングの中で最も基本的な技と言えます。
 
@@ -84,7 +84,7 @@ plot_grid(
 
 ![](../images/log_transform_compared-1.png)
 
-対数変換には次の特徴があります。特徴量のスケールが大きい時はその範囲を縮小し、小さい時は拡大します。これにより、裾の長い分布を押しつぶしたように山のある分布に近づけることができます。また分散が大きなデータでは平均値が大きいほど等分散になりやすい傾向にあります。
+対数変換には次の特徴があります。特徴量のスケールが大きい時はその範囲を縮小し、小さい時は拡大します。これにより、裾の長い分布を押しつぶしたように山のある分布に近づけることができます。また分散が大きなデータでは平均値が大きいほど等分散となりやすい傾向にあります。
 
 ### Box-Cox変換
 
@@ -122,7 +122,16 @@ ggplot(df_lp_kanto, aes(sample = log(acreage, base = 10))) +
 
 分散が平均に依存しないように変換をする方法として分散安定変換があります。ポアソン分布に従うデータ $X$ を平方根で変換すると $\tilde{X} = \sqrt{X}$ となり、平均とは無関係に分散がほぼ一定になります。
 
-対数変換と平方根変換を一般化したものとしてBox-Cox変換があります。Box-Cox変換はパラメータ $\lambda$ を指定する必要があり、パラメータ $\lambda$ を変更することで、対数変換 ($\lambda$ = 0)、平方根変換 ($\lambda$ = 0.5)、逆数変換 ($\lambda$ = -1.0) に対応します。
+対数変換と平方根変換を一般化したものとしてBox-Cox変換があります。Box-Cox変換はパラメータ $\lambda$ を指定する必要があり、パラメータ $\lambda$ を変更することで、対数変換 ($\lambda$ = 0)、平方根変換 ($\lambda$ = 0.5)、逆数変換 ($\lambda$ = -1.0) に対応します。Box-Cox変換は次の式で定義されます。
+
+$$
+\tilde{x}=\left\{
+\begin{array}{ll}
+\frac{x^\lambda-1}{\lambda, }&\lambda \neq 0\\
+\ln(x)&\lambda = 0
+\end{array}
+\right.
+$$
 
 土地の面積にBox-Cox変換を施し、改めて正規性の検定を行いましょう。
 
@@ -228,62 +237,253 @@ log10(0 + 1)
 
 ## ロジット変換
 
-- 百分率や比率データ
-    - 0から1の範囲に含まれる値を確率として表現。
-    - 変換前と変換後の値を、散布図にすると曲線を描く
+数値データの中には、比率や確率のデータも含まれます。この値は0から1の範囲をとりますが、ロジット変換による特徴量エンジニアリングが適用可能です。ロジット変換は次の式で定義されます。
+
+$$
+logit(\pi) = \log(\frac{\pi}{1-\pi})
+$$
+
+この変換は0から1の値を負と正の無限大の間の値に変換します。つまり変換後の値は正規分布に近づくことが期待されます。またこの値は逆ロジット変換により元の値へ戻せます。
 
 
 
 {:.input_area}
 ```R
-df_lp_kanto %>% skimr::skim()
-d <- 
-  df_lp_kanto %>% 
-  transmute(frontage_ratio = frontage_ratio * 0.01)
+set.seed(123)
+df_examples <- 
+  matrix(runif(40), ncol = 2) %>% 
+  data.frame() %>% 
+  as_tibble()
 
-rec <- 
-  recipe(~ frontage_ratio, data = d)
-
-df_transed <- rec %>% 
+df_transformed_examples <- 
+  recipe(~ X1 + X2, data = df_examples) %>%
   step_logit(all_predictors()) %>% 
-  prep(training = d) %>% 
-  juice(all_predictors()) %>%
-  rename(frontage_ratio_trans = frontage_ratio) %>% 
-  bind_cols(d)
+  prep() %>% 
+  juice()
+```
 
-df_transed %>% 
-  ggplot(aes(frontage_ratio, frontage_ratio_trans)) +
+
+ロジット変換を行うと、元のデータとの散布図を取った時に曲線を描くようになります。
+
+
+
+{:.input_area}
+```R
+df_transformed_examples %>% 
+  ggplot(aes(X2, df_examples$X2)) +
   geom_point()
 ```
 
 
-## ビン詰め (ビニング, binning)
+![](../images/trans_logit-1.png)
 
-ビン詰めあるいは離散化は、量的変数を1組あるいはそれ以上のカテゴリに変換する作業です。ここで新たに「ビン」という言葉が出てきました。ビンはカテゴリの値が入る容器だと考えてください。ヒストグラムで使われる「ビン」と同じものです。数値データを扱う際、単一の変数の四分位数を求めることがありますが、それと同じような作業です。四分在数ではデータのばらつきを3つに区切ります。
+## より豊かな表現
+
+モデルの表現を豊かにするための特徴量エンジニアリングとして
+
+多項式特徴量や交互作用特徴量が利用可能です。
+
+特に線形モデルでは一般に多項式特徴量、交互作用特徴量を追加することで精度向上が期待されます。
+
+### 非線形特徴量
+
+目的変数と説明変数との関係は常に線形であるとは限りません。次の図は、ビールの支出データより作成した、月間のビール支出金額とその月の平均気温のプロットです。気温が高くなると支出金額も増えているという関係は読めますが、単純な線形関係ではないように見えます。全体に細かな凹凸があったり、平均気温8から10℃のあたりで跳ね上がる、25℃を超えると一気に増加するという傾向を掴めていません。
+
+このような非線形の関係を捉えるために、統計学の文脈では線形回帰を拡張した非線形回帰の手法が使われますが、これは機械学習の分析でも有効です。ここでは非線形回帰でよく使われる多項式回帰およびスプライン回帰を利用した特徴量の生成方法を学びます。
+
+
+
+{:.input_area}
+```R
+beer_temperature_plot <- 
+  df_beer %>%
+  ggplot(aes(temperature_average, expense)) +
+  geom_point()
+```
+
+
+
+
+{:.input_area}
+```R
+beer_temperature_plot +
+  geom_smooth(method = "lm", 
+              color = ds_col(1), 
+              se = FALSE)
+```
+
+
+![](../images/linear_temp_and_expense-1.png)
+
+<!-- カーネル関数を用いる事でカバー -->
+
+<!-- これらは冒頭に述べたように線形モデルで特に有効です。また解釈が困難という欠点があります。 -->
+
+#### 多項式回帰
+
+線形回帰モデルでは1次の式を扱ってきました。線形モデルから非線形のモデルに当てはめようとする時、最も簡単なのは1次式を2次以上の式に変えてしまうことです。$y = \beta_{0}+\beta_{1}x$で表せる線形モデルを3次の式にすると以下のように表現できます。
+
+$$
+f(x) = \sum_{i=1}^{3}\beta_{i}f_{i}(x) = \beta_{1}x + \beta_{2}x^2 + \beta_{3}x^3 
+$$
+
+多項式特徴量では、多項式回帰により得られる説明変数 $x$ の2乗項 $x^2$ や3乗項 $$x^3$$ を特徴量として加えます。
+
+
+
+{:.input_area}
+```R
+df_beer %>% 
+  recipe(expense ~ temperature_average) %>% 
+  step_poly(temperature_average, options = list(degree = 2)) %>% 
+  prep(training = df_beer) %>% 
+  juice()
+```
+
+
+実際に1次の線形モデルに多項式回帰を適用するとスムーズな適合が観察できます。先の気温とビールの支出金額の関係をいくつかの次数(2次、3次、極端な例として10次)で当てはめた多項式回帰の結果を比較しましょう。
+
+
+
+{:.input_area}
+```R
+p1 <- 
+  beer_temperature_plot +
+  geom_smooth(
+    method = "lm",
+    se = TRUE,
+    fill = NA,
+    formula = y ~ poly(x, 2, raw = TRUE),
+    colour = ds_col(2)) +
+  ggtitle(expression(x^2))
+
+p2 <- 
+  beer_temperature_plot +
+  geom_smooth(
+    method = "lm",
+    se = TRUE,
+    fill = NA,
+    formula = y ~ poly(x, 3, raw = TRUE),
+    colour = ds_col(3)) +
+  ggtitle(expression(x^3))
+
+p3 <- beer_temperature_plot +
+  geom_smooth(
+    method = "lm",
+    se = TRUE,
+    fill = NA,
+    formula = y ~ poly(x, 10, raw = TRUE),
+    colour = ds_col(4)) +
+  ggtitle(expression(x^10))
+
+plot_grid(p1, p2, p3, ncol = 3)
+```
+
+
+![](../images/polynomial_temp_and_expense-1.png)
+
+次数を増やすことで曲線の滑らかさは増加します。しかしこのデータをモデルに当てはめると過学習を引き起こしやすくなることが指摘されています。加えて、高次データにおいてはデータが少ない領域や境界周辺で極端な挙動を振る舞いを示す傾向にあります。サポートベクターマシンではカーネル関数を用いることで多項式特徴量のような複雑なデータに対応可能なモデルです。
+
+#### スプライン回帰
+
+多項式の次数を増やすことで、望ましくない波状を生み出してしまいます。この問題に対して、スプライン回帰はノット (knots) と呼ばれる一連の予測変数の固定点領域を滑らかに補間する方法を提供します。
+
+ノットは均等にデータが含まれる領域を分割するように働きます。例えば3ノットのスプラインは33.3%、66.7%の分位点を配置します。この分位点は多項式回帰の結び目として利用されます。そのためスプライン回帰ではパラメータとして多項式の次数とノットの位置を指定する必要があります。
+
+スプライン回帰の注意として、係数の解釈はできない点があります。また最適なノット数を選択するのに、モデルのデータが1次であれば視覚化により確かめられます。あるいは交差検証、一般化交差検証を使用することが可能です。
+
+
+
+{:.input_area}
+```R
+knots <- 
+  df_beer$temperature_average %>% 
+  quantile(p = c(0.33, 0.667))
+
+# 橙の垂線はノットを示します
+beer_temperature_plot + 
+    geom_vline(xintercept = knots, color = ds_col(1)) +
+   geom_smooth(method = "lm", 
+               formula = y ~ splines::bs(x, knots = knots), 
+               se = FALSE,
+               color = ds_col(5))
+```
+
+
+![](../images/spline_temp_and_expense-1.png)
+
+
+
+{:.input_area}
+```R
+# splines::bs(df_beer$temperature_average, knots = knots) %>% 
+#   tidy()
+```
+
+
+
+
+{:.input_area}
+```R
+df_beer %>% 
+  recipe(expense ~ temperature_average) %>% 
+  step_ns(temperature_average) %>% 
+  prep(training = df_beer) %>% 
+  juice()
+```
+
+
+## ビン詰め (ビニング binning)
+
+ビン詰めあるいは離散化は、量的変数を1組あるいはそれ以上のカテゴリに変換する作業です。ここで新たに「ビン」という言葉が出てきました。ビンはカテゴリの値が入る容器だと考えてください。ヒストグラムで使われる「ビン」と同じものです。数値データを扱う際、単一の変数の四分位数を求めることがありますが、それと同じような作業です。四分位数ではデータを4つに区切ります。
+
+
+
+{:.input_area}
+```R
+set.seed(123)
+df <- data.frame(y = rnorm(100))
+
+df_quantile <- 
+  quantile(df$y, probs = c(0.25, 0.50, 0.75)) %>% 
+  as.data.frame() %>% 
+  as_tibble() %>% 
+  purrr::set_names("y") %>% 
+  mutate(label = c("Bottom 25%", "Median", "Top 75%"))
+
+df <- 
+  df %>% 
+  mutate(grp = case_when(
+    y < df_quantile$y[1] ~ 1,
+    y < df_quantile$y[2] ~ 2,
+    y < df_quantile$y[3] ~ 3) %>% 
+      tidyr::replace_na(4) %>% 
+      as.character())
+
+df %>% 
+  ggplot(aes(x = "", y = y)) + 
+  geom_violin() +
+  geom_jitter(aes(color = grp), show.legend = FALSE) +
+  geom_text(data = df_quantile, 
+              aes(x = 1.4, 
+                  y = y, 
+                  label = label), 
+              nudge_x = 0.1) +
+  scale_color_ds()
+```
+
+
+![](../images/plot_quantile-1.png)
+
+すべてのデータが離散化に適しているのではありませんが、離散化が効果を発揮する場面として次の状況が考えられます。
 
 - 結果の解釈が簡単になる
+- スケールによる影響を緩和する
 - データの変動を抑える
 
-いろいろな方法がある
+ビン詰めにはいろいろな方法があります。固定幅や分位数を用いるもの、教師なしの方法などです。
 
-一変数統計量として
-
-
-連続値をとる数値を離散値に
-
-線形モデルで効果を発揮します。
-
-複数の特徴量に分割する
-
-決定木では利点がない
-
-- スケールによる影響を緩和するためにカウントデータを離散化
-
-地上階数はカウントデータとして与えられています。
-
-カウントした値を階級にまとめる方法です。
-
-階級データには順序が与えられることになります。
+地価公示データには、最寄駅からの距離が `distance_from_station` として与えられています。これはいくつかのカテゴリに分けて考えると良いかもしれません。
 
 ### 固定幅による離散化
 
@@ -293,9 +493,39 @@ df_transed %>%
     - 年齢... ライフスタイルによる区切り。規則性がない
 - 10の累乗 (0~9, 10~99, 100~9999) 指数関数的
 
+最寄駅からの距離をいくつかのカテゴリに分けてみましょう。ここでは距離に応じて以下のカテゴリを設定します。
+
+- 近距離... 800m以内
+- 中距離... 800m~2km
+- 遠距離... 2km以上
+
+
+
+{:.input_area}
+```R
+df_lp_kanto$distance_from_station %>% summary()
+
+df_lp_kanto_dist_c <- 
+  df_lp_kanto %>% 
+  arrange(distance_from_station) %>% 
+  mutate(distance_cat = case_when(
+    distance_from_station < 800 ~ "近距離", 
+    between(distance_from_station, 800, 2000) ~ "中距離",
+    distance_from_station > 2000 ~ "遠距離"
+  ) %>% 
+    forcats::fct_inorder())
+
+df_lp_kanto_dist_c %>% 
+  group_by(distance_cat) %>% 
+  summarise(posted_land_price = mean(posted_land_price)) %>% 
+  ggplot(aes(distance_cat, posted_land_price)) +
+  geom_bar(stat = "identity")
+```
+
+
 ### 分位数による離散化
 
-- 均等に
+- 均等に分割
 
 
 
@@ -312,135 +542,50 @@ table(predict(binned, df_lp_kanto$distance_from_station))
 ```
 
 
-## シークエンス
-
-- 移動平均
-- 外れ値をもつ場合には平滑化が有効
-
 
 
 {:.input_area}
 ```R
-mod_rec <- 
-  df_lp_kanto %>%
-  select(posted_land_price, number_of_floors) %>% 
-  recipe(formula = ~ .)
-
-df_trans <- 
-  mod_rec %>% 
-  step_BoxCox(all_numeric()) %>% 
+df_lp_kanto %>% 
+  recipe(~ distance_from_station) %>% 
+  step_discretize(distance_from_station,
+                  options = list(cuts = 3)) %>% 
   prep() %>% 
   juice()
 
-p1 <- df_lp_kanto %>% 
-  ggplot(aes(posted_land_price)) +
-  geom_histogram(bins = 30, fill = ds_col(1))
-
-p2 <- df_trans %>% 
-  ggplot(aes(posted_land_price)) +
-  geom_histogram(bins = 30, fill = ds_col(5))
-
-plot_grid(p1, p2)
+df_lp_kanto %>% 
+  ggplot(aes(distance_from_station, posted_land_price)) +
+  geom_point()
 ```
 
 
-## カウントデータの取り扱い
+<!-- ## 二値化-->
 
-## 二値化
+<!-- ビニングや多項式特徴量、-->
 
+## 交互作用特徴量
 
+2つの特徴量を組み合わせることで、単一の特徴量として扱うよりも目的変数との関係が明らかになることがあります。
 
-{:.input_area}
-```R
-# box-cox変換 ---------------------------------------------------------------
-# モデルを定義... 線形回帰モデル
-spec_lin_reg <- linear_reg()
-# エンジンを指定... stats::lm
-spec_lm <- set_engine(spec_lin_reg, engine = "lm")
+例えば、
 
+地価の価格の平均値をガス供給施設の有無でグループを分けて描画してみます。
 
-# 同じ結果... formulaで参照するのではなく、x,yにデータを与える
-fit_xy(spec_lm, 
-       y = df_train_baked %>% pull(posted_land_price),
-       x = df_train_baked %>% 
-         select(-posted_land_price)) %>% 
-  tidy()
+常にガス供給施設がある場合に地価価格が高くなっていますが、市街化では特にその差が離れていることがわかります。
 
-df_train_price_log <-
-  df_train %>%
-  mutate(price = log10(posted_land_price),
-         distance_from_station = log10(distance_from_station + 1))
-
-# df_train %>% 
-#   recipe(mod_formula) %>% 
-#   step_BoxCox(all_outcomes(), lambdas = 1.0) %>% 
-#   step_log(distance_from_station, base = 10) %>% 
-#   prep(training = df_train) %>% 
-#   juice()
-
-# stanエンジン (rstan::stan())
-spec_stan <- 
-  spec_lin_reg %>% 
-  set_engine(engine = "stan", chains = 4, iter = 1000)
-
-fit_stan <- fit(
-  spec_stan,
-  mod_formula2,
-  data = df_train)
-
-coef(fit_stan$fit)
-fit_stan %>% broom::tidy()
-
-# knn
-fit_knn <-
-  nearest_neighbor(mode = "regression", neighbors = 4) %>% 
-  set_engine("kknn") %>% 
-  fit(mod_formula2, data = df_train)
-
-predict(fit_knn, new_data = df_test %>% 
-          select(-posted_land_price))
-
-car::powerTransform(df_lp_kanto$posted_land_price)
-
-library(car)
-summary(p1 <- powerTransform(cycles ~ len + amp + load, data = Wool))
-# fit linear model with transformed response:
-coef(p1, round=TRUE)
-summary(m1 <- lm(bcPower(cycles, p1$roundlam) ~ len + amp + load, Wool))
-```
-
+ビールの売り上げについて気温と湿度の交互作用を考えてみましょう。これは気温がビールの売り上げに及ぼす影響を湿度が調整すると考えるものです。
 
 
 
 {:.input_area}
 ```R
 df_lp_kanto %>% 
-  count(current_use) %>% 
-  ggplot(aes(forcats::fct_reorder(current_use, n), n)) +
-  geom_bar(stat = "identity") +
-  coord_flip()
-df_lp_kanto %>% 
-  count(use_district) %>% 
-  ggplot(aes(forcats::fct_reorder(use_district, n), n)) +
-  geom_bar(stat = "identity") +
-  coord_flip()
-
-recipe(formula = mod_formula3, data = df_train)
-
-mod_rec <- 
-  recipe(formula = mod_formula3, data = df_train) %>% 
-  step_log(all_outcomes(), base = 10) %>% 
-  # 5%未満を "other"
-  step_other(use_district, threshold = 0.05) %>% 
-  step_dummy(all_nominal())
-
-mod_rec
-
-# recipe (define) -> prep (calculate) -> bake/juice (apply)
-mod_rec_trained <- prep(mod_rec, training = df_train, verbose = TRUE)
-
-lp_test_dummy <- bake(mod_rec_trained, new_data = df_test)
-names(lp_test_dummy) # 1住居がない（一番多い）
+  group_by(urban_planning_area, gas_facility) %>% 
+  summarise(posted_land_price_grp = mean(posted_land_price)) %>% 
+  ungroup() %>% 
+  ggplot(aes(urban_planning_area, posted_land_price_grp, color = gas_facility)) +
+  geom_line(aes(group = gas_facility)) +
+  geom_point()
 ```
 
 
@@ -448,76 +593,15 @@ names(lp_test_dummy) # 1住居がない（一番多い）
 
 {:.input_area}
 ```R
-# interaction
-p <- ggplot(df_train,
-       aes(distance_from_station, posted_land_price)) +
-  geom_point() +
-  scale_y_log10()
-
-p +
-  geom_smooth(method = "loess")
-
-# MASS::rlm()
-library(MASS)
-p + 
-  facet_wrap(~ gas_facility, ncol = 1) +
-  geom_smooth(method = "rlm")
-
-mod1 <- lm(log10(posted_land_price) ~ distance_from_station, data = df_train)
-mod2 <- lm(log10(posted_land_price) ~ distance_from_station + gas_facility + distance_from_station:gas_facility , data = df_train)
-
-anova(mod1, mod2)
-
-mod_formula4 <- formula(posted_land_price ~ distance_from_station + gas_facility)
-df_train %>% 
-  recipe(mod_formula4, data = .) %>% 
-  step_log(all_outcomes()) %>% 
-  step_dummy(gas_facility) %>% 
-  step_interact(~ starts_with("gas_facility"):distance_from_station) %>% 
-  prep(training = df_train) %>% 
+df_beer2018q2 %>% 
+  recipe(expense ~ temperature_average +humidity_average_percent) %>% 
+  step_interact(terms = ~ temperature_average:humidity_average_percent) %>% 
+  prep() %>% 
   juice()
 ```
 
 
-<!-- ビニングや多項式特徴量、-->
-
-## より豊かな表現
-
-モデルの表現を豊かにするための特徴量エンジニアリングとして
-
-多項式特徴量や交互作用特徴量が利用可能です。
-
-線形モデルで有効?
-
-特に線形モデルでは一般に多項式特徴量、交互作用特徴量を追加することで精度向上が期待されます。
-
-
-
-### 多項式特徴量
-
-
-
-{:.input_area}
-```R
-data(biomass)
-
-biomass_tr <- biomass[biomass$dataset == "Training",]
-biomass_te <- biomass[biomass$dataset == "Testing",]
-
-rec <- recipe(HHV ~ carbon + hydrogen + oxygen + nitrogen + sulfur,
-              data = biomass_tr)
-
-quadratic <- rec %>%
-  step_poly(carbon, hydrogen)
-quadratic <- prep(quadratic, training = biomass_tr)
-
-expanded <- bake(quadratic, biomass_te)
-expanded
-
-```
-
-
-### 交互作用特徴量
+交互作用特徴量は複数の特徴量の積で計算されます。
 
 ## 次元集約によると特徴量の作成
 
@@ -530,11 +614,8 @@ expanded
 
 ## まとめ
 
-> 対数をとるモデルと対数をとらないモデルのどちらか一方が「正しい」わけではない。あくまでも「そういう仮定を選んだ」ということに過ぎない
-
-数値特徴量
-
-特徴量の管理、膨大に増えた特徴量の次元削減については別の章で解説します。
+<!-- 
+> 対数をとるモデルと対数をとらないモデルのどちらか一方が「正しい」わけではない。あくまでも「そういう仮定を選んだ」ということに過ぎない-->
 
 ## 関連項目
 
@@ -544,4 +625,5 @@ expanded
 
 - Max Kuhn and Kjell Johnson (2013). Applied Predictive Modeling. (Springer)
 - Sarah Guido and Andreas Müller (2016). Introduction to Machine Learning with Python A Guide for Data Scientists (O'Reilly) (**翻訳** 中田秀基訳 (2017). Pythonではじめる機械学習 scikit-learnで学ぶ特徴量エンジニアリングと機械学習の基礎 (オライリー))
+- Peter Bruce and Andrew Bruce (2017). Practical Statistics for Data Scientist - 50 Essential Concepts (O'Reilly) (**翻訳** 黒川利明訳(2018). データサイエンスのための統計学入門 - 予測、分類、統計モデリング、統計的機械学習とRプログラミング (オライリー))
 - Max Kuhn and Kjell Johnson (2019). Feature Engineering and Selection: A Practical Approach for Predictive Models (CRC Press)

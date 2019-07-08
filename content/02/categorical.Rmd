@@ -432,6 +432,36 @@ df_beer2018q2_baked %>%
 2次
 中 = 0.41, 大 = -0.82, 小=0.41
 
+```{r}
+df_lp_kanto %>% 
+  count(current_use) %>% 
+  ggplot(aes(forcats::fct_reorder(current_use, n), n)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+df_lp_kanto %>% 
+  count(use_district) %>% 
+  ggplot(aes(forcats::fct_reorder(use_district, n), n)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+
+recipe(formula = mod_formula3, data = df_train)
+
+mod_rec <- 
+  recipe(formula = mod_formula3, data = df_train) %>% 
+  step_log(all_outcomes(), base = 10) %>% 
+  # 5%未満を "other"
+  step_other(use_district, threshold = 0.05) %>% 
+  step_dummy(all_nominal())
+
+mod_rec
+
+# recipe (define) -> prep (calculate) -> bake/juice (apply)
+mod_rec_trained <- prep(mod_rec, training = df_train, verbose = TRUE)
+
+lp_test_dummy <- bake(mod_rec_trained, new_data = df_test)
+names(lp_test_dummy) # 1住居がない（一番多い）
+```
+
 
 ## まとめ
 

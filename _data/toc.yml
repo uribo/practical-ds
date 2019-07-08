@@ -88,5 +88,7 @@
     url: /03/data-splitting
   - title: 変数重要度
     url: /03/feature-selection
+  - title: ハイパーパラメータの調整
+    url: /03/parameter-tuning
   - title: モデルの解釈
     url: /03/interpretability
