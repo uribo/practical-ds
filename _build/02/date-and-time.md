@@ -1,6 +1,7 @@
 ---
 interact_link: content/02/date-and-time.ipynb
 kernel_name: ir
+has_widgets: false
 title: '日付・時間データの取り扱い'
 prev_page:
   url: /02/text
@@ -128,9 +129,6 @@ df_beer_prep <-
 
 df_beer_prep
 ```
-
-
-
 
 
 
@@ -288,8 +286,6 @@ plot_grid(p1, p2, ncol = 1)
 - 移動平均
 - 外れ値をもつ場合には平滑化が有効
 
-## 自己相関
-
 ## 季節成分・周期成分
 
 時間スケール
@@ -356,9 +352,7 @@ recipe(~ ., data = df) %>%
 
 ラグ特徴量
 
-## 重み付け
-
-遠くなるものへは重みを小さくする
+重み付け... 遠くなるものへは重みを小さくする
 
 <!--## タイムゾーン -->
 
@@ -366,7 +360,7 @@ recipe(~ ., data = df) %>%
 
 ## 関連項目
 
-- [データ分割](03/data-splitting)
+- [データ分割](../03/data-splitting)
 
 ## 参考文献
 

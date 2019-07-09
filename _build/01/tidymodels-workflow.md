@@ -1,6 +1,7 @@
 ---
 interact_link: content/01/tidymodels-workflow.ipynb
 kernel_name: ir
+has_widgets: false
 title: 'モデルの構築から評価まで'
 prev_page:
   url: /01/eda

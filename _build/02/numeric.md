@@ -1,6 +1,7 @@
 ---
 interact_link: content/02/numeric.ipynb
 kernel_name: ir
+has_widgets: false
 title: '数値データの取り扱い'
 prev_page:
   url: /02/readme

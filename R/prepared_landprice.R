@@ -4,7 +4,8 @@ plan_cleaning <- drake::drake_plan(
   df_lp_kanto_clean1 = 
     df_lp_kanto %>%
     select(-.row_id, -.prefecture) %>% 
-    # ref) http://www.mlit.go.jp/common/001204008.pdf
+    # ref) http://www.mlit.go.jp/common/001204008.pdf を元に
+    # 1. configurationがNAのものを「四角形」として処理
     mutate(configuration = replace_na(configuration, "四角形")) %>% 
     mutate_at(vars(fire_area, forest_law, parks_law),
               list(~ replace_na(., "no_divided"))) %>% 
@@ -132,7 +133,8 @@ plan_land_price_spatial_fe <- drake::drake_plan(
     mutate(meshcode = jpmesh::coords_to_mesh(.longitude, .latitude)) %>% 
     st_as_sf(coords = c(".longitude", ".latitude"), crs = 4326) %>%
     mutate(dist_to_tokyo = st_distance(geometry,
-                                       st_sfc(st_point(c(139.7671, 35.6812)), crs = 4326))[,1],
+                                       st_sfc(st_point(c(139.7671, 35.6812)), 
+                                              crs = 4326))[,1],
            is_did = st_intersects(sf_kanto_did, geometry, sparse = FALSE)[1, ],
            .longitude = sf::st_coordinates(geometry)[, 1],
            .latitude = sf::st_coordinates(geometry)[, 2]) %>%

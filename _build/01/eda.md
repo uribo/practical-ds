@@ -1,6 +1,7 @@
 ---
 interact_link: content/01/eda.ipynb
 kernel_name: ir
+has_widgets: false
 title: '探索的データ分析'
 prev_page:
   url: /01/tidy-data

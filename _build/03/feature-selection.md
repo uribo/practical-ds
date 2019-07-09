@@ -1,6 +1,7 @@
 ---
 interact_link: content/03/feature-selection.ipynb
 kernel_name: ir
+has_widgets: false
 title: '変数重要度'
 prev_page:
   url: /03/data-splitting

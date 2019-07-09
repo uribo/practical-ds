@@ -1,6 +1,7 @@
 ---
 interact_link: content/03/dimension-reduction.ipynb
 kernel_name: ir
+has_widgets: false
 title: '次元削減'
 prev_page:
   url: /03/handling-missing-data

@@ -1,6 +1,7 @@
 ---
 interact_link: content/03/data-splitting.ipynb
 kernel_name: ir
+has_widgets: false
 title: 'データ分割'
 prev_page:
   url: /03/model-performance

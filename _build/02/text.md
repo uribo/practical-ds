@@ -1,6 +1,7 @@
 ---
 interact_link: content/02/text.ipynb
 kernel_name: ir
+has_widgets: false
 title: 'テキストデータの取り扱い'
 prev_page:
   url: /02/categorical
@@ -29,38 +30,25 @@ library(textrecipes)
 
 # テキストデータの取り扱い
 
+テキストデータはカテゴリデータと同様に文字列で構成されますが、その違いはどこにあるのでしょう。カテゴリは有限の集合であることは述べました。一方のテキストは基本的にカテゴリより長く、ユニークな値をもつものです。
 
-カテゴリを参照
+テキストデータを扱ううえで大事になってくるのは、文字の長さや区切り位置の有無、そして言語です。テキストデータ、つまり文書の処理は自然言語処理の領域に入ります。しかしいくつかの基本的な作業はデータ分析にも応用可能であり、カテゴリと同じく特徴量エンジニアリングにより数値化が可能です。
 
-カテゴリより長く、基本的にユニークな値をもつものを扱う
+テキストデータの例として、地価公示データに記録されている土地利用の状況 (`surrounding_present_usage`) を例にします。このデータは比較的短文で、重複のあるデータで、本来はカテゴリとみなせるものです。しかし説明を簡単にするため、そしてこれまでのデータセットを利用し続けるために用います。また本来テキストデータとして扱う文字数はこれよりも多いはずですが、基本的な処理は共通です。
 
-自然言語処理の領域に入ります。
+またここでは我々が普段扱う日本語のテキストデータに対象を制限しますが、時には英語を扱うこともあります。自然言語処理の分野では言語により、扱い方が異なります。特に日本語や中国語など、単語境界をもたない言語に対しては形態素解析などの前処理が必要になります。これらについてはここでの説明範囲を超えるので参考資料をみてください。
+
+## 周辺の土地利用の状況
+
+周辺の土地利用の状況 (`surrounding_present_usage`) は地価公示データのすべてのデータに対して与えられています。ユニークな件数を数えるとおよそデータの半分の数になります。
 
 地価公示データの中から、周辺の土地利用の状況が記載された`surrounding_present_usage`を例に解説していきます。まずはこの変数にどのような文字情報が含まれているか確認しておきましょう。
 
-```{r}
+```{r, eval=TRUE}
 na.omit(df_lp_kanto$surrounding_present_usage)[seq_len(10)]
 ```
 
-テキストデータを扱ううえで大事になってくるのは、文字の長さや区切り位置の有無、そして言語です。
-
-周辺の土地利用の状況は地価公示データのすべてのデータに対して与えられています。ユニークな件数を数えるとおよそデータの半分の数になります。
-
-
-比較的短文で、重複のあるデータですが
-
-ここでは我々が普段扱う日本語のテキストデータに対象を制限しますが、時には英語を扱うこともあります。
-
-自然言語処理の分野では言語により、扱い方が異なります。
-
-
-また本来テキストデータとして扱う文字数はこれよりも多いはずですが、基本的な処理は共通です。
-
-日本語や中国語など、単語境界をもたない言語に対しては形態素解析などの前処理が必要になります。
-
-ここでは範囲を超えるので参考資料をみてください。
-
-```{r}
+```{r, eval=TRUE}
 df_lp_surrounding_present_usage_count <- 
   df_lp_kanto %>% 
   count(surrounding_present_usage, sort = TRUE)
@@ -68,7 +56,7 @@ df_lp_surrounding_present_usage_count <-
 nrow(df_lp_surrounding_present_usage_count)
 ```
 
-```{r, eval = FALSE, echo = TRUE}
+```{r lp_surrounding_present_usage_nchar, eval=FALSE, echo=TRUE}
 df_lp_kanto %>% 
   mutate(nchar = as.character(stringr::str_length(surrounding_present_usage))) %>% 
   count(nchar) %>% 
@@ -79,6 +67,7 @@ df_lp_kanto %>%
   ylab("データ件数")
 ```
 
+![](../images/lp_surrounding_present_usage_nchar-1.png)
 
 ## テキストの前処理
 
@@ -95,9 +84,17 @@ df_lp_kanto %>%
 
 ### ユニコード正規化
 
+意味的には同じでも、異なる表現方法が可能な文字の種類があります。
+
+例えば「コンビニ」と半角文字の「コンビニ」は本質的には同じです。
+
+丸囲いの数字なども必要なものは数字の情報で、丸に囲われているかどうかは重要ではありません。
+
 大文字小文字の区別
 
-```{r}
+「表記揺れ」と呼びます。ユニコード正規化はこうした表記の揺れを修正するために使われる方法です。
+
+```{r, eval=TRUE, echo=TRUE}
 df_lp_kanto %>% 
   filter(str_detect(surrounding_present_usage, "ＩＣ")) %>% 
   pull(surrounding_present_usage)
@@ -114,11 +111,26 @@ df_lp_prep %>%
   pull(surrounding_present_usage)
 ```
 
+ユニコード正規化は完全ではありません。また、どのような文字を「揺れ」とみなすかは分析者によって異なる可能性もあります。完全な表記揺れに対応するには、データに応じて辞書が必要になるでしょう。
+
+### 文の分割 (トークン化)
+
+トークン化
+
+単語の間にスペースが入らない日本語文字列では、単語の分割が困難です。
+
+分かち書き
+
+```{r, eval= TRUE}
+x <- na.omit(df_lp_kanto$surrounding_present_usage)[1]
+
+tokenizer
+```
 
 ## Bag-of-Words
 
-* テキスト文書を単語の出現回数のベクトルで表現。
-    * 単語がテキストに現れない場合、対応する要素の値は0になる
+* 文書を単語の出現回数のベクトルで表現。
+    * 単語が文書中に現れない場合、対応する要素の値は0になる
     * 単語の並び、階層の概念を表現しない。Bag-of-wordsでこれらの意味はない
         * →テキストの意味を正しく理解したい場合にはあまり役立たない
             * Bag-of-n-Grams
@@ -126,10 +138,17 @@ df_lp_prep %>%
     * 単純な出現頻度だけでは文書の特徴を表現できない
     * 「意味のある」単語が強調されるような特徴を表現する方法を用いるべき
 
+```{r, eval = TRUE}
+x <- na.omit(df_lp_kanto$surrounding_present_usage)[1]
 
-トークン化
+tibble::tibble(x) %>% 
+  tidytext::unnest_tokens(word, x) %>% 
+  dplyr::mutate(word = forcats::fct_inorder(word)) %>% 
+  dplyr::count(word, sort = FALSE)
+```
 
-```{r}
+
+```{r, eval=TRUE}
 text_rec <- 
   df_lp_kanto %>% 
   recipe(~ surrounding_present_usage + .row_id) %>% 
@@ -145,30 +164,6 @@ df_lp_token %>%
   filter(.row_id == "13534")
 ```
 
-
-```{r}
-df_lp_texthash <- 
-  text_rec %>%
-  step_tokenfilter(surrounding_present_usage, max_tokens = 5) %>%
-  step_texthash(surrounding_present_usage) %>% 
-  prep(retain = TRUE) %>% 
-  bake(df_lp_token)
- 
-
-
-df_lp_texthash %>% 
-  select(starts_with("surrounding_present_usage_hash")) %>% 
-  summarise_all(sd) %>% 
-  tidyr::gather() %>% 
-  arrange(desc(value))
-```
-
-語順を考慮する・しない
-
-考慮しない... 文章の内容を分類
-考慮する... n-gram (感情分析)
-
-
 ## 単語の除去
 
 Bag-of-Wordsでは、対象の変数に含まれる単語を元に特徴量が生成されますが、中には価値のない単語も含まれます。こうした単語をあらかじめ取り除いておくことは、特徴選択におけるフィルタ法の作業に相当します。
@@ -178,7 +173,7 @@ Bag-of-Wordsでは、対象の変数に含まれる単語を元に特徴量が�
 
 ### ストップワードによる単語除去
 
-文書の内容に重要でないと考えられる単語をまとめて対象から除外する処理にストップワードが用いられます。ここでの重要でない、は文書中に頻繁に出現する句読点や「です」「ます」などの単語などです。ストップワードの選別には、言語に固有のリスト[^1]を使うか、データセットに応じた頻度の高い単語のリストを作成するか、という選択肢があります。
+文書の内容に重要でないと考えられる単語をまとめて対象から除外する処理にストップワードが用いられます。ここでの重要でない、は文書中に頻繁に出現する句読点や「です」「ます」などの単語などです。ストップワードの選別には、言語に固有のリストを使うか、データセットに応じた頻度の高い単語のリストを作成するか、という選択肢があります。
 
 ```{r, eval = TRUE}
 df_lp_kanto %>% 
@@ -195,6 +190,8 @@ df_lp_kanto %>%
 
 ### 出現頻度による単語のフィルタ
 
+出現頻度の少ない単語も解析の際に障害となる可能性があります。これらは単純に出現頻度を数えてフィルタすることで除外可能です。
+
 ```{r}
 text_rec %>%
   step_tokenfilter(surrounding_present_usage, min_times = 50) %>% 
@@ -205,9 +202,37 @@ text_rec %>%
 ```
 
 
-## tf-idf
+## TF-IDF
 
-TF-IDF TF()とIDF()の積
+TF-IDFは情報検索や文書推薦などで利用される特徴量の指標です。文章量が異なるデータでは、文書の長さによって出現する単語の数や回数が異なります。その影響を調整する（正規化する）働きを持ちます。
+
+TF-IDFはTF (索引語頻度 Term Frequency)とIDF (逆文書頻度 Inverse Document Frequency)の積より求まります。以下の式により、文書中に多く出現する単語の影響が軽減され、希少な単語の価値を高めます。
+
+$$
+tf-idf = tf(w,d) \times idf(w)
+$$
+
+$$
+tf(w,d) = bow(w,d) / [文書d内の単語数]
+$$
+
+$$
+bow(w, d) = [文書d内の単語wの出現回数]
+$$
+
+
+$$
+idf(w) = [全文書数N] / [単語wが含まれる文書数]
+$$
+
+```{r step_tfidf, eval=TRUE}
+df_lp_kanto %>% 
+  recipe(~ surrounding_present_usage + .row_id) %>% 
+  step_tokenize(surrounding_present_usage) %>%
+step_tfidf(surrounding_present_usage) %>% 
+prep() %>% 
+juice()
+```
 
 ## 文字列のカウント
 
@@ -233,17 +258,16 @@ recipe(~ ., data = d) %>%
   juice()
 ```
 
-```{r}
-# step_tokenfilter()
-```
+## 語幹処理 (ステミング)
 
-## ステミング
-
-形態素?
+形態素解析
 
 
 
 ## まとめ
+
+- テキストの前処理で一般的な作業には限界があり、より精度の高い作業を行うにはデータに応じた辞書やリストが必要になる。
+- 扱う言語によって前処理や特徴量エンジニアリングの適用範囲が異なる
 
 ## 関連項目
 

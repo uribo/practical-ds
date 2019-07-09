@@ -1,6 +1,7 @@
 ---
 interact_link: content/01/tidy-data.ipynb
 kernel_name: ir
+has_widgets: false
 title: 'tidyデータと前処理'
 prev_page:
   url: /01/introduction

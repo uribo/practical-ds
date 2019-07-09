@@ -1,6 +1,7 @@
 ---
 interact_link: content/02/categorical.ipynb
 kernel_name: ir
+has_widgets: false
 title: 'カテゴリデータの取り扱い'
 prev_page:
   url: /02/numeric
@@ -486,6 +487,8 @@ df_beer2018q2_baked %>%
         weatherdaytime_06_00_18_00_sub)
 ```
 
+
+Expansion encodingを実行した時は、不用意に分散ゼロの特徴量をつくっていないか確認しておきましょう。例えばある学校の複数のクラスで学校名とクラス名が記録され、これを分割する時は、共通して含まれる「中学校」は不要となります。
 
 ## 順序付きデータのエンコーディング
 
