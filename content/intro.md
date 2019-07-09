@@ -36,6 +36,7 @@ RとPython、これらの違いは何でしょうか。データサイエンテ�
     - [テキストデータの取り扱い](02/text)
     - [日付・時間データの取り扱い](02/date-and-time)
     - [地理空間データの取り扱い](02/spatial-data)
+    - [画像データの取り扱い](02/image)
 - [より良いモデルを目指して](03/readme)
   - [欠損値の処理](03/handling-missing-data)
   - [次元削減](03/dimension-reduction)
@@ -43,9 +44,9 @@ RとPython、これらの違いは何でしょうか。データサイエンテ�
   - [データ分割](03/data-splitting)
   - [変数重要度](03/feature-selection)
   - [モデルの解釈](03/interpretability)
+  - [パラメータ探索](03/parameter-tuning)
 
 ### 対象とする読者
-
 
 一方で
 

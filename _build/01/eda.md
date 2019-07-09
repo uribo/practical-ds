@@ -1,7 +1,6 @@
 ---
 interact_link: content/01/eda.ipynb
 kernel_name: ir
-has_widgets: false
 title: '探索的データ分析'
 prev_page:
   url: /01/tidy-data
@@ -26,21 +25,19 @@ source(here::here("R/setup.R"))
 
 EDAがデータ分析の作業において早期段階で行われるのは、データの異常（思い込みとの比較を含めて）や特徴を把握するためです。これらは分析全体のアプローチや良い出発点を見つけるために有効です。出発点と表現したのは、モデルの構築や特徴量の生成によって改めてデータを見つめ直す作業が発生するためです。そのため必ずしも徹底的である必要はありません。
 
-前章でもデータについて簡単な調査を行いましたが、データをグラフによって表現してみましょう。グラフにすることで、集計値では見えなかった情報やデータ間の関係を表現できます。
-
-特に欠損値や異常値（外れ値）、データの分布などデータ全体あるいはデータ間の関係性やそのばらつきを見るのに可視化は重要です。なお欠損値の視覚化については別の章で解説します。
+まずは手元のデータを眺め、簡単な集計をしてみましょう。続いてデータをグラフによって表現してみましょう。データを要約、図示することで、個々の値からは見えなかった情報やデータ間の関係を把握できます。特に欠損値や異常値（外れ値）、データの分布などデータ全体あるいはデータ間の関係性やそのばらつきを見るのに可視化は重要です。なお欠損値の視覚化については[後の章](../03/handling-missing-data)で解説します。
 
 ## データを眺める
 
-目的変数として設定する地価価格に影響を及ぼす変数を明らかにしたい、またその関係を知りたいという状況を設定します。
+地価公示データを利用します。このデータでは、目的変数として設定する地価価格に影響を及ぼす変数を明らかにしたい、またその関係を知りたいという状況を設定します。
 
 <!-- ここで扱うデータは地価公示データのみ。他のデータ、地価公示データの紹介は別のノート (`dataset/`)で。基本的に説明は地価公示データベース。データの性質に合わせて利用する。 -->
+
+データを手に入れたら、分析作業へ取り掛かる前にまずはデータを眺めてみることにしましょう。眺める、と言ってもデータの値を1つずつ見ていくわけではありません。これから扱うデータにはどのような値が含まれているのか、データ型が処理されているか、また全体の大きさはどれくらいなのか欠損はどれだけあるかと言った情報を俯瞰的に整理していきます。それには以下のような項目があります。
 
 - サイズ（列数、行数）
 - 各列のデータ型
 - 完全データ、欠損データ
-
-データを手に入れたら、分析作業へ取り掛かる前にまずはデータを眺めてみることにしましょう。眺める、と言ってもデータの値を1つずつ見ていくわけではありません。これから扱うデータにはどのような値が含まれているのか、データ型が処理されているか、また全体の大きさはどれくらいなのか欠損はどれだけあるかと言った情報を俯瞰的に整理していきます。
 
 ### データの大きさ
 
@@ -146,7 +143,7 @@ df_lp_kanto %>%
 ```
 
 
-ここでは `skimr::` で行う例を示します。
+ここでは `skimr` で行う例を示します。
 
 
 
@@ -291,10 +288,12 @@ vis_dat(df_lp_kanto)
 {:.input_area}
 ```
 df_lp_kanto %>% 
-  ggplot(aes(posted_land_price)) +
+  ggplot(aes(distance_from_station)) +
   geom_histogram(bins = 30)
 ```
 
+
+![](../images/hist_lp_distance_from_station-1.png)
 
 <!-- box-cox変換をする図をあとで -->
 
@@ -303,8 +302,8 @@ df_lp_kanto %>%
 {:.input_area}
 ```
 df_lp_kanto %>% 
-  ggplot(aes(posted_land_price)) +
-  geom_density() +
+  ggplot(aes(distance_from_station)) +
+  geom_histogram(bins = 30) +
   facet_wrap(~ .prefecture, ncol = 1)
 ```
 
@@ -316,11 +315,15 @@ df_lp_kanto %>%
 library(ggridges)
 
 ggplot(df_lp_kanto, 
-       aes(x = posted_land_price, y  = .prefecture)) +
-  scale_x_log10() +
-  ggridges::geom_density_ridges(scale = 4)
+       aes(x = distance_from_station, y  = .prefecture,
+           fill = .prefecture)) +
+  #scale_x_log10() +
+  ggridges::geom_density_ridges(scale = 4) +
+  scale_fill_ds()
 ```
 
+
+![](../images/hist_lp_distance_from_station_ggridges-1.png)
 
 #### 箱ひげ図・バイオリンプロット
 
@@ -355,7 +358,9 @@ df_lp_kanto %>%
 ```
 df_lp_kanto %>% 
   ggplot(aes(distance_from_station, acreage)) +
-  geom_point()
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10()
 ```
 
 
@@ -376,6 +381,8 @@ df_beer2018q2 %>%
   scale_x_date(date_breaks = "7 days")
 ```
 
+
+![](../images/beer_ts-1.png)
 
 
 
@@ -400,12 +407,11 @@ sf_lp_kanto <-
 
 ggplot(sf_lp_kanto) +
   geom_sf(aes(color = posted_land_price),
-          fill = "transparent", alpha = 0.1, size = 0.5) +
+          fill = "transparent", 
+          alpha = 0.1, size = 0.5) +
   scale_color_viridis_c()
 ```
 
-
-<!-- ksjのクレジット -->
 
 <!-- アンスコムの例 -->
 
@@ -428,7 +434,15 @@ ggplot(sf_lp_kanto) +
 ```
 df_is_num %>% 
   GGally::ggpairs()
+```
 
+
+#### 相関行列
+
+
+
+{:.input_area}
+```
 df_is_num %>% 
   corrr::correlate()
 ```
@@ -440,7 +454,15 @@ df_is_num %>%
 ```
 df_is_num %>% 
   vis_cor()
+```
 
+
+![](../images/lp_correlation-1.png)
+
+
+
+{:.input_area}
+```
 df_is_log %>% 
   mutate_all(as.numeric) %>% 
   vis_cor()
@@ -467,8 +489,10 @@ all.equal(
 
 ## 関連項目
 
-- 次元削減
-- 欠損処理
-- 変数重要度
+- [次元削減](../03/dimension-reduction)
+- [欠損処理](../03/handling-missing-data)
+- [変数重要度](../03/feature-selection)
 
 ## 参考文献
+
+- 

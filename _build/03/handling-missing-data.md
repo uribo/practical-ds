@@ -97,6 +97,8 @@ MCARと似た欠損メカニズムとしてMARがありますが、こちらの�
 
 欠損値の発生パターンを可視化するRパッケージとして、mice、VI、naniar、visdatなどがあります。ここではnaniarとvisdatを利用した例を紹介します。miceについては福島 (2015)や高橋・渡辺 (2017)を参考にしてください。
 
+<!-- core_pkgs.Rに含まれているけど説明のため -->
+
 
 
 {:.input_area}
@@ -174,6 +176,8 @@ df_lp_kanto %>%
 ```
 
 
+![](../images/lp_missing_pattern-1.png)
+
 このように直接の数値では情報を把握しきれない場合や複数の変数間でのパターンを把握したい場合には可視化が有効です。欠損データの可視化方法としてもう1つ、可視化の章でも扱ったヒートマップは欠損の状況を把握するのも利用可能です。
 
 
@@ -197,6 +201,8 @@ df_lp_kanto %>%
 ```
 
 
+![](../images/lp_missing_pattern_upset-1.png)
+
 
 
 {:.input_area}
@@ -219,6 +225,8 @@ gg_miss_fct(x = df_lp_kanto, fct = .prefecture) +
 ```
 
 
+![](../images/lp_missing_pattern_facet-1.png)
+
 configuretionの欠損はどの県でも高い割合で起きていますが、fire_areanについては東京都や神奈川県では他県よりも欠損が少ないようです。
 
 ### 時系列データの欠損補完
@@ -227,15 +235,13 @@ configuretionの欠損はどの県でも高い割合で起きていますが、f
 
 {:.input_area}
 ```R
-df_hazard_kys200607$hazardDate %>% range()
+df_hazard_kys$hazardDate %>% range()
 
-df_hazard_kys200607 %>% 
-  st_drop_geometry() %>% 
+df_hazard_kys %>% 
   select(hazardDate, precipitation_max_1hour) %>% 
   filter(hazardDate == "2006-07-01")
 
-df_hazard_kys200607 %>% 
-  st_drop_geometry() %>% 
+df_hazard_kys %>% 
   select(hazardDate, precipitation_max_1hour) %>% 
   gg_miss_span(precipitation_max_1hour, 
                span_every = 31)
@@ -252,11 +258,9 @@ df_hazard_kys200607 %>%
 ```R
 df_hazard %>% 
   filter(hazardDate == "2006-06-12") %>% 
-  st_drop_geometry() %>% 
   miss_var_span(hazardDate, span_every = 5)
 
 df_hazard %>% 
-  st_drop_geometry() %>% 
   miss_var_span(hazardDate, span_every = 30)
 
 df_beer %>% 
@@ -327,7 +331,7 @@ prep(impute_hazard,
 
 近い値の平均値
 
-<!-- DMwRを使った knnによる補完 -->
+<!-- DMwRを使った knnによる補完 step_knnimpute -->
 
 
 
@@ -336,11 +340,8 @@ prep(impute_hazard,
 library(DMwR)
 
 d <- 
-  df_hazard_kys200607 %>% 
+  df_hazard_kys %>% 
   filter(hazardDate == "2006-07-22") %>% 
-  mutate(longitude = sf::st_coordinates(sf::st_centroid(geometry))[, 1],
-         latitude = sf::st_coordinates(sf::st_centroid(geometry))[, 2]) %>% 
-  st_drop_geometry() %>% 
   select(precipitation_max_1hour, longitude, latitude)
 
 d[c(110, 119, 120), ]
@@ -366,21 +367,37 @@ p1 <-
   geom_sf(data = ne_kys, fill = "transparent") +
   geom_sf(data = d %>% 
             st_as_sf(coords = c("longitude", "latitude"), crs = 4326), 
-          aes(color = precipitation_max_1hour)) +
-  scale_color_viridis_c() +
-  theme_void()
+          aes(color = precipitation_max_1hour),
+          show.legend = FALSE,
+          size = 0.8) +
+  scale_color_viridis_c(na.value = "red") +
+  theme_void(base_family = "IPAexGothic") +
+  ggtitle("赤い点は欠損地点") +
+  theme(text = element_text(size = 8))
 
 p2 <- 
   ggplot() +
   geom_sf(data = ne_kys, fill = "transparent") +
   geom_sf(data = d_comp %>% 
             st_as_sf(coords = c("longitude", "latitude"), crs = 4326), 
-          aes(color = precipitation_max_1hour)) +
+          aes(color = precipitation_max_1hour),
+          show.legend = FALSE,
+          size = 0.8) +
   scale_color_viridis_c() +
-  theme_void()
+  theme_void(base_family = "IPAexGothic") +
+  ggtitle("kNNによる補完") +
+  theme(text = element_text(size = 8))
 
 plot_grid(p1, p2)
+```
 
+
+![](../images/hazard_kys_knn_impute-1.png)
+
+
+
+{:.input_area}
+```R
 d_comp %>% 
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>% 
   mapview::mapview(zcol = "precipitation_max_1hour")
@@ -397,6 +414,8 @@ d_comp %>%
 
 ## 関連項目
 
+- [探索的データ分析](../01/eda)
+
 ## 参考文献
 
 <!-- textlint-disable prh -->
@@ -409,3 +428,4 @@ d_comp %>%
 - Max Kuhn and Kjell Johnson (2019). Feature Engineering and Selection: A Practical Approach for Predictive Models (CRC Press)
 
 <!-- textlint-enable prh -->
+

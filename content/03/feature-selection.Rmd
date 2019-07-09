@@ -118,7 +118,7 @@ car::vif(mod)
 
 特徴量選択の基本的な戦略は次の3つに分かれます。
 
-1. 単変量統計量、フィルタ法 (filter method)
+1. 単変量統計量、フィルタ法 (filter method)... 無関係な特徴,相関の強い変数を削除
 2. 反復特徴量選択、ラッパー法 (wrapper method)
 3. モデルベース特徴量選択、組み込み法 (emedded method)
 

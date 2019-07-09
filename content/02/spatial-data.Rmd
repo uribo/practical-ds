@@ -13,7 +13,7 @@ jupyter:
     name: ir
 ---
 
-```{r setup, eval = TRUE, include=FALSE, results="hide"}
+```{r setup, include=FALSE, eval=TRUE, results="hide"}
 source(here::here("R/setup.R"))
 ```
 

@@ -145,7 +145,7 @@ df_baked %>%
   glimpse()
 ```
 
-```{r, eval = TRUE}
+```{r eval=TRUE}
 fit_lm <- 
   fit(
     spec_lm,

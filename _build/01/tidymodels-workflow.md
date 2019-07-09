@@ -101,7 +101,7 @@ df_lp_test <- testing(lp_split)
 
 ### 初期モデルの作成
 
-地価公示データを使って、地価公示標準地の土地の面積と位置（緯度と経度）が価格に影響するという単純なモデルを考えてみます。これは複数の説明変数によって目的変数を説明しようという重回帰モデルになります。
+地価公示データを使って、地価公示標準地の土地の面積と位置（緯度と経度）が価格に影響するという単純なモデルを考えてみます。これは複数の説明変数によって目的変数を説明しようという重回帰モデルになります。ここでは線形回帰モデルとサポートベクトルマシン (SVM) を用いてモデルを作成し比較します。
 
 $$
 land\_price = \beta_0 + \beta_1 acreage + \beta_2 longitude + \beta_3 latitude + \epsilon
@@ -159,22 +159,64 @@ lp_simple_recipe <-
   prep(training = df_lp_train)
 
 # 特徴量エンジニアリングによるデータ加工の手順は評価セットに対しても行います
+df_lp_train <- 
+  lp_simple_recipe %>% 
+  bake(new_data = df_lp_train)
 df_baked <- 
   lp_simple_recipe %>% 
   bake(new_data = df_lp_test)
 
 df_baked %>% 
   glimpse()
+```
 
+
+
+
+{:.input_area}
+```
 fit_lm <- 
   fit(
     spec_lm,
     mod_formula,
-    data = df_baked)
+    data = df_lp_train)
 
 tidy(fit_lm)
+
+fit_lm %>% 
+  predict(new_data = df_lp_train) %>% 
+  bind_cols(df_lp_train) %>% 
+  reg_perf_metrics(truth = posted_land_price, estimate = .pred)
+
+# modelr::rmse(fit_lm$fit, df_lp_train)
+# glance(fit_lm$fit)
 ```
 
+
+分析セットでのRMSEは0.488、決定係数は0.211となり、まだ適合不足のような結果です。今度は同じ特徴量セットで、SVMを実行してみます。精度はどう変化するでしょうか。
+
+
+
+{:.input_area}
+```
+mod_svm <- 
+  svm_rbf(mode = "regression", cost = 1)
+
+fit_lm <- 
+  fit(
+    mod_svm %>% 
+      set_engine("kernlab"),
+    mod_formula,
+    data = df_lp_train)
+
+fit_lm %>% 
+  predict(new_data = df_lp_train) %>% 
+  bind_cols(df_lp_train) %>% 
+  reg_perf_metrics(truth = posted_land_price, estimate = .pred)
+```
+
+
+線形回帰の結果よりも精度が向上しました。この特徴量セットでは線形回帰モデルよりもSVMの方がパフォーマンスが良さそうということがわかりました。SVMではさらにハイパーパラメータを最適化する必要がありますが、ここではその手順を省略し、このモデルを用いて最後のモデル評価へと進みます。
 
 ### モデル評価
 
@@ -189,7 +231,7 @@ fit_lm %>%
 ```
 
 
-RMSEは0.492とそこまで低い値ではありません。また決定係数も低い状態です。価格に対して土地の面積は関係しないのでしょうか。しかしここがスタート地点です。悪く捉えすぎないようにしましょう。改善すべきポイントはたくさんあるはずです。重要なのはモデルを当てはめるための仮説とデータ変換と、そして実行と性能評価の過程がシームレスに繋がっていることです。次の章以降では、地価公示データをはじめとしたサンプルデータでの特徴量エンジニアリングの方法を探していきます。
+RMSEは0.252、決定係数は0.797と最初のモデルとしては十分な結果が得られたかと思います。価格に対して土地の面積が効くという仮説は間違っていないようです（他の変数についても試す必要がありますが）。しかしここがスタート地点です。この結果を良くも悪くも捉えすぎないようにしましょう。改善すべきポイントはたくさんあるはずです。重要なのはモデルを当てはめるための仮説とデータ変換と、そして実行と性能評価の過程がシームレスに繋がっていることです。次の章以降では、地価公示データをはじめとしたサンプルデータでの特徴量エンジニアリングの方法を探していきます。
 
 ## まとめ
 

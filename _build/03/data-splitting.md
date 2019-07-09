@@ -13,6 +13,14 @@ comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /con
 
 <!-- trainとtestでの分布で違いがないか、可視化しながら確認 --> 
 
+
+
+{:.input_area}
+```R
+source(here::here("R/setup.R"))
+```
+
+
 # データ分割
 
 - 単純な無作為抽出による分割 (hold-out)
@@ -455,3 +463,4 @@ df_landprice_mod %>%
 ## 参考文献
 
 - Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani (2013). An Introduction to Statistical Learning with Applications in R (Springer)
+- Sarah Guido and Andreas Müller (2016). Introduction to Machine Learning with Python A Guide for Data Scientists (O'Reilly) (**翻訳** 中田秀基訳 (2017). Pythonではじめる機械学習

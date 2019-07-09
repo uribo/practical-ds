@@ -21,47 +21,15 @@ source(here::here("R/setup.R"))
 
 # tidyデータ: 人間にも機械にも優しいデータの記述形式
 
-データが手に入ってすぐに、モデルに利用できることはごく稀です。
+データが手に入ってすぐにモデルに利用できることはごく稀で、前処理と呼ばれる作業が必要になります。この作業はデータをモデルに流し込む前段階として必ず必要です。それはデータが欠損値や外れ値といった、扱いに困る値を含んでいることもありますが、多くのデータは入力の形式のまま利用可能ではなく、プログラムが処理しやすい形式へ整形することが求められるためです。
 
-前処理と呼ばれる作業が必要になります。
+前処理の作業には、このようなデータ整形だけでなく、欠損値の削除や外れ値の削除も含まれます。またモデリングのために余分な列を除外したり、スケーリングの処理を施すなども必要です。そのため前処理を通したデータの質が統計モデリングや機械学習の学習効果に影響を及ぼします。ただしこれらはどのようなデータ、問題に対しても有効なものではなく、利用範囲には幅があります。
 
-ここではtidyデータと呼ばれる
-
-形式へのデータ整形方法と一般的な前処理について紹介します。
-
-欠損値の削除や外れ値の削除
-
-データの質が統計モデリングや機械学習の学習効果に影響を及ぼします。
-
-データをモデルに流し込む前段階
-
-同時にいくつかの作業は（？）
-
-モデルの性能を大きく左右する
-
-横長
-
-## データ型
-
-表示した状態では同じように見えてもプログラムの中では異なる値として扱われることがあります。
-
-
-
-
-{:.input_area}
-```R
-x <- "2019-07-10"
-
-class(x)
-class(lubridate::as_date(x))
-```
-
+ここでは前処理を行わない際の問題点について触れ、tidyデータと呼ばれる形式へのデータ整形方法と一般的な前処理について紹介します。
 
 ## 前処理の必要性
 
-前処理の必要性とその範囲は
-
-適用するモデルのタイプによって異なります。
+前処理の必要性とその範囲は適用するモデルのタイプによって異なります。
 
 木ベースのモデル（決定木、ランダムフォレスト）では、特徴量を入力とする複数のステップ関数（閾値を超えた場合に1, そうでなければ0に変換する）の組み合わせによって構成されるため変数のスケールの影響を受けません。しかしロジスティック回帰や部分最小二乗法、リッジ回帰や距離を利用するk-means、主成分分析など、多くのモデルは入力のスケールに敏感で、変数間のスケールを揃える必要があります。
 
@@ -152,39 +120,12 @@ split_hazard <-
 df_train <- training(split_hazard)
 df_test <- testing(split_hazard)
 
-p1 <-
-  ggplot(df_train, aes(max_elevation, mean_slope_aspect)) +
-  geom_point(aes(color = hazard))
-
-# p1 + 
-#   ylim(range(df_train$max_elevation))
-# 
-# plot_grid(p1, p2)
-
 knn_res <- knn(df_train, df_test, df_train$hazard, k = 2, prob = FALSE)
 df_test$predict <- knn_res
 attr(knn_res, "nn.index") %>% as.data.frame() %>% as_tibble() %>% .[21, ]
 
-p2 <-
-  ggplot(df_test,
-       aes(max_elevation, mean_slope_aspect)) +
-  geom_point(aes(color = predict))
 
 # get.knn(df_test %>% select_if(is.numeric), k = 2)["nn.index"] %>% as.data.frame() %>% .[397, ]
-
-
-p3 <- 
-  p2 + 
-  scale_color_manual(values = c("gray", "gray")) +
-  geom_point(data = df_test %>% 
-               slice(c(397, 147, 271)), 
-         aes(max_elevation, mean_slope_aspect),
-      #   color = "transparent",
-         size = 3)
-
-p3 +
-  ylim(range(df_test$max_elevation))
-
 
 rec <- 
   df_train %>% 
@@ -206,6 +147,50 @@ knn(df_train_baked, df_test_baked, df_train_baked$hazard, k = 2) %>%
 ```
 
 
+
+
+{:.input_area}
+```R
+# p1 <-
+#   ggplot(df_train, aes(max_elevation, mean_slope_aspect)) +
+#   geom_point(aes(color = hazard))
+# 
+# # p1 + 
+# #   ylim(range(df_train$max_elevation))
+# # 
+# # plot_grid(p1, p2)
+```
+
+
+
+
+{:.input_area}
+```R
+p2 <-
+  ggplot(df_test,
+       aes(max_elevation, mean_slope_aspect)) +
+  geom_point(aes(color = predict))
+
+p3 <- 
+  p2 + 
+  scale_color_manual(values = c("gray", "gray")) +
+  geom_point(data = df_test %>% 
+               slice(c(397, 147, 271)), 
+         aes(max_elevation, mean_slope_aspect),
+      #   color = "transparent",
+         size = 3)
+
+# わかりにくいけど、スケールを揃えたら距離が離れる点が近隣として選ばれている
+plot_grid(p3 +
+  ylim(range(df_test$max_elevation)) +
+    guides(color = FALSE), NULL,
+  p2 + guides(color = FALSE), 
+  p3 + guides(color = FALSE))
+```
+
+
+![](../images/knn_scaling_trouble-1.png)
+
 <!-- ### 前処理の必要性4: SVM -->
 
 ## スケーリング処理
@@ -221,6 +206,10 @@ PLSなどで恩恵がありますが
 ### Min-Maxスケーリング
 
 特徴量の値を0~1の範囲に収める変換をMin-Maxスケーリングと呼びます。
+
+$$
+\tilde{x} = \frac{x - min(x)}{max(x) - min(x)}
+$$
 
 Min-Maxスケーリングを行う際は、数値の取り得る値があらかじめわかっているものが望ましいです。データとして存在しない値や外れ値が与えられることで、その値に引っ張られて相対的な差がなくなってしまう恐れがあるからです。
 
@@ -270,6 +259,10 @@ plot_grid(p1, p2)
 
 標準化 (standardization)... 平均0、分散（標準偏差）1になる。
 
+$$
+\tilde{x} = \frac{x- mean(x)}{sqrt(var(x))}
+$$
+
 - 複数の変数に対して行うことで比較が可能になる (平均0, 標準偏差1)
 - 範囲スケーリング... 最大値、最小値を利用する
 - 共通の「単位」をもつように扱いたい場合に有効
@@ -313,8 +306,6 @@ df_lp_kanto %>%
 正規化により、取りうる値の範囲が統一されるためです。
 
 データの表現方法を変える
-
-
 
 
 
@@ -375,17 +366,19 @@ plot_grid(p1, p2, ncol = 2)
 <!-- 外れ値、欠損処理は簡単に（あとでそれぞれ解説するため）。外れ値はここだけ？ -->
 
 1. 情報を含まない列の削除
-    - 標準偏差が0の説明変数 (constant cols)
+    - 分散が0の説明変数 (constant cols)
     - 重複した説明変数を一つに
         - 多重共線性
     - 相関係数が1である説明変数の組 (perfectly correlated cols) をユニークに
         - データリーク
 
-データセットに含まれる列のうち、`attribute_change_forest_law` と `attribute_change_parks_law` は論理型の変数でありながら1値しか持たない（標準偏差が0）ものでした。
+データセットに含まれる列のうち、`attribute_change_forest_law` と `attribute_change_parks_law` は論理型の変数でありながら1値しか持たない（分散が0）ものでした。
 
 ### 外れ値
 
 ### 欠損処理
+
+![欠損処理](../03/handling-missing-data)
 
 ### 不要な列の削除
 
@@ -419,7 +412,7 @@ df_lp_kanto %>% skimr::skim_to_list()
 
 `attribute_change_forest_law` と `attribute_change_parks_law` の列は二値データを持つことができる変数ですが、いずれも一つの値しか記録されていません。変数内での分散は0となり、情報を持っていないのと同義です（標準化も適用できません）。そのためこれらの値はモデル構築の前にデータから削除しても問題ないと考えられます。
 
-情報量が
+情報量がゼロ（分散ゼロ）
 
 数値データでは稀ですが、論理値変数やカテゴリ変数に潜んでいる、こうした1種類の値しか取らないデータは除外しましょう。
 
@@ -451,7 +444,6 @@ dim(df_lp_kanto_clean)
 <!-- df_hazard_kyusyu では constantがない-->
 
 このデータの場合、これ以外で単独の値しか持たない変数はありませんでした。
-
 
 どうやら違うようです。
 

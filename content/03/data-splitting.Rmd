@@ -15,6 +15,10 @@ jupyter:
 
 <!-- trainとtestでの分布で違いがないか、可視化しながら確認 --> 
 
+```{r setup, include=FALSE, results="hide"}
+source(here::here("R/setup.R"))
+```
+
 # データ分割
 
 - 単純な無作為抽出による分割 (hold-out)

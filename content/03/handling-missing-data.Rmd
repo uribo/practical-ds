@@ -15,7 +15,7 @@ jupyter:
 
 # 欠損データの処理
 
-```{r setup, eval=TRUE, include=FALSE, results="hide"}
+```{r setup, include=FALSE, eval=TRUE, results="hide"}
 source(here::here("R/setup.R"))
 ```
 
@@ -87,6 +87,8 @@ MCARと似た欠損メカニズムとしてMARがありますが、こちらの�
 
 欠損値の発生パターンを可視化するRパッケージとして、mice、VI、naniar、visdatなどがあります。ここではnaniarとvisdatを利用した例を紹介します。miceについては福島 (2015)や高橋・渡辺 (2017)を参考にしてください。
 
+<!-- core_pkgs.Rに含まれているけど説明のため -->
+
 ```{r load_chapter_depend_pkgs, eval=TRUE}
 library(naniar)
 library(visdat)
@@ -134,26 +136,30 @@ df_lp_kanto %>%
 全体の50%以上が欠損している列が6つ、さらに90%以上の欠損が3列もあります。リストワイズ除去で件数が大幅に減少してしまうのはこれの変数が影響しているようです。`vis_miss()`でデータ全体の欠損パターンを表示して確かめてみましょう。
 このプロットは、データの各行・各列での欠損データと欠損していないデータを並べて表示するので、データ全体の欠損パターンを把握するのに役立ちます。
 
-```{r eval=TRUE}
+```{r lp_missing_pattern, echo=TRUE, eval=FALSE, fig.height=8}
 df_lp_kanto %>% 
   select(-starts_with(".")) %>% 
   vis_miss()
 ```
 
+![](../images/lp_missing_pattern-1.png)
+
 このように直接の数値では情報を把握しきれない場合や複数の変数間でのパターンを把握したい場合には可視化が有効です。欠損データの可視化方法としてもう1つ、可視化の章でも扱ったヒートマップは欠損の状況を把握するのも利用可能です。
 
 
-```{r}
+```{r eval=TRUE}
 df_lp_kanto %>% 
   add_n_miss() %>% 
   select(n_miss_all, everything())
 ```
 
-```{r}
+```{r lp_missing_pattern_upset, echo=TRUE, eval=FALSE}
 df_lp_kanto %>% 
   select(-starts_with(".")) %>% 
   gg_miss_upset()
 ```
+
+![](../images/lp_missing_pattern_upset-1.png)
 
 ```{r}
 p <- 
@@ -164,10 +170,12 @@ p <-
 cowplot::plot_grid(p, p + geom_miss_point())
 ```
 
-```{r}
+```{r lp_missing_pattern_facet, echo=TRUE, eval=FALSE, fig.height=8}
 gg_miss_fct(x = df_lp_kanto, fct = .prefecture) +
   theme(axis.text = element_text(family = "IPAexGothic"))
 ```
+
+![](../images/lp_missing_pattern_facet-1.png)
 
 configuretionの欠損はどの県でも高い割合で起きていますが、fire_areanについては東京都や神奈川県では他県よりも欠損が少ないようです。
 
@@ -175,15 +183,13 @@ configuretionの欠損はどの県でも高い割合で起きていますが、f
 ### 時系列データの欠損補完
 
 ```{r}
-df_hazard_kys200607$hazardDate %>% range()
+df_hazard_kys$hazardDate %>% range()
 
-df_hazard_kys200607 %>% 
-  st_drop_geometry() %>% 
+df_hazard_kys %>% 
   select(hazardDate, precipitation_max_1hour) %>% 
   filter(hazardDate == "2006-07-01")
 
-df_hazard_kys200607 %>% 
-  st_drop_geometry() %>% 
+df_hazard_kys %>% 
   select(hazardDate, precipitation_max_1hour) %>% 
   gg_miss_span(precipitation_max_1hour, 
                span_every = 31)
@@ -196,11 +202,9 @@ df_hazard_kys200607 %>%
 ```{r}
 df_hazard %>% 
   filter(hazardDate == "2006-06-12") %>% 
-  st_drop_geometry() %>% 
   miss_var_span(hazardDate, span_every = 5)
 
 df_hazard %>% 
-  st_drop_geometry() %>% 
   miss_var_span(hazardDate, span_every = 30)
 
 df_beer %>% 
@@ -267,15 +271,12 @@ prep(impute_hazard,
 
 <!-- DMwRを使った knnによる補完 step_knnimpute -->
 
-```{r}
+```{r echo=TRUE, eval=TRUE}
 library(DMwR)
 
 d <- 
-  df_hazard_kys200607 %>% 
+  df_hazard_kys %>% 
   filter(hazardDate == "2006-07-22") %>% 
-  mutate(longitude = sf::st_coordinates(sf::st_centroid(geometry))[, 1],
-         latitude = sf::st_coordinates(sf::st_centroid(geometry))[, 2]) %>% 
-  st_drop_geometry() %>% 
   select(precipitation_max_1hour, longitude, latitude)
 
 d[c(110, 119, 120), ]
@@ -291,31 +292,44 @@ d_comp <-
 d_comp[c(110, 119, 120), ]
 ```
 
-```{r}
+```{r hazard_kys_knn_impute, echo=TRUE, eval=FALSE, comment="8pt"}
 p1 <- 
   ggplot() +
   geom_sf(data = ne_kys, fill = "transparent") +
   geom_sf(data = d %>% 
             st_as_sf(coords = c("longitude", "latitude"), crs = 4326), 
-          aes(color = precipitation_max_1hour)) +
-  scale_color_viridis_c() +
-  theme_void()
+          aes(color = precipitation_max_1hour),
+          show.legend = FALSE,
+          size = 0.8) +
+  scale_color_viridis_c(na.value = "red") +
+  theme_void(base_family = "IPAexGothic") +
+  ggtitle("赤い点は欠損地点") +
+  theme(text = element_text(size = 8))
 
 p2 <- 
   ggplot() +
   geom_sf(data = ne_kys, fill = "transparent") +
   geom_sf(data = d_comp %>% 
             st_as_sf(coords = c("longitude", "latitude"), crs = 4326), 
-          aes(color = precipitation_max_1hour)) +
+          aes(color = precipitation_max_1hour),
+          show.legend = FALSE,
+          size = 0.8) +
   scale_color_viridis_c() +
-  theme_void()
+  theme_void(base_family = "IPAexGothic") +
+  ggtitle("kNNによる補完") +
+  theme(text = element_text(size = 8))
 
 plot_grid(p1, p2)
+```
 
+![](../images/hazard_kys_knn_impute-1.png)
+
+```{r}
 d_comp %>% 
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>% 
   mapview::mapview(zcol = "precipitation_max_1hour")
 ```
+
 
 ### 決定木を使った欠損値補完
 
@@ -326,6 +340,8 @@ d_comp %>%
 - 変数内で大部分の値あるいはすべての値が欠損していることもあります。この場合、該当の変数を除外することも1つの手です。またカテゴリ変数の場合は欠損を「欠損」という一つの水準とするのも選択肢の一つでしょう。
 
 ## 関連項目
+
+- [探索的データ分析](../01/eda)
 
 ## 参考文献
 
