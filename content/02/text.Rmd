@@ -11,6 +11,7 @@ jupyter:
     display_name: R
     language: R
     name: ir
+output: github_document
 ---
 
 ```{r setup, include=FALSE, eval=TRUE, results="hide"}
@@ -119,7 +120,7 @@ df_lp_prep %>%
 ```{r, eval= TRUE}
 x <- na.omit(df_lp_kanto$surrounding_present_usage)[1]
 
-tokenizer
+tokenizers::tokenize_words(x)
 ```
 
 ## Bag-of-Words
@@ -187,7 +188,7 @@ df_lp_kanto %>%
 
 出現頻度の少ない単語も解析の際に障害となる可能性があります。これらは単純に出現頻度を数えてフィルタすることで除外可能です。
 
-```{r}
+```{r, eval=TRUE}
 text_rec %>%
   step_tokenfilter(surrounding_present_usage, min_times = 50) %>% 
   prep() %>% 
@@ -221,17 +222,17 @@ idf(w) = [全文書数N] / [単語wが含まれる文書数]
 $$
 
 ```{r step_tfidf, eval=TRUE}
-df_lp_kanto %>% 
-  recipe(~ surrounding_present_usage + .row_id) %>% 
+df_lp_kanto %>%
+  recipe( ~ surrounding_present_usage + .row_id) %>%
   step_tokenize(surrounding_present_usage) %>%
-step_tfidf(surrounding_present_usage) %>% 
-prep() %>% 
-juice()
+  step_tfidf(surrounding_present_usage) %>%
+  prep() %>%
+  juice()
 ```
 
 ## 文字列のカウント
 
-```{r}
+```{r, eval=TRUE}
 d <- 
   df_lp_kanto %>% 
   sample_n(10) %>% 

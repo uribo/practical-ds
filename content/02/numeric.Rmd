@@ -11,6 +11,7 @@ jupyter:
     display_name: R
     language: R
     name: ir
+output: github_document
 ---
 
 ```{r setup, include=FALSE, results="hide"}
@@ -427,7 +428,7 @@ df %>%
 - 中距離... 800m~2km
 - 遠距離... 2km以上
 
-```{r}
+```{r, eval=TRUE}
 df_lp_kanto$distance_from_station %>% summary()
 
 df_lp_kanto_dist_c <- 
@@ -439,7 +440,9 @@ df_lp_kanto_dist_c <-
     distance_from_station > 2000 ~ "遠距離"
   ) %>% 
     forcats::fct_inorder())
+```
 
+```{r lp_categorize_distance, eval=FALSE, echo=TRUE}
 df_lp_kanto_dist_c %>% 
   group_by(distance_cat) %>% 
   summarise(posted_land_price = mean(posted_land_price)) %>% 
@@ -447,11 +450,13 @@ df_lp_kanto_dist_c %>%
   geom_bar(stat = "identity")
 ```
 
+![](../images/lp_categorize_distance-1.png)
+
 ### 分位数による離散化
 
 - 均等に分割
 
-```{r}
+```{r, eval=TRUE}
 # 5段階の階級を設定
 binned <- 
   discretize(df_lp_kanto$distance_from_station, 
@@ -462,7 +467,7 @@ binned <-
 table(predict(binned, df_lp_kanto$distance_from_station))
 ```
 
-```{r}
+```{r, eval=TRUE}
 df_lp_kanto %>% 
   recipe(~ distance_from_station) %>% 
   step_discretize(distance_from_station,
@@ -470,9 +475,9 @@ df_lp_kanto %>%
   prep() %>% 
   juice()
 
-df_lp_kanto %>% 
-  ggplot(aes(distance_from_station, posted_land_price)) +
-  geom_point()
+# df_lp_kanto %>% 
+#   ggplot(aes(distance_from_station, posted_land_price)) +
+#   geom_point()
 ```
 
 <!-- ## 二値化-->
@@ -491,7 +496,7 @@ df_lp_kanto %>%
 
 ビールの売り上げについて気温と湿度の交互作用を考えてみましょう。これは気温がビールの売り上げに及ぼす影響を湿度が調整すると考えるものです。
 
-```{r}
+```{r lp_interactions, eval=FALSE, echo=TRUE}
 df_lp_kanto %>% 
   group_by(urban_planning_area, gas_facility) %>% 
   summarise(posted_land_price_grp = mean(posted_land_price)) %>% 
@@ -501,7 +506,9 @@ df_lp_kanto %>%
   geom_point()
 ```
 
-```{r}
+![](../images/lp_interactions-1.png)
+
+```{r, eval = TRUE}
 df_beer2018q2 %>% 
   recipe(expense ~ temperature_average +humidity_average_percent) %>% 
   step_interact(terms = ~ temperature_average:humidity_average_percent) %>% 

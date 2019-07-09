@@ -11,6 +11,7 @@ jupyter:
     display_name: R
     language: R
     name: ir
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -42,7 +43,7 @@ df_lp_kanto %>%
 
 `distance_from_staion` の影響が一番強く、`acreage`、`night_population`が続きます。しかし `distance_from_staion` の値が大きすぎて他の変数の効果が小さいように見えます。これは元のスケールの影響を受けているためです。 `distance_from_staion` と `acreage` の1は同じ単位ではありません。偏回帰係数を比較する場合、スケーリングを行っておく必要があります。
 
-```{r}
+```{r, eval=TRUE}
 df_lp_kanto %>% 
   recipe(posted_land_price ~ distance_from_station + acreage + night_population) %>% 
   step_center(all_predictors()) %>% 
@@ -58,7 +59,7 @@ df_lp_kanto %>%
 
 [主成分分析](../03/dimension-reduction)では入力に用いる変数間のスケールが標準化されていることが前提です。それは特徴量空間におけるデータ間を距離を利用するためです。そのため、値の範囲が大きく異なる変数があることでその影響を強く受けます。まずは標準化を行わない場合の結果を見てみましょう。
 
-```{r}
+```{r, eval=TRUE}
 pca_res <- 
   prcomp(~ distance_from_station + acreage + night_population, 
        data = df_lp_kanto,
@@ -72,7 +73,7 @@ summary(pca_res)
 
 次にあらかじめ標準化したデータを元に主成分分析を行った結果を見ます。
 
-```{r}
+```{r, eval=TRUE}
 pca_res <- 
   prcomp(~ distance_from_station + acreage + night_population, 
        data = df_lp_kanto,
@@ -185,7 +186,7 @@ $$
 
 Min-Maxスケーリングを行う際は、数値の取り得る値があらかじめわかっているものが望ましいです。データとして存在しない値や外れ値が与えられることで、その値に引っ張られて相対的な差がなくなってしまう恐れがあるからです。
 
-```{r}
+```{r, eval=TRUE}
 # 地価データの「最寄り駅までの距離」の範囲
 lp_dist <- df_lp_kanto$distance_from_station
 range(lp_dist)
@@ -200,7 +201,7 @@ range(lp_dist_minmax)
 
 全体を考慮
 
-```{r}
+```{r, eval=FALSE, echo=TRUE}
 p1 <- 
   ggplot(df_lp_kanto, aes(x = 0, y = distance_from_station)) +
   geom_violin(color = ds_col(1))
@@ -237,7 +238,7 @@ $$
 
 <!-- あとで独立させる -->
 
-```{r}
+```{r, eval=FALSE, echo=TRUE}
 # スケーリングでは分布は変わらない
 range(df_lp_kanto$posted_land_price)
 p_base <- 
@@ -267,7 +268,7 @@ df_lp_kanto %>%
 
 データの表現方法を変える
 
-```{r}
+```{r, eval=TRUE}
 # 地価データにおける駅からの距離
 # 平均と分散
 df_lp_kanto %>% 
@@ -282,7 +283,7 @@ mean(lp_dist_scaled) # 限りなく0に近くなる
 sd(lp_dist_scaled) # 分散は1
 ```
 
-```{r}
+```{r, eval=TRUE}
 diff(range(lp_dist))
 median(lp_dist)
 
@@ -297,7 +298,7 @@ diff(range(c(scale(lp_dist))))
 
 これらの手法は、対数変換と異なりデータの分布には影響しないことが特徴です。
 
-```{r}
+```{r scale_histogram_comared, eval=FALSE, echo=TRUE}
 p1 <- 
   ggplot(df_lp_kanto, 
              aes(distance_from_station)) +
@@ -310,6 +311,8 @@ p2 <-
 
 plot_grid(p1, p2, ncol = 2)
 ```
+
+![](../images/scale_histogram_comared-1.png)
 
 ## データ浄化
 
@@ -329,7 +332,7 @@ plot_grid(p1, p2, ncol = 2)
 
 ### 欠損処理
 
-![欠損処理](../03/handling-missing-data)
+[欠損処理](../03/handling-missing-data)
 
 ### 不要な列の削除
 
@@ -353,7 +356,7 @@ plot_grid(p1, p2, ncol = 2)
 - データセット全体
     - 完全に欠損する行・列
 
-```{r}
+```{r, eval=TRUE}
 df_lp_kanto %>% skimr::skim_to_list()
 ```
 
@@ -364,11 +367,12 @@ df_lp_kanto %>% skimr::skim_to_list()
 数値データでは稀ですが、論理値変数やカテゴリ変数に潜んでいる、こうした1種類の値しか取らないデータは除外しましょう。
 
 
-```{r}
+```{r, eval=TRUE}
+# 分散ゼロ
 scale(c(0, 0, 0), scale = TRUE)
 ```
 
-```{r}
+```{r, eval=TRUE}
 df_lp_kanto_clean <- 
   df_lp_kanto %>% 
   verify(ncol(.) == 45) %>% 
@@ -386,7 +390,7 @@ dim(df_lp_kanto_clean)
 
 どうやら違うようです。
 
-```{r}
+```{r, eval=TRUE}
 df_lp_kanto %>% 
   distinct(attribute_change_urban_planning_area, 
            attribute_change_use_district)
@@ -396,7 +400,7 @@ df_lp_kanto %>%
 
 変数の数は減りますが、重要な変数を削除してしまう恐れがあります。この作業は慎重に
 
-```{r}
+```{r, eval=TRUE}
 dim(df_lp_kanto_clean)
 
 nzv_filter <- 
@@ -437,7 +441,17 @@ df_lp_kanto_clean <- filtered_te
 
 いずれかの変数だけを利用するようにしましょう。
 
-```{r}
+```{r, eval=TRUE}
+library(GGally) 
+df_lp_kanto_clean %>%
+  select(-starts_with(".")) %>%
+  select_if(is.numeric) %>% 
+  corrr::correlate()
+```
+
+```{r lp_correlation_ggally, eval=FALSE, echo=TRUE}
+library(GGally)
+
 df_lp_kanto_clean %>% 
   select(-starts_with(".")) %>% 
   select_if(is.numeric) %>% 
@@ -448,16 +462,12 @@ df_lp_kanto_clean %>%
   select(-starts_with(".")) %>% 
   select_if(is.numeric) %>% 
   ggcorr(label = TRUE, label_round = 2)
-
-df_hazard_kys %>% 
-  select(-block_no, -longitude, -latitude) %>% 
-  select_if(is.numeric) %>% 
-  ggcorr(label = TRUE, label_round = 2)
 ```
 
-```{r}
-# df_lp_kanto では不適切
+![](../images/lp_correlation_ggally-1.png)
 
+```{r, eval=TRUE}
+# df_lp_kanto では不適切
 df_lp_kanto_clean %>% 
   recipe(~ .) %>% 
   step_corr(all_numeric(), -starts_with("."), threshold = 0.9) %>% 

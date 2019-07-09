@@ -11,6 +11,7 @@ jupyter:
     display_name: R
     language: R
     name: ir
+output: github_document
 ---
 
 ```{r setup, include=FALSE, results="hide"}

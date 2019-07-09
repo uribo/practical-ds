@@ -11,6 +11,7 @@ jupyter:
     display_name: R
     language: R
     name: ir
+output: github_document
 ---
 
 ```{r setup, include=FALSE, eval=TRUE, results="hide"}
@@ -86,7 +87,7 @@ glimpse(df_baked_split_date)
 
 日付を記録するdate列の要素が分解され、新たな特徴量として追加されました。それでは曜日のダミーコーディングを実行します。
 
-```{r}
+```{r, eval=TRUE}
 df_baked_split_date %>% 
   recipe(expense ~ .) %>% 
   step_dummy(date_dow) %>% 
@@ -109,16 +110,7 @@ df_beer_prep <-
 df_beer_prep
 ```
 
-```{r}
-df_baked_split_date %>% 
-  recipe(expense ~ .) %>% 
-  step_dummy(date_dow, one_hot = TRUE) %>% 
-  prep(training = df_baked_split_date) %>% 
-  bake(new_data = df_baked_split_date) %>% 
-  select(starts_with("date_dow"), everything())
-```
-
-```{r}
+```{r, eval=TRUE}
 # 日本の祝日判定に次の項目が利用可能
 stringr::str_subset(timeDate::listHolidays(), "^JP")
 ```
@@ -132,7 +124,7 @@ stringr::str_subset(timeDate::listHolidays(), "^JP")
 
 今度は分解した曜日の情報をもとに、ビールの売り上げは「翌日に仕事が控えている曜日よりも休日の方が増えそうだ」という直感を調べてみましょう。
 
-```{r}
+```{r, eval=TRUE}
 df_baked_split_date <- 
   df_baked_split_date %>% 
   mutate(is_weekend = if_else(date_dow %in% c("土", "日"),
@@ -140,7 +132,7 @@ df_baked_split_date <-
                               FALSE))
 ```
 
-```{r}
+```{r beer_holiday_effect_comperad, eval=FALSE, echo=TRUE}
 df_baked_split_date %>% 
   ggplot(aes(date_dow, expense)) +
   geom_boxplot(aes(color = is_weekend), outlier.shape = NA) +
@@ -149,6 +141,8 @@ df_baked_split_date %>%
   guides(col = guide_legend(reverse = TRUE)) +
   facet_wrap(~ date_month)
 ```
+
+![](../images/beer_holiday_effect_comperad-1.png)
 
 目論見通り、どの月でも平日よりも休日の方が支出が増えているようです。また、8月は週ごとに変動が大きく、9月では平日との差がほとんどないということもグラフから読み取れます。新たな特徴量の作成と関係の図示により、経験的な推論を確認するだけでなく、モデルに対する新たな洞察も得ることができました。
 
@@ -161,7 +155,7 @@ df_baked_split_date %>%
 
 が祝日となります。また、この期間で考慮すべき日付として「お盆」の期間があります。多くの企業でこの期間は夏休みとなっていると考えられます。8月13日から15日のデータも他の日付と区別できるようにしておきます。
 
-```{r}
+```{r, eval=TRUE}
 df_beer_prep <- 
   df_beer_prep %>% 
   recipe(expense ~ .) %>% 
@@ -179,7 +173,7 @@ df_beer_prep
 
 平日であれば1を与える列を追加します。
 
-```{r}
+```{r, eval=TRUE}
 df_beer_prep <- 
   df_beer_prep %>% 
   mutate(is_weekday = if_else(date_dow %in% c("土", "日"),
@@ -195,7 +189,7 @@ df_beer_prep <-
 df_beer_prep
 ```
 
-```{r}
+```{r, eval=TRUE}
 df_beer_baked <- 
   df_beer_prep %>% 
   recipe(expense ~ .) %>% 
@@ -210,7 +204,7 @@ df_beer_baked <-
 
 移動平均は対象時点のデータとその前後の値を足して平均を取ることで計算されます。前後の値をいくつ取るか、これは窓枠の数 (ウィンドウ window size)と呼ばれ、あらかじめ決める必要があります。ウィンドウの数は重要で、大きすぎると平滑化により非線形の関係が消えてしまう恐れがあります。例えばウィンドウを3とした時は自身と前後の一つずつの値から値が求まります。この場合では同じ値が使われることは少ないですが、大きなウィンドウを設定すると別々のデータで同じデータが使われることになるため、個別のデータがより平均に近づきます。
 
-```{r}
+```{r beer_ts_window, eval=FALSE, echo=TRUE}
 p1 <- df_beer2018q2 %>%
   ggplot(aes(date, expense)) +
   geom_point(color = ds_col(1))
@@ -225,6 +219,8 @@ p2 <- df_beer2018q2 %>%
 
 plot_grid(p1, p2, ncol = 1)
 ```
+
+![](../images/beer_ts_window-1.png)
 
 短期間の中央値を利用することも（異常値がある場合）
 
@@ -246,7 +242,7 @@ plot_grid(p1, p2, ncol = 1)
 
 sin, cos変換
 
-```{r}
+```{r step_hyperbolic, eval=FALSE, echo=TRUE}
 set.seed(313)
 examples <- matrix(rnorm(40), ncol = 2)
 examples <- as.data.frame(examples)
@@ -262,16 +258,16 @@ cos_obj <- prep(cos_trans, training = examples)
 
 transformed_te <- bake(cos_obj, examples)
 plot(examples$V1, transformed_te$V1)
-
-plot(sin(1:12), cos(1:12))
 ```
+
+![](../images/step_hyperbolic-1.png)
 
 ## 特定の時点からの経過
 
 期間内のある瞬間の情報
 特定のイベントからの経過時間
 
-```{r}
+```{r, eval=TRUE}
 n <- 10
 start <- as.Date('1999/01/01')
 end <- as.Date('1999/01/10')

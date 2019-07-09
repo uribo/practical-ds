@@ -11,6 +11,7 @@ jupyter:
     display_name: R
     language: R
     name: ir
+output: github_document
 ---
 
 ```{r setup, include=FALSE, eval=TRUE, results="hide"}
@@ -114,7 +115,7 @@ source(here::here("R/prepared_landprice.R"))
 
 土砂災害・雪崩メッシュデータに含まれる メッシュコード (`meshCode`) は桁数が7です。つまり5kmの範囲をカバーするメッシュコードだということがわかります。
 
-```{r}
+```{r, eval=TRUE}
 df_hazard %>% 
   select(meshCode)
 ```
@@ -190,13 +191,9 @@ ggplot() +
 
 乗車人数を加えてみることにします。
 
-```{r}
-df_lp_kanto
-```
+
 
 ### 参照座標系が異なるために生じる問題
-
-
 
 ## まとめ
 

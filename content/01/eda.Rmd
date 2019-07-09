@@ -11,6 +11,7 @@ jupyter:
     display_name: R
     language: R
     name: ir
+output: github_document
 ---
 
 ```{r include=FALSE, results="hide"}
@@ -83,7 +84,7 @@ glimpse(df_lp_kanto)
 - `configuration`や`fire_area`は欠損を多く含んでいることがわかります。`building_structure`にもわずかですが欠損データがあります
 
 
-```{r}
+```{r, eval=TRUE}
 # 同一のデータで重複があるもの
 df_lp_kanto %>% 
   tidyr::separate_rows("current_use", sep = ",") %>% 
@@ -98,13 +99,13 @@ df_lp_kanto %>%
 
 ## 要約統計量の算出
 
-```{r}
+```{r, eval=TRUE}
 summary(df_lp_kanto)
 ```
 
 Rの組み込み関数として用意されている `summary()` を利用して、データフレームに含まれる列の要約統計量を得ることができます。
 
-```{r}
+```{r, eval=TRUE}
 # 論理値型で標準偏差0の列を特定 constant cols
 df_lp_kanto %>% 
   select(-starts_with(".")) %>% 
@@ -117,7 +118,7 @@ df_lp_kanto %>%
 
 ここでは `skimr` で行う例を示します。
 
-```{r}
+```{r, eval=TRUE}
 # skimr::skim(df_lp) # Rコンソールでの実行は skim() で構いません
 df_lp_kanto %>% 
   select(-starts_with(".")) %>% 
@@ -210,7 +211,7 @@ purrr::map(
 
 ### 全体
 
-```{r}
+```{r, eval=TRUE}
 vis_dat(df_lp_kanto)
 ```
 
@@ -269,19 +270,23 @@ df_lp_kanto %>%
 
 #### 散布図
 
-```{r}
+```{r lp_scatter_distance_from_station_posted_land_price, eval=FALSE, echo=TRUE}
 df_lp_kanto %>% 
   ggplot(aes(distance_from_station, posted_land_price)) +
   geom_point()
 ```
 
-```{r}
+![](../images/lp_scatter_distance_from_station_posted_land_price-1.png)
+
+```{r lp_scatter_distance_from_station_posted_land_price_logscale, eval=FALSE, echo=TRUE}
 df_lp_kanto %>% 
   ggplot(aes(distance_from_station, acreage)) +
   geom_point() +
   scale_x_log10() +
   scale_y_log10()
 ```
+
+![](../images/lp_scatter_distance_from_station_posted_land_price_logscale-1.png)
 
 ## 特殊なデータの視覚化
 
@@ -344,7 +349,7 @@ df_is_num %>%
 
 #### 相関行列
 
-```{r}
+```{r, eval=TRUE}
 df_is_num %>% 
   corrr::correlate()
 ```
@@ -356,7 +361,7 @@ df_is_num %>%
 
 ![](../images/lp_correlation-1.png)
 
-```{r}
+```{r, eval=FALSE}
 df_is_log %>% 
   mutate_all(as.numeric) %>% 
   vis_cor()
