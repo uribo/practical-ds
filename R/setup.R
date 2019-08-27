@@ -10,9 +10,6 @@ theme_set(theme_light(base_size = 8,
                                                    "IPAGothic")))
 plan_datasetup <- 
   drake::drake_plan(
-    # df_lp = 
-    #   read_csv(here::here("data-raw/landprice.csv"),
-    #                   col_types = c("icccicddcclllldiicdcccclddclllllllllllldd")),
   df_lp_kanto = 
     read_csv(here::here("data-raw/landprice_kanto.csv"),
                     col_types = 

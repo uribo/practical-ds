@@ -1,4 +1,4 @@
-FROM rocker/geospatial:3.6.0@sha256:2e57034b1b855a68e9089372d8e0b46d16eec925f80fdad246ea1e646f12857d
+FROM rocker/geospatial:3.6.0@sha256:c5e2ed4aaf625035d90c19983e198cb624f5535494c8b65f8b90b6b71a8a140d
 
 RUN set -x && \
   apt-get update && \
@@ -38,6 +38,7 @@ RUN set -x && \
     drake \
     embed \
     ensurer \
+    fst \
     GGally \
     here \ 
     janitor \
@@ -57,12 +58,14 @@ RUN set -x && \
     usethis \
     visdat && \
   installGithub.r \
-    "r-lib/rlang" \
-    "ropenscilabs/rnaturalearthhires" \
-    "tidyverse/dtplyr" \
-    "tidyverse/tidyr" \
-    "uribo/jpmesh" \
-    "uribo/textlintr" && \
+    r-lib/lifecycle \
+    r-lib/vctrs@v0.2.0 \
+    r-lib/rlang \
+    ropenscilabs/rnaturalearthhires \
+    tidyverse/dtplyr \
+    tidyverse/tidyr \
+    uribo/jpmesh \
+    uribo/textlintr && \
   Rscript -e \
     'install.packages("RMeCab", repos = "http://rmecab.jp/R")' && \
   Rscript -e \
