@@ -1,6 +1,6 @@
 #################################
 # 土砂災害・雪崩メッシュデータ
-# Source: 国土交通省 国土数値情報 (A05)
+# Source: 国土交通省 国土数値情報 (A30a05)
 # http://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A30a5.html
 # prefectureName
 # cityName
@@ -18,7 +18,8 @@ library(sf)
 library(assertr)
 library(ensurer)
 library(ggplot2)
-source("https://gist.githubusercontent.com/uribo/5c67ef24dcaf17402175b0d474cd8cb2/raw/0136636eab1ac905e019189e775c75bd20efb523/ksj_parse_a30a5.R")
+usethis::use_git_ignore("data-raw/A23/")
+usethis::use_git_ignore("data-raw/G04a/")
 
 # 1. ksjからのデータ取得 ----------------------------------------------------------
 plan_hazard_mesh <- drake::drake_plan(
@@ -50,53 +51,45 @@ plan_hazard_mesh <- drake::drake_plan(
     #   ))
     },
     df_hazard =
-      fs::dir_ls(here::here("data-raw/A30a5"),
-                 recurse = TRUE,
-                 regexp = ".shp") %>%
-      ensure(length(.) == 106L) %>% 
-      purrr::map(
-        ksj_parse_a30a5
-      ) %>%
-      purrr::reduce(rbind) %>% 
-      verify(dim(.) == c(4315, 11)) %>% 
-      st_transform(crs = 4326) %>% 
-      st_drop_geometry() %>%
-      tidyr::extract(hazardType,
-                     into = c("hazardType_", "hazardType_sub"), regex = "(.+)(\\(.+\\))",
-                     remove = FALSE) %>%
-      mutate(hazardType_ = if_else(is.na(hazardType_), hazardType, hazardType_)) %>%
-      select(-hazardType) %>%
-      rename(hazardType = hazardType_) %>% 
-    tidyr::extract(hazardType_sub, "hazardType_sub") %>% 
-    mutate(hazardType = stringr::str_remove(hazardType, "\\(.+")),
+      drake::target(
+        fs::dir_ls(here::here("data-raw/A30a5"),
+                   recurse = TRUE,
+                   regexp = ".shp") %>%
+          ensurer::ensure(length(.) == 106L) %>% 
+          purrr::map(
+            kuniumi::read_ksj_a30a5
+          ) %>%
+          dplyr::bind_rows() %>% 
+          assertr::verify(dim(.) == c(4315, 11)) %>% 
+          sf::st_transform(crs = 4326) %>% 
+          sf::st_drop_geometry() %>%
+          tidyr::extract(hazardType,
+                         into = c("hazardType_", "hazardType_sub"), 
+                         regex = "(.+)(\\(.+\\))",
+                         remove = FALSE) %>%
+          dplyr::mutate(hazardType_ = dplyr::if_else(is.na(hazardType_), 
+                                       hazardType, 
+                                       hazardType_)) %>%
+          dplyr::select(-hazardType) %>%
+          dplyr::rename(hazardType = hazardType_) %>% 
+          tidyr::extract(hazardType_sub, "hazardType_sub") %>% 
+          dplyr::mutate(hazardType = stringr::str_remove(hazardType, "\\(.+")),
+        format = "fst"
+      ),
     df_hazard %>% 
-      write_csv(here::here("data-raw/hazard.csv"))#,
-  # df_hazard = 
-  #   read_csv(here::here("data-raw/hazard.csv"),
-  #            col_types = cols(
-  #              prefectureName = col_character(),
-  #              cityName = col_character(),
-  #              hazardDate = col_date(format = ""),
-  #              hazardType = col_character(),
-  #              hazardType_sub = col_character(),
-  #              maxRainfallFor_24h = col_double(),
-  #              maxRainfall_h = col_double(),
-  #              inclination = col_character(),
-  #              outflowSediment_m3 = col_double(),
-  #              landslideLength_m = col_double(),
-  #              meshCode = col_character()
-  #            )) %>% 
-  # jpmesh::meshcode_sf(meshCode)
+      readr::write_csv(here::here("data-raw/hazard.csv"))
 )
 drake::make(plan_hazard_mesh, packages = c("dplyr", "sf", "readr"))
-drake::loadd(plan_hazard_mesh, list = c("df_hazard"))
+drake::loadd(list = c("df_hazard"))
 
 # subset ----------------------------------------------------------------------
 library(lubridate)
 library(jpmesh)
 library(jmastats)
 library(rnaturalearth)
-source("https://gist.githubusercontent.com/uribo/80a94a911b5cc81e5182809f2f8da7a0/raw/12b3269f1fa9cccfdfdda47ea17cd4d1526e353a/jgd2011.R")
+library(rnaturalearthhires)
+library(rgeos)
+# source("https://gist.githubusercontent.com/uribo/80a94a911b5cc81e5182809f2f8da7a0/raw/12b3269f1fa9cccfdfdda47ea17cd4d1526e353a/jgd2011.R")
 parse_jma_obsdl <- function(path, convert = TRUE) {
   name_stations_raw <- 
     names(suppressWarnings(readr::read_csv(path,
@@ -151,30 +144,30 @@ parse_jma_obsdl <- function(path, convert = TRUE) {
     readr::type_convert() %>%
     arrange(station_name, date) %>% 
     mutate(station_name = as.character(station_name))
-  
   if (rlang::is_true(convert))
     d <- d %>% 
     jmastats:::convert_variable_unit()
-  
   d
 }
 
 plan_hazard_subset <- drake::drake_plan(
   df_hazard_kyusyu200607 = 
-    df_hazard %>% 
-    filter(!is.na(hazardDate),
-           prefectureName %in% c("鹿児島県", "熊本県", "長崎県", "宮崎県", 
-                                 "大分県", "佐賀県", "福岡県")) %>% 
-    select(hazardDate, meshCode, hazardType) %>% 
-    st_drop_geometry() %>% 
-    distinct(hazardDate, meshCode, .keep_all = TRUE) %>% 
-    tidyr::complete(hazardDate = tidyr::full_seq(hazardDate, 1)) %>% 
-    filter(between(hazardDate, ymd("2006-07-01"), ymd("2006-07-31"))) %>% 
-    filter(!is.na(meshCode)) %>% 
-    transmute(hazardDate,
-              meshCode,
-              hazard = if_else(is.na(hazardType), FALSE, TRUE)) %>% 
-    verify(expr = dim(.) == c(214, 3)),
+    drake::target(
+      df_hazard %>% 
+        filter(!is.na(hazardDate),
+               prefectureName %in% c("鹿児島県", "熊本県", "長崎県", "宮崎県", 
+                                     "大分県", "佐賀県", "福岡県")) %>% 
+        select(hazardDate, meshCode, hazardType) %>% 
+        distinct(hazardDate, meshCode, .keep_all = TRUE) %>% 
+        tidyr::complete(hazardDate = tidyr::full_seq(hazardDate, 1)) %>% 
+        filter(between(hazardDate, ymd("2006-07-01"), ymd("2006-07-31"))) %>% 
+        filter(!is.na(meshCode)) %>% 
+        transmute(hazardDate,
+                  meshCode,
+                  hazard = if_else(is.na(hazardType), FALSE, TRUE)) %>% 
+        verify(expr = dim(.) == c(214, 3)),
+      format = "fst"
+    ),
   ne_kyusyu =
     ne_states(country = "Japan", returnclass = "sf") %>% 
     tibble::new_tibble(nrow = nrow(.), subclass = "sf") %>% 
@@ -189,9 +182,11 @@ plan_hazard_subset <- drake::drake_plan(
     stations %>% 
     filter(pref_code %in% c(seq.int(40, 46))) %>% 
     select(station_name, station_no, station_type, block_no, pref_code) %>% 
-    verify(nrow(.) == 169),
+    verify(nrow(.) == 167),
   df_kyusyu_weather_200607 =
-    fs::dir_ls(here::here("data-raw"), regexp = "jma_200607_pref.+.csv") %>%
+    fs::dir_ls(here::here("data-raw"), 
+               regexp = "jma_200607_pref.+.csv") %>%
+    ensurer::ensure(length(.) == 7L) %>% 
     purrr::map_dfr(
       parse_jma_obsdl, convert = FALSE),
   sf_kyusyu_5km_meshes =
@@ -265,7 +260,7 @@ plan_hazard_subset <- drake::drake_plan(
   )
 drake::make(plan_hazard_subset)
 # drake::loadd(list = plan_hazard_subset$target)
-drake::loadd(plan_hazard_subset, list = c(
+drake::loadd(list = c(
   "station_kys_5kmmesh",
   "df_hazard_kys"))
 
@@ -278,9 +273,10 @@ plan_kyusyu_land_soil <- drake::drake_plan(
                recurse = TRUE,
                regexp = paste0("(",
                                paste0(seq.int(40, 46), collapse = "|"),
-                               ").shp$")) %>% 
+                               ").shp$")) %>%
+    ensurer::ensure(length(.) == 5L) %>% 
     purrr::map(ksj_parse_a23) %>% 
-    purrr::reduce(rbind) %>% 
+    dplyr::bind_rows() %>% 
     select(9) %>% 
     purrr::set_names(c("particularSoilTypeCode", "geometry")) %>% 
     group_by(particularSoilTypeCode) %>% 
@@ -300,8 +296,9 @@ plan_kyusyu_land_soil <- drake::drake_plan(
                                                        collapse = "|"),
                                                  ")-jgd_GML/.+.shp"),
                                  recurse = TRUE) %>% 
+    ensurer::ensure(length(.) == 22L) %>% 
     purrr::map(ksj_parse_g04) %>% 
-    purrr::reduce(rbind) %>% 
+    dplyr::bind_rows() %>% 
     filter(stringr::str_detect(meshcode,
                                paste0("^(",
                                       df_hazard_kys %>% 
@@ -369,12 +366,11 @@ plan_kyusyu_land_soil <- drake::drake_plan(
     mutate(longitude = sf::st_coordinates(st_centroid(geometry))[, 1],
            latitude = sf::st_coordinates(st_centroid(geometry))[, 2]) %>% 
     #verify(dim(.) == c(2214, 244)),
-    verify(dim(.) == c(2214, 28)),
+    verify(dim(.) == c(2214, 28)) %>% 
+    select(names(.)[!names(.) %in% attr(., "sf_column")]),
   df_hazard_kys_lands %>%
     st_drop_geometry() %>%
     write_csv("data-raw/hazard_kyusyu201607.csv")
   )
 drake::make(plan_kyusyu_land_soil)
-# drake::loadd(list = plan_kyusyu_land_soil$target)
-# drake::loadd(list = c("df_hazard_kys_lands", "land_vars"))
-drake::loadd(plan_kyusyu_land_soil, list = c("df_hazard_kys_lands", "land_vars"))
+drake::loadd(list = c("df_hazard_kys_lands", "land_vars"))

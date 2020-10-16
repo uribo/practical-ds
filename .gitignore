@@ -19,3 +19,5 @@ R/data-converter.R
 _site
 _build/*/*.Rmd
 _build/*/*.py
+data-raw/A23/
+data-raw/G04a/
