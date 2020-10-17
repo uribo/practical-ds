@@ -1,7 +1,7 @@
 ################################
 # ビールへの支出データ
 # Source: 家計調査 家計収支編 二人以上の世帯 詳細結果表
-#   日別支出 品目分類による日別支出
+#   日別支出 品目分類による日別支出 (表6-16)
 # Subset: 2018年7~9月, 2015~2018年月平均
 ###############################
 library(dplyr)
@@ -12,61 +12,65 @@ library(drake)
 
 parse_beer_expense <- function(path, year, month) {
   d <-
-    readxl::read_xls(path, sheet = 1, skip = 8, col_types = "text")
-  
-  d <-
-    d %>%
+    readxl::read_xls(path, sheet = 1, skip = 9, col_types = "text")
+  d %>%
     purrr::set_names(d %>% names() %>% stringr::str_remove_all(" ")) %>%
-    janitor::clean_names() %>%
+    janitor::clean_names(ascii = FALSE) %>%
     # slice(-seq.int(3)) %>%
     dplyr::filter(`品目分類` == "ビール") %>%
     assertr::verify(nrow(.) == 1L) %>% 
     dplyr::select(tidyselect::ends_with("日")) %>%
-    tidyr::gather(date, expense) %>%
-    dplyr::mutate(date = stringr::str_replace(date, "x", glue::glue("{year}年{month}月")) %>%
+    tidyr::pivot_longer(cols = tidyselect::everything(),
+                        names_to = "date",
+                        values_to = "expense") %>% 
+    dplyr::mutate(date = stringr::str_replace(date, "x", 
+                                              glue::glue("{year}年{month}月")) %>%
                     lubridate::as_date(),
                   expense = as.numeric(expense))
-  d
 }
 plan_beer_raw <- drake_plan(
-  files = fs::dir_ls(here::here("data-raw"), regexp = "_a616.xls$"),
+  files = 
+    fs::dir_ls(here::here("data-raw"), 
+                     regexp = "_a616.xls$") %>% 
+    ensurer::ensure(length(.) == 48L),
   # 統計表のダウンロード --------------------------------------------------------------
   estats_download = {
     if (rlang::is_false(length(files) == 48L)) {
-      
       library(rvest)
       # https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&cycle=1&toukei=00200561&tstat=000000330001&tclass1=000000330001&tclass2=000000330004&tclass3=000000330005&cycle_facet=tclass1%3Acycle&second2=1&year=20180&month=24101211&result_back=1
       base_url <- "https://www.e-stat.go.jp"
       year_index <- 
-        seq(2, 5) %>% 
+        seq(5-2, (lubridate::year(lubridate::today()) - 2015) + 1) %>% 
         purrr::set_names(seq(2018, 2015))
       x <-
-        glue::glue(base_url, "/stat-search/files?page=1&layout=datalist&toukei=00200561&tstat=000000330001&cycle=1&tclass1=000000330001&tclass2=000000330004&tclass3=000000330005&cycle_facet=tclass1%3Acycle&second2=1") %>% 
+        glue::glue(base_url, 
+                   "/stat-search/files?page=1&layout=datalist&toukei=00200561&tstat=000000330001&cycle=1&tclass1=000000330001&tclass2=000000330004&tclass3=000000330005&cycle_facet=tclass1%3Acycle&second2=1") %>% 
         read_html()
-      
       # year_index を変更して繰り返す
-      x %>% 
-        html_nodes(css = glue::glue('body > div.dialog-off-canvas-main-canvas > div > main > div.row.l-estatRow > section > div.region.region-content > div > div > div.stat-content.fix > section > section > div > div.stat-cycle_sheet > ul:nth-child({year_index}) > li.stat-cycle_item > div > a',
-                                    year_index = year_index[2])) %>% 
-        html_attr("href") %>% 
-        stringr::str_c(base_url, .) %>%
-        purrr::walk2(
-          .y = seq.int(12),
-          .f = ~ read_html(.x) %>% 
-            html_nodes(css = 'body > div.dialog-off-canvas-main-canvas > div > main > div.row.l-estatRow > section > div.region.region-content > div > div > div.stat-content.fix > section > section > div > div.stat-dataset_list > div > article > div > ul > li > div > div > a') %>% 
-            html_attr("href") %>% 
-            .[length(.)] %>% 
-            stringr::str_c(base_url, .) %>% 
-            httr::GET(
-              httr::write_disk(glue::glue("data-raw/{year_index}{stringr::str_pad(month_index, , width = 2, pad = '0')}_a616.xls",
-                                          year_index = names(year_index[2]),
-                                          month_index = .y), 
-                               overwrite = TRUE)))
+      for (i in seq_len(length(year_index))) {
+        x %>% 
+          html_nodes(css = glue::glue('body > div.dialog-off-canvas-main-canvas > div > main > div.row.l-estatRow > section > div.region.region-content > div > div > div.stat-content.fix > section > section > div > div.stat-cycle_sheet > ul:nth-child({year_index}) > li.stat-cycle_item > div > a',
+                                      year_index = year_index[i])) %>% 
+          html_attr("href") %>% 
+          stringr::str_c(base_url, .) %>%
+          purrr::walk2(
+            .y = seq.int(12),
+            .f = ~ read_html(.x) %>% 
+              html_nodes(css = 'body > div.dialog-off-canvas-main-canvas > div > main > div.row.l-estatRow > section > div.region.region-content > div > div > div.stat-content.fix > section > section > div > div.stat-dataset_list > div > article > div > ul > li > div > div > a') %>% 
+              html_attr("href") %>% 
+              .[length(.)] %>% 
+              stringr::str_c(base_url, .) %>% 
+              httr::GET(
+                httr::write_disk(glue::glue("data-raw/{year_index}{stringr::str_pad(month_index, , width = 2, pad = '0')}_a616.xls",
+                                            year_index = names(year_index[i]),
+                                            month_index = .y), 
+                                 overwrite = TRUE)))
+      }
     }
   },
   # parse -------------------------------------------------------------------
   df_beer =
-    fs::dir_ls(here::here("data-raw"), regexp = "_a616.xls$") %>% 
+    files %>% 
     purrr::map_dfr(
       ~ parse_beer_expense(.x, 
                            year = stringr::str_sub(basename(.x), 1, 4), 
@@ -77,8 +81,7 @@ plan_beer_raw <- drake_plan(
     mutate(year = year(date),
            month = month(date)) %>% 
     group_by(year, month) %>% 
-    summarise(expense = mean(expense)) %>% 
-    ungroup() %>% 
+    summarise(expense = mean(expense), .groups = "drop") %>% 
     verify(dim(.) == c(48, 3)),
   df_weather_monthly_avg = 
     df_beer_month_avg %>% 

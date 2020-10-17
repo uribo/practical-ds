@@ -93,13 +93,13 @@ plan_datasetup <-
     assertr::verify(dim(.) == c(92, 8)),
   ne_jpn =
     rnaturalearth::ne_states(country = "Japan", returnclass = "sf") %>% 
-    tibble::new_tibble(nrow = nrow(.), subclass = "sf") %>% 
+    tibble::new_tibble(nrow = nrow(.), class = "sf") %>% 
     select(iso_3166_2, gn_name),
   ne_knt = 
     ne_jpn %>% 
     right_join(jpndistrict::jpnprefs %>% 
-                 filter(region_en == "Kanto") %>% 
-                 select(contains("prefecture")),
+                 dplyr::filter(region_en == "Kanto") %>% 
+                 dplyr::select(contains("prefecture")),
                by = c("gn_name" = "prefecture_en")) %>% 
     select(-gn_name) %>% 
     st_crop(st_as_sfc("POLYGON ((138.3500 34.84700, 138.3500 37.187, 141.0700 37.187, 141.0700 34.84700, 138.3500 34.84700))",
@@ -108,14 +108,12 @@ plan_datasetup <-
     ne_jpn %>% 
     select(gn_name) %>% 
     right_join(jpndistrict::jpnprefs %>% 
-                 filter(major_island_en == "Kyushu") %>% 
-                 select(contains("prefecture")),
+                 dplyr::filter(major_island_en == "Kyushu") %>% 
+                 dplyr::select(contains("prefecture")),
                by = c("gn_name" = "prefecture_en")) %>% 
     select(-gn_name))
 drake::make(plan_datasetup)
-drake::loadd(plan_datasetup,
-             list = c(
-                      "df_lp_kanto", 
+drake::loadd(list = c("df_lp_kanto", 
                       "df_hazard", "sf_hazard",
                       "df_hazard_kys", "sf_hazard_kys",
                       "df_beer", "df_beer2018q2",

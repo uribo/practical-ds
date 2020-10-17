@@ -1,13 +1,29 @@
 ################################
 # 地価データ
-# Source: 国土交通省 国土数値情報 (L01)
-#　http://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L01-v2_5.html
+# Source: 国土交通省 国土数値情報 (L01) 平成30年 (2018)
+#　https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L01-v2_5.html
 # Subset: 関東一都六県 (landprice_kanto.csv)
 # pkgs --------------------------------------------------------------------
 library(dplyr)
 library(sf)
 library(drake)
-source("https://gist.githubusercontent.com/uribo/5c67ef24dcaf17402175b0d474cd8cb2/raw/f22325491942e8e1ebf82ad04fdd1881c468a606/ksj_parse_l01.R") # ksj_parse_l01
+
+set_names_l01 <- function(data, xml_path) {
+  x <-
+    xml2::read_xml(xml_path) %>%
+    xml2::as_list()
+  data %>%
+    purrr::set_names(
+      c(
+        x$Dataset$LandPrice$representedLandCode$RepresentedLandCode %>% names(),
+        paste0("previous_", x$Dataset$LandPrice$previousRepresentedLandCode$RepresentedLandCode %>% names()),
+        names(x$Dataset$LandPrice[3]),
+        names(x$Dataset$LandPrice[5]),
+        paste0("attribute_change_", x$Dataset$LandPrice$attributeChange$AttributeChange %>% names()),
+        names(x$Dataset$LandPrice[7:40]),
+        "geometry"))
+}
+
 plan_land_price_raw <- 
   drake_plan(
     predict_vars = rlang::quo(
@@ -57,17 +73,29 @@ plan_land_price_raw <-
     },
     # 全国
     df_landprice = 
-      ksj_parse_l01(here::here("data-raw/L01-18_00_GML/L01-18.geojson")) %>% 
+      kuniumi::read_ksj_l01(here::here("data-raw/L01-18_00_GML/L01-18.geojson")) %>% 
       assertr::verify(dim(.) == c(25988, 127)) %>% 
       # 56, 92
-      select(-num_range("L01_", seq.int(55, 126), width = 3)) %>% 
+      #select(-num_range("L01_", seq.int(55, 126), width = 3)) %>% 
+      select(1:54) %>% 
+      # select(1, 2, 21, 6, 
+      #        45, 46, 24, 25, 26, 27,
+      #        12,
+      #        28, 29, 30, 43,
+      #        33,
+      #        34, 35, 47, 52,
+      #       31,
+      #       44, 48, 49, 50, 51,
+      #       20,
+      #       32,
+      #       53, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19
+      #        ) %>% 
       # 列名は茨城県のデータから用意する（構造は同じ）
       set_names_l01(xml_path = here::here("data-raw/L01-18_08_GML/L01-18_08.xml")) %>% 
       janitor::clean_names() %>% 
       assertr::verify(ncol(.) == 55L))
 drake::make(plan_land_price_raw)
-drake::loadd(plan_land_price_raw, 
-             list = c("predict_vars", "df_landprice"))
+drake::loadd(list = c("predict_vars", "df_landprice"))
 
 plan_land_price <- 
   drake_plan(
@@ -101,9 +129,7 @@ plan_land_price <-
       ensurer::ensure_that(length(.) == 8)
   )
 drake::make(plan_land_price)
-drake::loadd(plan_land_price,
-             list = c("df_landprice_mod", "incomplete_vars"))
-
+drake::loadd(list = c("df_landprice_mod", "incomplete_vars"))
 
 # 関東一都六県 ------------------------------------------------------------------
 source("https://gist.githubusercontent.com/uribo/40a0e67b9625062e816defabb88f8656/raw/ca7afaee9ed9f68f2e29862230bacff2f5f87e36/subset_kanto_citycode.R")
@@ -111,10 +137,9 @@ plan_lp_subset <-
   drake_plan(
     # 夜間人口 --------------------------------------------------------------------
     # https://www.e-stat.go.jp/stat-search/files?page=1&layout=datalist&toukei=00200521&tstat=000001080615&cycle=0&tclass1=000001101935&tclass2=000001101936&cycle_facet=tclass1%3Acycle
-    
     if (file.exists(here::here("data-raw/001_00.csv")) == FALSE) {
       download.file("https://www.e-stat.go.jp/stat-search/file-download?statInfId=000031586670&fileKind=1",
-                    destfile = here::here("data-raw/001_00.csv"))  
+                    destfile = here::here("data-raw/001_00.csv"))
     },
     df_night_population = 
       readr::read_csv(here::here("data-raw/001_00.csv"), 
@@ -143,4 +168,4 @@ plan_lp_subset <-
     df_lp_kanto %>% 
       readr::write_csv(here::here("data-raw/landprice_kanto.csv")))
 drake::make(plan_lp_subset)
-drake::loadd(plan_lp_subset, list = c("df_lp_kanto"))
+drake::loadd(list = c("df_lp_kanto"))

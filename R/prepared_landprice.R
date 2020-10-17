@@ -55,7 +55,7 @@ plan_cleaning <- drake::drake_plan(
     pull(variable),
   df_lp_kanto_clean = 
     df_lp_kanto_clean2 %>% 
-    select(-remove_vars) %>% 
+    select(-all_of(remove_vars)) %>% 
     verify(dim(.) == c(8476, 24)))
 drake::make(plan_cleaning)
 drake::loadd(list = c("df_lp_kanto_clean"))
@@ -80,7 +80,6 @@ drake::loadd(list = c("df_lp_kanto_prep"))
 
 # spatial feature engineering ----------------------------------------------------------------
 # source("https://gist.githubusercontent.com/uribo/5c67ef24dcaf17402175b0d474cd8cb2/raw/49d7a0072443bf7c397a548c946857b6cbc60c99/ksj_parse_s05.R")
-source("https://gist.githubusercontent.com/uribo/5c67ef24dcaf17402175b0d474cd8cb2/raw/834f4acc07367e0e30772f6ef1eaed354fe287f8/ksj_parse_a16.R")
 source("https://gist.githubusercontent.com/uribo/5c67ef24dcaf17402175b0d474cd8cb2/raw/54e69b230a8f6ce41bba0bd87a927243f63687da/ksj_parse_s12.R")
 
 # 1. dist_to_tokyo... 東京駅からの距離
@@ -115,10 +114,10 @@ plan_land_price_spatial_fe <- drake::drake_plan(
                                ")_GML/.+_DID.shp"),
                recurse = TRUE) %>%
     ensure(length(.) == 7L) %>% 
-    purrr::map(ksj_parse_a16) %>%
-    purrr::reduce(rbind) %>%
-    lwgeom::st_make_valid() %>%
-    st_union(),
+    purrr::map_dfr(kuniumi::read_ksj_a16) %>%
+    sf::st_make_valid() %>%
+    st_union() %>% 
+    sf::st_transform(crs = 4326),
   df_lp_kanto_sp_baked =
     df_lp_kanto_prep %>%
     select(.longitude, .latitude, everything()) %>% 
@@ -129,7 +128,7 @@ plan_land_price_spatial_fe <- drake::drake_plan(
         st_drop_geometry()
     )) %>%
     tidyr::unnest(cols = "station_data") %>% 
-    select(-name_of_nearest_station, -station) %>% 
+    select(-c(name_of_nearest_station, station)) %>% 
     mutate(meshcode = jpmesh::coords_to_mesh(.longitude, .latitude)) %>% 
     st_as_sf(coords = c(".longitude", ".latitude"), crs = 4326) %>%
     mutate(dist_to_tokyo = st_distance(geometry,
@@ -146,5 +145,4 @@ plan_land_price_spatial_fe <- drake::drake_plan(
   df_lp_kanto_sp_baked %>% 
     write_rds(here::here("data/lp_kanto.rds")))
 drake::make(plan_land_price_spatial_fe)
-drake::loadd(plan_land_price_spatial_fe, 
-             list = c("df_lp_kanto_sp_baked"))
+drake::loadd(list = c("df_lp_kanto_sp_baked"))
