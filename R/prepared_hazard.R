@@ -5,15 +5,16 @@
 # library(tidymodels)
 library(mice)
 # library(ggplot2)
+drake::loadd(list = c("df_hazard_kys_lands", "land_vars"))
 plan_landset_imputation <- drake::drake_plan(
   df_landset =
     df_hazard_kys_lands %>%
-    st_drop_geometry() %>% 
-    select(meshCode, land_vars) %>% 
-    distinct(meshCode, .keep_all = TRUE) %>%
-    mutate(meshCode = as.character(meshCode)) %>% 
+    sf::st_drop_geometry() %>% 
+    dplyr::select(meshCode, land_vars) %>% 
+    dplyr::distinct(meshCode, .keep_all = TRUE) %>%
+    dplyr::mutate(meshCode = as.character(meshCode)) %>% 
     janitor::remove_empty("cols") %>% 
-    verify(dim(.) == c(630, 10)),
+    assertr::verify(dim(.) == c(630, 10)),
   landset_imp = mice(df_landset, m = 10, maxit = 5, meth = "pmm", seed = 500),
   landset_completed = mice::complete(landset_imp, 1),
   df_landset_comp =
@@ -23,7 +24,7 @@ plan_landset_imputation <- drake::drake_plan(
                 filter(pct_miss > 0) %>% 
                 pull(variable))) %>% 
     as_tibble())
-drake::make(plan_landset_imputation, packages = c("dplyr", "mice"))
+drake::make(plan_landset_imputation, packages = c("dplyr", "mice", "assertr", "sf"))
 drake::loadd(list = plan_landset_imputation$target)
 
 
@@ -44,6 +45,6 @@ plan_dimension_reduction <- drake::drake_plan(
   pca_estimates = prep(pca_rec, training = df_landset_comp),
   pca_data = bake(pca_estimates, df_landset_comp)
 )
-drake::make(plan_dimension_reduction)
-drake::loadd(plan_dimension_reduction,
-             list = c("pca_data", "land_vars_update"))
+drake::make(plan_dimension_reduction,
+            packages = c("recipes", "ensurer"))
+drake::loadd(list = c("pca_data", "land_vars_update"))

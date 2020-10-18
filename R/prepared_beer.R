@@ -11,7 +11,7 @@ plan_beer_prep <- drake::drake_plan(
     select(-year) %>% 
     select(-expense) %>%
     # 気温、湿度、風速などの気象変数でPCA
-    prcomp(., center = TRUE, scale. =  TRUE) %>% 
+    stats::prcomp(., center = TRUE, scale. =  TRUE) %>% 
     summary(),
   # data split
   split_beer = 
@@ -42,9 +42,9 @@ plan_beer_prep <- drake::drake_plan(
     prep(training = df_beer_train) %>% 
     bake(new_data = df_beer_test)  
 )
-drake::make(plan_beer_prep, seed = 123)
-drake::loadd(plan_beer_prep, 
-             list = c("df_beer_train",
+drake::make(plan_beer_prep, seed = 123,
+            packages = c("dplyr", "recipes", "rsample"))
+drake::loadd(list = c("df_beer_train",
                       "df_beer_test",
                       "df_beer_baked_train", 
                       "df_beer_baked_test", 

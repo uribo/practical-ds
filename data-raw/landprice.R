@@ -3,6 +3,18 @@
 # Source: 国土交通省 国土数値情報 (L01) 平成30年 (2018)
 #　https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L01-v2_5.html
 # Subset: 関東一都六県 (landprice_kanto.csv)
+# 地積: acreage
+# 駅からの距離: distance_from_station
+# 利用現況: current_use (住宅、店舗、事務所、銀行、旅館、給油所、工場、倉庫、農地、山林、医院、空地、作業場、原野、その他、用材、雑木)
+# 用途区分: use_district
+# 建物構造: building_structure
+# SRC：鉄骨・鉄筋コンクリート
+# RC：鉄筋コンクリート
+# S：鉄骨造
+# LS：軽量鉄骨造
+# B：ブロック造
+# W：木造
+# 「建物構造略号」＋「建物の階数」で示す。ただし、建物に地下階層がある場合は、地上階数の後に「F」、地下階数の後に「B」を記述する
 # pkgs --------------------------------------------------------------------
 library(dplyr)
 library(sf)
